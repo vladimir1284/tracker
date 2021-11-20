@@ -17,9 +17,12 @@ void loop()
     Serial.print(gps_controller.lastLat, 6);
     Serial.print(", ");
     Serial.println(gps_controller.lastLon, 6);
+  } else {
+    Serial.println("...");
   }
   delay(2000);
 }
+
 
 static void printFloat(float val, bool valid, int len, int prec)
 {

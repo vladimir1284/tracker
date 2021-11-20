@@ -37,8 +37,7 @@ private:
     float previousLon,
         previousLat;
 
-    // void trunOnSpeed0(),
-    //     trunOffSpeed0();
+     void smartDelay(unsigned long ms);
 };
 
 #endif // GPS_H

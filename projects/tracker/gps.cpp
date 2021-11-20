@@ -23,10 +23,7 @@ void GPS::setup()
 int GPS::run()
 {
     // Feed the GPS object
-    while (ss->available())
-    {
-        gps.encode(ss->read());
-    }
+    smartDelay(READ_GPS_DELAY);
 
     if (gps.hdop.isValid())
     {
@@ -59,4 +56,16 @@ bool GPS::detectNewPosition()
             previousLon);
 
     return (distanceFromPreviousLocation > newPosRadius);
+}
+
+
+//--------------------------------------------------------------------
+void GPS::smartDelay(unsigned long ms)
+{
+  unsigned long start = millis();
+  do 
+  {
+    while (ss->available())
+      gps.encode(ss->read());
+  } while (millis() - start < ms);
 }
