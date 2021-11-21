@@ -1,9 +1,5 @@
 #include "configs.h"
 #include "gps.h"
-#include "sim.h"
-
-SoftwareSerial fonaSS = SoftwareSerial(FONA_TX, FONA_RX);
-SIM sim_controller = SIM(&fonaSS);
 
 SoftwareSerial ss(RXPinGPS, TXPinGPS);
 GPS gps_controller = GPS(&ss);

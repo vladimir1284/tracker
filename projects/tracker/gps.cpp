@@ -55,17 +55,20 @@ bool GPS::detectNewPosition()
             previousLat,
             previousLon);
 
+    if (DEBUG)
+    {
+        Serial.print(distanceFromPreviousLocation);
+    }
     return (distanceFromPreviousLocation > newPosRadius);
 }
-
 
 //--------------------------------------------------------------------
 void GPS::smartDelay(unsigned long ms)
 {
-  unsigned long start = millis();
-  do 
-  {
-    while (ss->available())
-      gps.encode(ss->read());
-  } while (millis() - start < ms);
+    unsigned long start = millis();
+    do
+    {
+        while (ss->available())
+            gps.encode(ss->read());
+    } while (millis() - start < ms);
 }
