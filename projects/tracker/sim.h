@@ -25,6 +25,8 @@ private:
 
     uint8_t readline(char *buff, uint8_t maxbuff, uint16_t timeout);
 
+    int readBattery();
+
     float previousLon,
         previousLat;
 };

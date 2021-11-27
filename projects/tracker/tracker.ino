@@ -1,103 +1,158 @@
-#include "configs.h"
-#include "gps.h"
-#include "sim.h"
+#include <ArduinoJson.h>
+#define MAX_INPUT_LENGTH 200
+#define LBRACE 123
+#define RBRACE 125
 
-SoftwareSerial fonaSS = SoftwareSerial(FONA_TX, FONA_RX);
-SIM sim_controller = SIM(&fonaSS);
+#define DEBUG true
+int len, open;
 
-SoftwareSerial ss(RXPinGPS, TXPinGPS);
-GPS gps_controller = GPS(&ss);
+StaticJsonDocument<96> doc;
+char input[MAX_INPUT_LENGTH];
 
 void setup()
 {
+  len = 0;
+  open = 0;
+
   if (DEBUG)
   {
+    // Initialize serial port
     Serial.begin(115200);
   }
+  // parseJSON();
+}
 
-  gps_controller.setup();
+void parseJSON()
+{
+  // {"status": "ok"}
+  // {"status":"ok","configs":{"Tcheck":15,"MAX_ERRORS":3,"TintB":360,"TsendB":10,"TGPSB":10,"SMART":1,"TGPS":10,"Tint":60,"Tsend":10}}
+
+  DeserializationError error = deserializeJson(doc, input, MAX_INPUT_LENGTH);
+  // DeserializationError error = deserializeJson(doc, Serial);
+
+  if (error)
+  {
+    if (DEBUG)
+    {
+      Serial.print(F("deserializeJson() failed: "));
+      Serial.println(error.c_str());
+      return;
+    }
+  }
+
+  const char *status = doc["status"]; // "ok"
+  if (status != nullptr)
+  {
+    if (DEBUG)
+    {
+      Serial.print("status: ");
+      Serial.println(status);
+    }
+
+    String status_str = String(status);
+    if (status_str.equals("ok"))
+    {
+      JsonObject configs = doc["configs"];
+      if (!configs.isNull())
+      {
+        int configs_Tcheck = configs["Tcheck"];         // 15
+        int configs_MAX_ERRORS = configs["MAX_ERRORS"]; // 3
+        int configs_TintB = configs["TintB"];           // 360
+        int configs_TsendB = configs["TsendB"];         // 10
+        int configs_TGPSB = configs["TGPSB"];           // 10
+        int configs_SMART = configs["SMART"] | -1;      // 1
+        int configs_TGPS = configs["TGPS"];             // 10
+        int configs_Tint = configs["Tint"];             // 60
+        int configs_Tsend = configs["Tsend"];           // 10
+
+        if (configs_Tcheck > 0)
+        {
+          Serial.print("Tcheck: ");
+          Serial.println(configs_Tcheck);
+        }
+
+        if (configs_MAX_ERRORS > 0)
+        {
+          Serial.print("MAX_ERRORS: ");
+          Serial.println(configs_MAX_ERRORS);
+        }
+
+        if (configs_TintB > 0)
+        {
+          Serial.print("TintB: ");
+          Serial.println(configs_TintB);
+        }
+
+        if (configs_TsendB > 0)
+        {
+          Serial.print("TsendB: ");
+          Serial.println(configs_TsendB);
+        }
+
+        if (configs_TGPSB > 0)
+        {
+          Serial.print("TGPSB: ");
+          Serial.println(configs_TGPSB);
+        }
+
+        if (configs_SMART > -1)
+        {
+          Serial.print("SMART: ");
+          Serial.println(configs_SMART);
+        }
+
+        if (configs_TGPS > 0)
+        {
+          Serial.print("TGPS: ");
+          Serial.println(configs_TGPS);
+        }
+
+        if (configs_Tint > 0)
+        {
+          Serial.print("Tint: ");
+          Serial.println(configs_Tint);
+        }
+
+        if (configs_Tsend > 0)
+        {
+          Serial.print("Tsend: ");
+          Serial.println(configs_Tsend);
+        }
+      }
+    }
+  }
 }
 
 void loop()
 {
-  if (gps_controller.run() == VALID_LOCATION)
+  char c;
+  do
   {
-    Serial.print(gps_controller.lastLat, 6);
-    Serial.print(", ");
-    Serial.print(gps_controller.lastLon, 6);
-    Serial.print(", ");
-    gps_controller.detectNewPosition();
-    Serial.println("m");
-  }
-  else
-  {
-    Serial.println("...");
-  }
-  delay(2000);
-}
+    if (Serial.available())
+    {
+      c = Serial.read();
+      input[len++] = c;
+      
+      // Check for nested braces
+      if (c == LBRACE)
+      {
+        open++;
+      }
+      
+      if (c == RBRACE)
+      {
+        open--;
+        if (open == 0)
+        {
+          break; // Complete JSON recieved
+        }
+        
+      }
+      
+    }    
+  } while (len < MAX_INPUT_LENGTH);
 
-static void printFloat(float val, bool valid, int len, int prec)
-{
-  if (!valid)
-  {
-    while (len-- > 1)
-      Serial.print('*');
-    Serial.print(' ');
-  }
-  else
-  {
-    Serial.print(val, prec);
-    int vi = abs((int)val);
-    int flen = prec + (val < 0.0 ? 2 : 1); // . and -
-    flen += vi >= 1000 ? 4 : vi >= 100 ? 3 : vi >= 10 ? 2 : 1;
-    for (int i = flen; i < len; ++i)
-      Serial.print(' ');
-  }
-}
-
-static void printInt(unsigned long val, bool valid, int len)
-{
-  char sz[32] = "*****************";
-  if (valid)
-    sprintf(sz, "%ld", val);
-  sz[len] = 0;
-  for (int i = strlen(sz); i < len; ++i)
-    sz[i] = ' ';
-  if (len > 0)
-    sz[len - 1] = ' ';
-  Serial.print(sz);
-}
-
-static void printDateTime(TinyGPSDate &d, TinyGPSTime &t)
-{
-  if (!d.isValid())
-  {
-    Serial.print(F("********** "));
-  }
-  else
-  {
-    char sz[32];
-    sprintf(sz, "%02d/%02d/%02d ", d.month(), d.day(), d.year());
-    Serial.print(sz);
-  }
-
-  if (!t.isValid())
-  {
-    Serial.print(F("******** "));
-  }
-  else
-  {
-    char sz[32];
-    sprintf(sz, "%02d:%02d:%02d ", t.hour(), t.minute(), t.second());
-    Serial.print(sz);
-  }
-
-  printInt(d.age(), d.isValid(), 5);
-}
-
-static void printStr(const char *str, int len)
-{
-  int slen = strlen(str);
-  for (int i = 0; i < len; ++i)
-    Serial.print(i < slen ? str[i] : ' ');
+  len = 0;
+  // Serial.println(input);
+  parseJSON();
 }

@@ -1,12 +1,12 @@
 #include "sim.h"
 
 // Constructor
-SIM::SIM(SoftwareSerial *softSerial)
-{
-    fonaSerial = softSerial;
+// SIM::SIM(SoftwareSerial *softSerial)
+// {
+//     fonaSerial = softSerial;
 
-    fona = Adafruit_FONA(FONA_RST);
-}
+//     // fona = Adafruit_FONA(FONA_RST);
+// }
 
 //--------------------------------------------------------------------
 void SIM::setup()
