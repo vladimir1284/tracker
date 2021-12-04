@@ -1,7 +1,7 @@
 #include "sim.h"
 
-SoftwareSerial ss(FONA_RX, FONA_TX);
-SIM sim_device = SIM(&ss);
+SoftwareSerial fonaSS = SoftwareSerial(FONA_TX, FONA_RX);
+SIM sim_device = SIM(&fonaSS);
 
 void setup()
 {
@@ -11,7 +11,10 @@ void setup()
     Serial.begin(115200);
   }
 
+  // Initialize SIM
   sim_device.setup();
+
+  
 }
 
 void loop()
