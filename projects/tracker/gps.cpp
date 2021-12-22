@@ -58,6 +58,7 @@ bool GPS::detectNewPosition()
     if (DEBUG)
     {
         Serial.print(distanceFromPreviousLocation);
+        Serial.println("m");
     }
     return (distanceFromPreviousLocation > newPosRadius);
 }

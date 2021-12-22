@@ -1,6 +1,7 @@
 #if !defined(FSM_H)
 #define FSM_H
 
+#include <EEPROM.h>
 #include "configs.h"
 #include "gps.h"
 
@@ -29,13 +30,37 @@ public:
     FSM();
 
     void run(),
-        setup();
+        setup(int pin, GPS *gps),
+        setTcheck(int val),
+        setMAX_ERRORS(int val),
+        setTint(unsigned int val),
+        setTintB(unsigned int val),
+        setTGPS(int val),
+        setTGPSB(int val),
+        setSMART(int val),
+        setTsendB(int val),
+        setTsend(int val);
 
 private:
-    int tGPS; // Time allow for fixing location
+    int pin12V;
 
-    // void trunOnSpeed0(),
-    //     trunOffSpeed0();
+    unsigned long lastInterval,
+        lastCheck,
+        startGPS;
+
+    unsigned int Tcheck, // Time interval for power check (0 - 255) min
+        MAX_ERRORS,      // (0 - 255)
+        Tint,            // Time interval for position updates (0 - 65535) min
+        TintB,           // Time interval for position updates on battery (0 - 65535) min
+        TGPS,            // Time allow for fixing location (0 - 255) min
+        TGPSB,           // Time allow for fixing location on battery (0 - 255) min
+        SMART,           // Smart behaviour on battery (0 - 1)
+        TsendB,          // Time allow for sending data on battery (0 - 255) min
+        Tsend;           // Time allow for sending data (0 - 255) min
+
+    states state;
+
+    GPS *_gps;
 };
 
 #endif // FSM_H
