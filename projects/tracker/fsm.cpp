@@ -16,7 +16,7 @@ void FSM::setup(int pin, GPS *gps)
     pinMode(pin12V, INPUT);
 
     byte key = EEPROM.read(KEY_ADDR); // read the first byte from the EEPROM
-    if (key == EEPROM_KEY || key == (EEPROM_KEY+1))
+    if (key == EEPROM_KEY || key == (EEPROM_KEY + 1))
     {
         // here if the key value read matches the value saved when writing eeprom
         if (DEBUG)
@@ -59,7 +59,8 @@ void FSM::setup(int pin, GPS *gps)
 
         EEPROM.write(KEY_ADDR, EEPROM_KEY); // write the KEY to indicate valid data
     }
-    if (DEBUG){
+    if (DEBUG)
+    {
         Serial.print("Tcheck: ");
         Serial.println(Tcheck);
         Serial.print("MAX_ERRORS: ");
@@ -160,124 +161,95 @@ void FSM::run()
 //--------------------------------------------------------------------
 void FSM::setTcheck(int val)
 {
-    if (val < 0)
+    if (Tcheck != val)
     {
-        val = 0;
+        Tcheck = val;
+        EEPROM.write(Tcheck_ADDR, val); // save the value in eeprom
     }
-    else if (val > 255)
-    {
-        val = 255;
-    }
-    Tcheck = val;
-    EEPROM.write(Tcheck_ADDR, val); // save the value in eeprom
 }
 
 //--------------------------------------------------------------------
 void FSM::setMAX_ERRORS(int val)
 {
-    if (val < 0)
+    if (MAX_ERRORS != val)
     {
-        val = 0;
+        MAX_ERRORS = val;
+        EEPROM.write(MAX_ERRORS_ADDR, val); // save the value in eeprom
     }
-    else if (val > 255)
-    {
-        val = 255;
-    }
-    MAX_ERRORS = val;
-    EEPROM.write(MAX_ERRORS_ADDR, val); // save the value in eeprom
 }
 
 //--------------------------------------------------------------------
 void FSM::setTint(unsigned int val)
 {
-    Tint = val;
-    byte hiByte = highByte(val);
-    byte loByte = lowByte(val);
-    EEPROM.write(Tint_ADDR, hiByte);
-    EEPROM.write(Tint_ADDR + 1, loByte);
+    if (Tint != val)
+    {
+        Tint = val;
+        byte hiByte = highByte(val);
+        byte loByte = lowByte(val);
+        EEPROM.write(Tint_ADDR, hiByte);
+        EEPROM.write(Tint_ADDR + 1, loByte);
+    }
 }
 
 //--------------------------------------------------------------------
 void FSM::setTintB(unsigned int val)
 {
-    TintB = val;
-    byte hiByte = highByte(val);
-    byte loByte = lowByte(val);
-    EEPROM.write(TintB_ADDR, hiByte);
-    EEPROM.write(TintB_ADDR + 1, loByte);
+    if (TintB != val)
+    {
+        TintB = val;
+        byte hiByte = highByte(val);
+        byte loByte = lowByte(val);
+        EEPROM.write(TintB_ADDR, hiByte);
+        EEPROM.write(TintB_ADDR + 1, loByte);
+    }
 }
 
 //--------------------------------------------------------------------
 void FSM::setTGPS(int val)
 {
-    if (val < 0)
+    if (TGPS != val)
     {
-        val = 0;
+        TGPS = val;
+        EEPROM.write(TGPS_ADDR, val); // save the value in eeprom
     }
-    else if (val > 255)
-    {
-        val = 255;
-    }
-    TGPS = val;
-    EEPROM.write(TGPS_ADDR, val); // save the value in eeprom
 }
 
 //--------------------------------------------------------------------
 void FSM::setTGPSB(int val)
 {
-    if (val < 0)
+    if (TGPSB != val)
     {
-        val = 0;
+        TGPSB = val;
+        EEPROM.write(TGPSB_ADDR, val); // save the value in eeprom
     }
-    else if (val > 255)
-    {
-        val = 255;
-    }
-    TGPSB = val;
-    EEPROM.write(TGPSB_ADDR, val); // save the value in eeprom
 }
 
 //--------------------------------------------------------------------
 void FSM::setSMART(int val)
 {
-    if (val < 0)
+    if (SMART != val)
     {
-        val = 0;
+        SMART = val;
+        EEPROM.write(SMART_ADDR, val); // save the value in eeprom
     }
-    else if (val > 255)
-    {
-        val = 255;
-    }
-    SMART = val;
-    EEPROM.write(SMART_ADDR, val); // save the value in eeprom
 }
 
 //--------------------------------------------------------------------
 void FSM::setTsendB(int val)
 {
-    if (val < 0)
+    if (TsendB != val)
     {
-        val = 0;
+        TsendB = val;
+        EEPROM.write(TsendB_ADDR, val); // save the value in eeprom
     }
-    else if (val > 255)
-    {
-        val = 255;
-    }
-    TsendB = val;
-    EEPROM.write(TsendB_ADDR, val); // save the value in eeprom
 }
 
 //--------------------------------------------------------------------
 void FSM::setTsend(int val)
 {
-    if (val < 0)
+    if (Tsend != val)
     {
-        val = 0;
+        Tsend = val;
+        EEPROM.write(Tsend_ADDR, val); // save the value in eeprom
     }
-    else if (val > 255)
-    {
-        val = 255;
-    }
-    Tsend = val;
-    EEPROM.write(Tsend_ADDR, val); // save the value in eeprom
 }

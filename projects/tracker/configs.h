@@ -8,10 +8,15 @@
 
 // --------------- SIM ------------------
 
-#define UPLOAD_URL "http://trailerrental.pythonanywhere.com/towit/tracker_data/c0ntr453n1a/"
-#define ID_URL "http://trailerrental.pythonanywhere.com/towit/tracker_id/c0ntr453n1a/"
+#define BASE_URL "http://trailerrental.pythonanywhere.com/towit"
+#define ID_URL "tracker_id"
+#define UPLOAD_URL "tracker_data"
+#define CONFIGS_URL "tracker_parameters"
+#define PASSWD "c0ntr453n1a"
 #define APN_NAME "nauta"
-#define URL_SIZE 120
+
+#define RETRAYS 3
+#define SIMDELAY 10000 // ms
 
 #define FONA_RX 2
 #define FONA_TX 3
@@ -76,7 +81,7 @@ const int trackerID_ADDR = 12; // the EEPROM address used to store trackerID (2 
 // --------------------------------------
 
 // --------------- Handle Dynamic Configs ------------------
-#define MAX_INPUT_LENGTH 200
+#define MAX_INPUT_LENGTH 128
 
 // Error codes
 #define WRONG_PASS 200

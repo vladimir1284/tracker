@@ -28,17 +28,17 @@ void SIM::setup()
     // Get tracker ID
     byte key = EEPROM.read(KEY_ADDR); // read the first byte from the EEPROM
     if (key == (EEPROM_KEY + 1))
-    // {
-    //     byte hiByte = EEPROM.read(trackerID_ADDR);
-    //     byte lowByte = EEPROM.read(trackerID_ADDR + 1);
-    //     trackerID = word(hiByte, lowByte); // see word function in Recipe 3.15
-    //     if (DEBUG)
-    //     {
-    //         Serial.print(F("Tracker ID:"));
-    //         Serial.println(trackerID);
-    //     }
-    // }
-    // else
+    {
+        byte hiByte = EEPROM.read(trackerID_ADDR);
+        byte lowByte = EEPROM.read(trackerID_ADDR + 1);
+        trackerID = word(hiByte, lowByte); // see word function in Recipe 3.15
+        if (DEBUG)
+        {
+            Serial.print(F("Tracker ID:"));
+            Serial.println(trackerID);
+        }
+    }
+    else
     {
         uint8_t imeiLen = fona.getIMEI(imei);
         if (DEBUG)
@@ -48,44 +48,104 @@ void SIM::setup()
         }
         if (imeiLen > 0)
         {
-            // turn GPRS on
-            if (!fona.enableGPRS(true))
+            // Get ID URL
+            sprintf(input, "%s/%s/%s/%s", BASE_URL, ID_URL, PASSWD, imei);
+            if (!communicate(input))
             {
                 if (DEBUG)
                 {
-                    Serial.println(F("Failed to turn on"));
+                    Serial.println(F("Couldn't get ID from remote server"));
                 }
+                while (1)
+                    ;
             }
-
-            // read website URL
-            sprintf(input, "%s%s", ID_URL, imei);
+        }
+        else
+        {
             if (DEBUG)
             {
-                Serial.println(input);
+                Serial.println(F("Couldn't find IMEI"));
             }
+            while (1)
+                ;
+        }
+    }
+    uploadData(21.33456, 78.93457, true);
+}
 
-            if (!fona.HTTP_GET_start(input, &statuscode, (uint16_t *)&length))
+//--------------------------------------------------------------------
+bool SIM::communicate(char *url)
+{
+    // turn GPRS on
+    for (int i = 0; i < RETRAYS; i++)
+    {
+        if (!fona.enableGPRS(true))
+        {
+            if (DEBUG)
             {
-                if (DEBUG)
-                {
-                    Serial.println("Failed!");
-                }
+                Serial.println(F("Failed to turn on"));
             }
-
-            getSerialData(length);
-
-            // turn GPRS off
-            if (!fona.enableGPRS(false))
+            delay(SIMDELAY);
+        }
+        else
+        {
+            break;
+        }
+    }
+    if (DEBUG)
+    {
+        Serial.println(url);
+    }
+    for (int i = 0; i < RETRAYS; i++)
+    {
+        if (!fona.HTTP_GET_start(url, &statuscode, (uint16_t *)&length))
+        {
+            if (DEBUG)
             {
-                if (DEBUG)
-                {
-                    Serial.println(F("Failed to turn off"));
-                }
+                Serial.println("Failed!");
             }
+            delay(SIMDELAY);
+        }
+        else
+        {
+            break;
         }
     }
 
-    readBattery();
+    bool state = getSerialData(length);
+
+    // turn GPRS off
+    for (int i = 0; i < RETRAYS; i++)
+    {
+        if (!fona.enableGPRS(false))
+        {
+            if (DEBUG)
+            {
+                Serial.println(F("Failed to turn off"));
+            }
+            delay(SIMDELAY);
+        }
+        else
+        {
+            break;
+        }
+    }
+
+    return state;
+}
+
+//--------------------------------------------------------------------
+void SIM::getRemoteConfigs()
+{
+    // Get Parameters URL
+    sprintf(input, "%s/%s/%s/%u", BASE_URL, CONFIGS_URL, PASSWD, trackerID);
+    if (!communicate(input))
+    {
+        if (DEBUG)
+        {
+            Serial.println(F("Couldn't get parameters from remote server"));
+        }
+    }
 }
 
 //--------------------------------------------------------------------
@@ -94,31 +154,48 @@ int SIM::readBattery()
     // read the battery voltage
     uint16_t tmpV;
     bool ok = fona.getBattVoltage(&tmpV);
-    if (ok)
+
+    if (!ok)
     {
-        vbat = tmpV;
-    }
-    if (DEBUG)
-    {
-        if (!ok)
+        if (DEBUG)
         {
             Serial.println(F("Failed to read Batt"));
         }
-        else
+        return 0;
+    }
+    else
+    {
+        if (DEBUG)
         {
             Serial.print(F("VBat = "));
-            Serial.print(vbat);
+            Serial.print(tmpV);
             Serial.println(F(" mV"));
+        }
+        return tmpV;
+    }
+}
+
+
+//--------------------------------------------------------------------
+void SIM::uploadData(float lat, float lon, bool power)
+{
+    long latitude = (long)(100000 * lat);
+    long longitude = (long)(100000 * lon);
+    int vbat = readBattery();
+
+    // Upload data URL
+    sprintf(input, "%s/%s/%s/%u/%ld/%ld/%u/%u/%u/%u", BASE_URL, UPLOAD_URL, PASSWD, trackerID,
+            latitude, longitude, vbat, 1, 0, 0);
+    if (!communicate(input))
+    {
+        if (DEBUG)
+        {
+            Serial.println(F("Couldn't upload data"));
         }
     }
 }
 
-//--------------------------------------------------------------------
-int SIM::run()
-{
-}
-
-void SIM::getSerialData(int length)
+bool SIM::getSerialData(int length)
 {
     char c;
     len = 0;
@@ -134,16 +211,16 @@ void SIM::getSerialData(int length)
         }
     }
     fona.HTTP_GET_end();
-    parseJSON(len);
+
+    return parseResponse(len);
 }
 
-void SIM::parseJSON(int length)
+bool SIM::parseResponse(int length)
 {
     if (length > 0)
     {
-
         if (input[0] >= WRONG_PASS)
-        { // Error from server
+        {
             if (DEBUG)
             {
                 switch (input[0])
@@ -159,9 +236,8 @@ void SIM::parseJSON(int length)
                 default:
                     break;
                 }
-
-                return;
             }
+            return false; // Error from server
         }
         else
         {
@@ -207,25 +283,38 @@ void SIM::parseJSON(int length)
                         updateTrackerID(word(hiByte, loByte));
                         break;
                     default:
-                        break;
+                        return false;
                     }
                 }
+                return true; // Success
+            }
+            else
+            {
+                return true; // Nothing to process
             }
         }
+    }
+    else
+    {
+        return false; // Empty response
     }
 }
 
 void SIM::updateTrackerID(int value)
 {
-    byte hiByte = highByte(value);
-    byte loByte = lowByte(value);
-    // EEPROM.write(trackerID_ADDR, hiByte);
-    // EEPROM.write(trackerID_ADDR + 1, loByte);
-    // EEPROM.write(KEY_ADDR, EEPROM_KEY + 1); // write the Key to indicate valid ID data
-    if (DEBUG)
+    if (trackerID != value)
     {
-        Serial.print("Tracker ID from remote server: ");
-        Serial.println(value);
+        trackerID = value;
+        byte hiByte = highByte(value);
+        byte loByte = lowByte(value);
+        EEPROM.write(trackerID_ADDR, hiByte);
+        EEPROM.write(trackerID_ADDR + 1, loByte);
+        EEPROM.write(KEY_ADDR, EEPROM_KEY + 1); // write the Key to indicate valid ID data
+        if (DEBUG)
+        {
+            Serial.print("Tracker ID from remote server: ");
+            Serial.println(value);
+        }
     }
 }
 

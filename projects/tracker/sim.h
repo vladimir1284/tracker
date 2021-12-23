@@ -12,9 +12,8 @@ class SIM
 public:
     SIM(SoftwareSerial *softSerial, FSM *fsm);
 
-    void setup();
-
-    int run();
+    void setup(),
+    uploadData(float lat, float lon, bool power);
 
 private:
     // Adafruit_FONA fona;
@@ -26,9 +25,12 @@ private:
     // char url[URL_SIZE];
     char imei[16] = {0}; // MUST use a 16 character buffer for IMEI!
     int trackerID = 0;
-    uint16_t vbat; // mV
 
     int readBattery();
+
+    bool getSerialData(int length),
+        communicate(char *url),
+        parseResponse(int length);
 
     float previousLon,
         previousLat;
@@ -45,12 +47,10 @@ private:
         configs_TGPS,
         configs_Tsend;
 
-    // StaticJsonDocument<96> doc;
     char input[MAX_INPUT_LENGTH];
     FSM *_fsm;
 
-    void getSerialData(int length),
-        updateTsend(int value),
+    void updateTsend(int value),
         updateTint(int value),
         updateTGPS(int value),
         updateSMART(int value),
@@ -60,8 +60,7 @@ private:
         updateMAX_ERRORS(int value),
         updateTcheck(int value),
         updateTrackerID(int value),
-        parseJSON(int length);
+        getRemoteConfigs();
 };
-
 
 #endif // SIM_H
