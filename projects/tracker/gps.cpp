@@ -23,6 +23,7 @@ void GPS::setup()
 int GPS::run()
 {
     // Feed the GPS object
+    ss->listen();
     smartDelay(READ_GPS_DELAY);
 
     if (gps.hdop.isValid())
@@ -69,6 +70,7 @@ void GPS::smartDelay(unsigned long ms)
     unsigned long start = millis();
     do
     {
+        wdt_reset(); //Reset the watchdog
         while (ss->available())
             gps.encode(ss->read());
     } while (millis() - start < ms);

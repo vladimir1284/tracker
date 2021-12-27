@@ -13,7 +13,7 @@ public:
     SIM(SoftwareSerial *softSerial, FSM *fsm);
 
     void setup(),
-    uploadData(float lat, float lon, bool power);
+        uploadData(float lat, float lon, bool power);
 
 private:
     // Adafruit_FONA fona;
@@ -27,6 +27,7 @@ private:
     int trackerID = 0;
 
     int readBattery();
+    float getCredit();
 
     bool getSerialData(int length),
         communicate(char *url),

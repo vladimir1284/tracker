@@ -3,7 +3,6 @@
 
 #include <Arduino.h>
 #include <SoftwareSerial.h>
-// #include <ArduinoJson.h>
 #define DEBUG true
 
 // --------------- SIM ------------------
@@ -17,6 +16,9 @@
 
 #define RETRAYS 3
 #define SIMDELAY 10000 // ms
+#define CREDIT_INIT 7
+#define CREDIT_LEN  6
+
 
 #define FONA_RX 2
 #define FONA_TX 3

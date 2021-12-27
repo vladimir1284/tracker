@@ -70,7 +70,7 @@ void SIM::setup()
                 ;
         }
     }
-    uploadData(21.33456, 78.93457, true);
+    readBattery();
 }
 
 //--------------------------------------------------------------------
@@ -149,6 +149,40 @@ void SIM::getRemoteConfigs()
 }
 
 //--------------------------------------------------------------------
+float SIM::getCredit()
+{
+    char value[CREDIT_LEN];
+    uint16_t ussdlen;
+    if (!fona.sendUSSD("*222#", input, MAX_INPUT_LENGTH, &ussdlen))
+    { // pass in buffer and max len!
+        if (DEBUG)
+        {
+            Serial.println(F("Failed get credit"));
+        }
+    }
+    else
+    {
+        for (int i = 0; i < (CREDIT_LEN - 1); i++)
+        {
+            value[i] = input[i + CREDIT_INIT];
+        }
+        float val = String(value).toFloat();
+        if (DEBUG)
+        {
+            Serial.println(F("Sent!"));
+            Serial.print(F("***** USSD Reply"));
+            Serial.print(" (");
+            Serial.print(ussdlen);
+            Serial.println(F(") bytes *****"));
+            Serial.println(input);
+            Serial.println(val);
+            Serial.println(F("*****"));
+        }
+        return val;
+    }
+}
+
+//--------------------------------------------------------------------
 int SIM::readBattery()
 {
     // read the battery voltage
@@ -175,7 +209,6 @@ int SIM::readBattery()
     }
 }
 
-
 //--------------------------------------------------------------------
 void SIM::uploadData(float lat, float lon, bool power)
 {
@@ -183,9 +216,9 @@ void SIM::uploadData(float lat, float lon, bool power)
     long longitude = (long)(100000 * lon);
     int vbat = readBattery();
 
-    // Upload data URL
-    sprintf(input, "%s/%s/%s/%u/%ld/%ld/%u/%u/%u/%u", BASE_URL, UPLOAD_URL, PASSWD, trackerID,
-            latitude, longitude, vbat, 1, 0, 0);
+    // Upload data URL path('tracker_data/<passwd>/<int:tracker_id>/<str:lat>/<str:lon>/<int:battery>/<int:power>/<int:errors>',
+    sprintf(input, "%s/%s/%s/%u/%ld/%ld/%u/%u/%u", BASE_URL, UPLOAD_URL, PASSWD, trackerID,
+            latitude, longitude, vbat, power, 0);
     if (!communicate(input))
     {
         if (DEBUG)
@@ -247,8 +280,8 @@ bool SIM::parseResponse(int length)
                 {
                     byte pos = 3 * i + 1;
                     byte address = input[pos];
-                    byte loByte = lowByte(input[pos + 1]);
-                    byte hiByte = highByte(input[pos + 2]);
+                    byte loByte = input[pos + 1];
+                    byte hiByte = input[pos + 2];
 
                     switch (address)
                     {

@@ -4,6 +4,7 @@
 #include "configs.h"
 #include <TinyGPS++.h>
 #include <SoftwareSerial.h>
+#include <avr/wdt.h>
 
 #define VALID_LOCATION 1
 #define INVALID_LOCATION 0

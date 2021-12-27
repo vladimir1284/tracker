@@ -93,6 +93,11 @@ void FSM::run()
         { // Check energy
             lastCheck = millis();
             state = ENERGY;
+            if (DEBUG)
+            {
+                Serial.print(millis());
+                Serial.println("-> State: Energy");
+            }
         }
         break;
     // ------------------------------------------
@@ -104,16 +109,31 @@ void FSM::run()
                 lastInterval = millis();
                 startGPS = lastInterval;
                 state = READ_GPS;
+                if (DEBUG)
+                {
+                    Serial.print(millis());
+                    Serial.println("-> State: READ_GPS");
+                }
             }
             else
             {
                 // Back to IDLE state
                 state = IDLE;
+                if (DEBUG)
+                {
+                    Serial.print(millis());
+                    Serial.println("-> State: IDLE");
+                }
             }
         }
         else
         { // 12V disconnected
             state = SLEEP;
+            if (DEBUG)
+            {
+                Serial.print(millis());
+                Serial.println("-> State: SLEEP");
+            }
         }
         break;
     // ------------------------------------------
@@ -128,6 +148,8 @@ void FSM::run()
                 Serial.print(_gps->lastLon, 6);
                 Serial.print(", ");
                 _gps->detectNewPosition();
+                Serial.print(millis());
+                Serial.println("-> State: SEND_DATA");
             }
         }
         else
@@ -137,10 +159,20 @@ void FSM::run()
                 if (_gps->pendingData)
                 { // Old data that haven't been sent
                     state = SEND_DATA;
+                    if (DEBUG)
+                    {
+                        Serial.print(millis());
+                        Serial.println("-> State: SEND_DATA (old)");
+                    }
                 }
                 else
                 { // No data to be send
                     state = ERROR;
+                    if (DEBUG)
+                    {
+                        Serial.print(millis());
+                        Serial.println("-> State: ERROR");
+                    }
                 }
             }
             else
