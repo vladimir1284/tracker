@@ -2,17 +2,17 @@
 #define SIM_H
 
 #include "configs.h"
-#include "fsm.h"
 #include <SoftwareSerial.h>
 #include "Adafruit_FONA.h"
+
+class FSM;
 
 class SIM
 {
 
 public:
     SIM(SoftwareSerial *softSerial, FSM *fsm);
-
-    void setup(),
+    bool setup(),
         uploadData(float lat, float lon, bool power);
 
 private:

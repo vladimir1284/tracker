@@ -4,6 +4,7 @@
 #include <EEPROM.h>
 #include "configs.h"
 #include "gps.h"
+#include "sim.h"
 
 enum states
 {
@@ -23,6 +24,8 @@ enum states
     BAT_ERROR
 };
 
+class SIM;
+
 class FSM
 {
 
@@ -30,7 +33,7 @@ public:
     FSM();
 
     void run(),
-        setup(int pin, GPS *gps),
+        setup(int pin, GPS *gps, SIM *sim),
         setTcheck(int val),
         setMAX_ERRORS(int val),
         setTint(unsigned int val),
@@ -42,11 +45,13 @@ public:
         setTsend(int val);
 
 private:
-    int pin12V;
+    int pin12V,
+        gpsErrors,
+        gsmErrors;
 
     unsigned long lastInterval,
         lastCheck,
-        startGPS;
+        stateChange;
 
     unsigned int Tcheck, // Time interval for power check (0 - 255) min
         MAX_ERRORS,      // (0 - 255)
@@ -61,6 +66,7 @@ private:
     states state;
 
     GPS *_gps;
+    SIM *_sim;
 };
 
 #endif // FSM_H

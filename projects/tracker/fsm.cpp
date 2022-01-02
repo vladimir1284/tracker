@@ -1,4 +1,5 @@
 #include "fsm.h"
+#include "sim.h"
 
 // Constructor
 FSM::FSM()
@@ -7,9 +8,13 @@ FSM::FSM()
 }
 
 //--------------------------------------------------------------------
-void FSM::setup(int pin, GPS *gps)
+void FSM::setup(int pin, GPS *gps, SIM *sim)
 {
     _gps = gps;
+    _sim = sim;
+
+    gpsErrors = 0;
+    gsmErrors = 0;
 
     // Pin for 12V check
     pin12V = pin;
@@ -85,11 +90,12 @@ void FSM::setup(int pin, GPS *gps)
 //--------------------------------------------------------------------
 void FSM::run()
 {
+    wdt_reset(); //Reset the watchdog
     switch (state)
     {
     // ------------------------------------------
     case IDLE:
-        if (millis() - lastCheck > Tcheck)
+        if (millis() - lastCheck > ((unsigned long)Tcheck * MIN2MILLIS))
         { // Check energy
             lastCheck = millis();
             state = ENERGY;
@@ -102,12 +108,12 @@ void FSM::run()
         break;
     // ------------------------------------------
     case ENERGY:
-        if (digitalRead(pin12V))
-        { // 12V connected
-            if (millis() - lastInterval > Tint)
+        if (true) //digitalRead(pin12V)) // TODO: read input
+        {         // 12V connected
+            if (millis() - lastInterval > ((unsigned long)Tint * MIN2MILLIS))
             { // Beging location update
                 lastInterval = millis();
-                startGPS = lastInterval;
+                stateChange = lastInterval;
                 state = READ_GPS;
                 if (DEBUG)
                 {
@@ -128,6 +134,7 @@ void FSM::run()
         }
         else
         { // 12V disconnected
+            // TODO: Turn off GPS and GSM
             state = SLEEP;
             if (DEBUG)
             {
@@ -136,10 +143,12 @@ void FSM::run()
             }
         }
         break;
+
     // ------------------------------------------
     case READ_GPS:
         if (_gps->run() == VALID_LOCATION)
         { // GPS data ready
+            stateChange = millis();
             state = SEND_DATA;
             if (DEBUG)
             {
@@ -154,10 +163,13 @@ void FSM::run()
         }
         else
         {
-            if (millis() - startGPS > TGPS)
+            if (millis() - stateChange > ((unsigned long)TGPS * MIN2MILLIS))
             { // No GPS data in the time window allowed
+                gpsErrors++;
+
                 if (_gps->pendingData)
                 { // Old data that haven't been sent
+                    stateChange = millis();
                     state = SEND_DATA;
                     if (DEBUG)
                     {
@@ -175,17 +187,234 @@ void FSM::run()
                     }
                 }
             }
-            else
+        }
+        break;
+
+    // ------------------------------------------
+    case SEND_DATA:
+        if (_sim->uploadData(_gps->lastLat, _gps->lastLon, true))
+        { // Data sent
+            state = IDLE;
+            if (DEBUG)
             {
+                Serial.print(millis());
+                Serial.println("-> State: IDLE");
+            }
+        }
+        else
+        {
+            if (millis() - stateChange > ((unsigned long)Tsend * MIN2MILLIS))
+            { // Data upload not achieved
+                gsmErrors++;
+                state = ERROR;
                 if (DEBUG)
                 {
-                    Serial.println("...");
+                    Serial.print(millis());
+                    Serial.println("-> State: ERROR");
                 }
             }
         }
         break;
 
+    // ------------------------------------------
+    case ERROR:
+        if (gsmErrors > MAX_ERRORS)
+        {
+            gsmErrors = 0;
+            // TODO: restart GSM
+        }
+        if (gpsErrors > MAX_ERRORS)
+        {
+            gpsErrors = 0;
+            // TODO: restart GPS
+        }
+        state = IDLE;
+        if (DEBUG)
+        {
+            Serial.print("GSM errors: ");
+            Serial.println(gsmErrors);
+            Serial.print("GPS errors: ");
+            Serial.println(gpsErrors);
+            Serial.print(millis());
+            Serial.println("-> State: IDLE");
+        }
+        break;
+
+    // ------------------------------------------
+    case SLEEP:
+        enterSleep((unsigned long)Tcheck * MIN2MILLIS));
+        state = BATTERY;
+        if (DEBUG)
+        {
+            Serial.print(millis());
+            Serial.println("-> State: BATTERY");
+        }
+        break;
+
+    // ------------------------------------------
+    case BATTERY:
+        if (digitalRead(pin12V))
+        { // 12V connected
+            // TODO: Turn on GPS and GSM
+            lastInterval = millis();
+            stateChange = lastInterval;
+            state = READ_GPS;
+            if (DEBUG)
+            {
+                Serial.print(millis());
+                Serial.println("-> State: READ_GPS");
+            }
+        }
+        else
+        {
+            if (millis() - lastInterval > ((unsigned long)TintB * MIN2MILLIS))
+            { // Beging location update on battery mode
+                // TODO: Turn on GPS
+                lastInterval = millis();
+                stateChange = lastInterval;
+                state = BAT_GPS;
+                if (DEBUG)
+                {
+                    Serial.print(millis());
+                    Serial.println("-> State: BAT_GPS");
+                }
+            }
+            else
+            {
+                // Back to SLEEP state
+                state = SLEEP;
+                if (DEBUG)
+                {
+                    Serial.print(millis());
+                    Serial.println("-> State: SLEEP");
+                }
+            }
+        }
+        break;
+
+    // ------------------------------------------
+    case BAT_GPS:
+        if (_gps->run() == VALID_LOCATION)
+        { // GPS data ready
+            // TODO: turn off GPS
+            if (!SMART || _gsm->detectNewPosition())
+            {
+                // TODO: turn on GSM
+                stateChange = millis();
+                state = BAT_SEND;
+                if (DEBUG)
+                {
+                    Serial.print(_gps->lastLat, 6);
+                    Serial.print(", ");
+                    Serial.print(_gps->lastLon, 6);
+                    Serial.print(", ");
+                    _gps->detectNewPosition();
+                    Serial.print(millis());
+                    Serial.println("-> State: BAT_SEND");
+                }
+            }
+            else
+            {
+                state = SLEEP;
+                if (DEBUG)
+                {
+                    Serial.print(millis());
+                    Serial.println("-> State: SLEEP");
+                }
+            }
+        }
+        else
+        {
+            if (millis() - stateChange > ((unsigned long)TGPSB * MIN2MILLIS))
+            { // No GPS data in the time window allowed
+                gpsErrors++;
+                // TODO: turn off GPS
+                if (_gps->pendingData)
+                { // Old data that haven't been sent
+                    // TODO: turn on GSM
+                    stateChange = millis();
+                    state = BAT_SEND;
+                    if (DEBUG)
+                    {
+                        Serial.print(millis());
+                        Serial.println("-> State: BAT_SEND (old)");
+                    }
+                }
+                else
+                { // No data to be send
+                    state = BAT_ERROR;
+                    if (DEBUG)
+                    {
+                        Serial.print(millis());
+                        Serial.println("-> State: BAT_ERROR");
+                    }
+                }
+            }
+        }
+        break;
+
+    // ------------------------------------------
+    case BAT_SEND:
+        if (_sim->uploadData(_gps->lastLat, _gps->lastLon, false))
+        { // Data sent
+            // TODO: turn off GSM
+            state = SLEEP;
+            if (DEBUG)
+            {
+                Serial.print(millis());
+                Serial.println("-> State: SLEEP");
+            }
+        }
+        else
+        {
+            if (millis() - stateChange > ((unsigned long)TsendB * MIN2MILLIS))
+            { // Data upload not achieved
+                // TODO: turn off GSM
+                gsmErrors++;
+                state = BAT_ERROR;
+                if (DEBUG)
+                {
+                    Serial.print(millis());
+                    Serial.println("-> State: BAT_ERROR");
+                }
+            }
+        }
+        break;
+
+    // ------------------------------------------
+    case BAT_ERROR:
+        if (gsmErrors > MAX_ERRORS)
+        {
+            gsmErrors = 0;
+            setTsendB(2*TsendB);
+        }
+        if (gpsErrors > MAX_ERRORS)
+        {
+            gpsErrors = 0;
+            setTGPSB(2*TGPSB);
+        }
+        state = SLEEP;
+        if (DEBUG)
+        {
+            Serial.print("GSM errors: ");
+            Serial.println(gsmErrors);
+            Serial.print("GPS errors: ");
+            Serial.println(gpsErrors);
+            Serial.print(millis());
+            Serial.println("-> State: SLEEP");
+        }
+        break;
+
+    // ---------------------------------------------------------
     default:
+        // We shouldn't be here!
+        state = IDLE;
+        if (DEBUG)
+        {
+            Serial.println("Undefined STATE!!!");
+            Serial.print(millis());
+            Serial.println("-> State: IDLE");
+        }
         break;
     }
 }

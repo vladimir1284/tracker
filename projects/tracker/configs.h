@@ -59,6 +59,7 @@
 
 // --------------- FSM ------------------
 
+#define MIN2MILLIS 600// 00 x0.1 for debug
 #define PIN12V A0  // Input pin for checking 12V connection
 
 // --------------------------------------

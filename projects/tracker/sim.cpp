@@ -1,4 +1,5 @@
 #include "sim.h"
+#include "fsm.h"
 
 // Constructor
 SIM::SIM(SoftwareSerial *softSerial, FSM *fsm)
@@ -8,7 +9,7 @@ SIM::SIM(SoftwareSerial *softSerial, FSM *fsm)
 }
 
 //--------------------------------------------------------------------
-void SIM::setup()
+bool SIM::setup()
 {
     fonaSerial->begin(SIMBaud);
 
@@ -18,8 +19,7 @@ void SIM::setup()
         {
             Serial.println(F("Couldn't find FONA"));
         }
-        while (1)
-            ;
+        return false;
     }
 
     // Configure APN
@@ -56,8 +56,7 @@ void SIM::setup()
                 {
                     Serial.println(F("Couldn't get ID from remote server"));
                 }
-                while (1)
-                    ;
+                return false;
             }
         }
         else
@@ -66,11 +65,10 @@ void SIM::setup()
             {
                 Serial.println(F("Couldn't find IMEI"));
             }
-            while (1)
-                ;
+            return false;
         }
     }
-    readBattery();
+    return true;
 }
 
 //--------------------------------------------------------------------
@@ -210,7 +208,7 @@ int SIM::readBattery()
 }
 
 //--------------------------------------------------------------------
-void SIM::uploadData(float lat, float lon, bool power)
+bool SIM::uploadData(float lat, float lon, bool power)
 {
     long latitude = (long)(100000 * lat);
     long longitude = (long)(100000 * lon);
@@ -225,6 +223,11 @@ void SIM::uploadData(float lat, float lon, bool power)
         {
             Serial.println(F("Couldn't upload data"));
         }
+        return false;
+    }
+    else
+    {
+        return true;
     }
 }
 

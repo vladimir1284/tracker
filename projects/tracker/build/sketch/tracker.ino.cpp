@@ -1,3 +1,6 @@
+#include <Arduino.h>
+#line 1 "/home/vladimir/Dicso/Salvas-LAP-ene2017/Documents/personales/Empresa/JA/GPS/custom/projects/tracker/tracker.ino"
+#line 1 "/home/vladimir/Dicso/Salvas-LAP-ene2017/Documents/personales/Empresa/JA/GPS/custom/projects/tracker/tracker.ino"
 #include "configs.h"
 #include "sleep.h"
 #include "sim.h"
@@ -60,3 +63,4 @@ void loop()
   //   }
   // }
 }
+
