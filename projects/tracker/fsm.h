@@ -6,6 +6,8 @@
 #include "gps.h"
 #include "sim.h"
 
+extern void enterSleep(unsigned long delay);
+
 enum states
 {
     // Power connected
@@ -16,13 +18,18 @@ enum states
     UPDATE_CFG,
     ERROR,
     // Battery powered
-    SLEEP,
+    SLEEPING,
     BATTERY,
     BAT_GPS,
     BAT_SEND,
     BAT_CFG,
     BAT_ERROR
 };
+
+extern states currentState;
+extern unsigned long currentLastInterval,
+    millisOffset;
+extern unsigned long getMillis();
 
 class SIM;
 

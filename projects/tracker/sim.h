@@ -2,7 +2,7 @@
 #define SIM_H
 
 #include "configs.h"
-#include <SoftwareSerial.h>
+#include <HardwareSerial.h>
 #include "Adafruit_FONA.h"
 
 class FSM;
@@ -11,14 +11,14 @@ class SIM
 {
 
 public:
-    SIM(SoftwareSerial *softSerial, FSM *fsm);
+    SIM(HardwareSerial *softSerial, FSM *fsm);
     bool setup(),
         uploadData(float lat, float lon, bool power);
 
 private:
     // Adafruit_FONA fona;
     Adafruit_FONA fona = Adafruit_FONA(FONA_RST);
-    SoftwareSerial *fonaSerial;
+    HardwareSerial *fonaSerial;
 
     uint16_t statuscode;
     int16_t length;

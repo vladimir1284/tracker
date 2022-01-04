@@ -2,7 +2,7 @@
 #include "fsm.h"
 
 // Constructor
-SIM::SIM(SoftwareSerial *softSerial, FSM *fsm)
+SIM::SIM(HardwareSerial *softSerial, FSM *fsm)
 {
     fonaSerial = softSerial;
     _fsm = fsm;
@@ -11,7 +11,8 @@ SIM::SIM(SoftwareSerial *softSerial, FSM *fsm)
 //--------------------------------------------------------------------
 bool SIM::setup()
 {
-    fonaSerial->begin(SIMBaud);
+
+    fonaSerial->begin(SIMBaud, SERIAL_8N1, FONA_RX, FONA_TX);
 
     if (!fona.begin(*fonaSerial))
     {
@@ -25,12 +26,18 @@ bool SIM::setup()
     // Configure APN
     fona.setGPRSNetworkSettings(F(APN_NAME), F(""), F(""));
 
+    //Init EEPROM
+    EEPROM.begin(EEPROM_SIZE);
+
     // Get tracker ID
     byte key = EEPROM.read(KEY_ADDR); // read the first byte from the EEPROM
     if (key == (EEPROM_KEY + 1))
     {
         byte hiByte = EEPROM.read(trackerID_ADDR);
         byte lowByte = EEPROM.read(trackerID_ADDR + 1);
+
+        EEPROM.end();
+
         trackerID = word(hiByte, lowByte); // see word function in Recipe 3.15
         if (DEBUG)
         {
@@ -40,6 +47,8 @@ bool SIM::setup()
     }
     else
     {
+        EEPROM.end();
+
         uint8_t imeiLen = fona.getIMEI(imei);
         if (DEBUG)
         {
@@ -340,6 +349,9 @@ void SIM::updateTrackerID(int value)
 {
     if (trackerID != value)
     {
+        //Init EEPROM
+        EEPROM.begin(EEPROM_SIZE);
+
         trackerID = value;
         byte hiByte = highByte(value);
         byte loByte = lowByte(value);
@@ -351,6 +363,8 @@ void SIM::updateTrackerID(int value)
             Serial.print("Tracker ID from remote server: ");
             Serial.println(value);
         }
+
+        EEPROM.end();
     }
 }
 

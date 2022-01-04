@@ -3,17 +3,18 @@
 
 #include "configs.h"
 #include <TinyGPS++.h>
-#include <SoftwareSerial.h>
-#include <avr/wdt.h>
+#include <HardwareSerial.h>
 
 #define VALID_LOCATION 1
 #define INVALID_LOCATION 0
+
+extern unsigned long getMillis();
 
 class GPS
 {
 
 public:
-    GPS(SoftwareSerial *softSerial);
+    GPS(HardwareSerial *softSerial);
 
     void clearPendingData(),
     setup();
@@ -33,7 +34,7 @@ public:
 private:
     // The TinyGPS++ object
     TinyGPSPlus gps;
-    SoftwareSerial *ss;
+    HardwareSerial *ss;
 
     float previousLon,
         previousLat;

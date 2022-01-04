@@ -2,7 +2,6 @@
 #define SETTINGS_H
 
 #include <Arduino.h>
-#include <SoftwareSerial.h>
 #define DEBUG true
 
 // --------------- SIM ------------------
@@ -20,8 +19,8 @@
 #define CREDIT_LEN  6
 
 
-#define FONA_RX 2
-#define FONA_TX 3
+#define FONA_RX 18
+#define FONA_TX 19
 #define FONA_RST 4
 #define SIMBaud 4800
 
@@ -29,8 +28,8 @@
 
 // --------------- GPS ------------------
 
-#define RXPinGPS 6
-#define TXPinGPS 5
+#define RXPinGPS 16
+#define TXPinGPS 17
 #define GPSBaud 9600 // USA 4800 | CU 9600
 
 #define READ_GPS_DELAY 1000 // ms Time for continuosly collecting serial data from GPS module
@@ -59,12 +58,15 @@
 
 // --------------- FSM ------------------
 
+#define uS_TO_S_FACTOR 1000000ULL  /* Conversion factor for micro seconds to seconds */
 #define MIN2MILLIS 600// 00 x0.1 for debug
 #define PIN12V A0  // Input pin for checking 12V connection
 
 // --------------------------------------
 
 // --------------- EEPROM ADDRESSES ------------------
+
+#define EEPROM_SIZE 32
 
 const byte EEPROM_KEY = 0x99; // used to identify if valid data in EEPROM
 

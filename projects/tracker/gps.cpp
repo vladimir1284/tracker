@@ -1,7 +1,7 @@
 #include "gps.h"
 
 // Constructor
-GPS::GPS(SoftwareSerial *softSerial)
+GPS::GPS(HardwareSerial *softSerial)
 {
     ss = softSerial;
     resolution = iHPOS;
@@ -16,14 +16,13 @@ GPS::GPS(SoftwareSerial *softSerial)
 //--------------------------------------------------------------------
 void GPS::setup()
 {
-    ss->begin(GPSBaud);
+    ss->begin(GPSBaud, SERIAL_8N1, RXPinGPS, TXPinGPS);
 }
 
 //--------------------------------------------------------------------
 int GPS::run()
 {
     // Feed the GPS object
-    ss->listen();
     smartDelay(READ_GPS_DELAY);
 
     if (gps.hdop.isValid())
@@ -67,11 +66,11 @@ bool GPS::detectNewPosition()
 //--------------------------------------------------------------------
 void GPS::smartDelay(unsigned long ms)
 {
-    unsigned long start = millis();
+    unsigned long start = getMillis();
     do
     {
-        wdt_reset(); //Reset the watchdog
+        // wdt_reset(); //Reset the watchdog
         while (ss->available())
             gps.encode(ss->read());
-    } while (millis() - start < ms);
+    } while (getMillis() - start < ms);
 }

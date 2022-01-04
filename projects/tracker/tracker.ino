@@ -1,19 +1,34 @@
+#include "time.h"
 #include "configs.h"
-#include "sleep.h"
 #include "sim.h"
 #include "fsm.h"
 #include "gps.h"
+
+RTC_DATA_ATTR states currentState;
+RTC_DATA_ATTR unsigned long currentLastInterval;
+RTC_DATA_ATTR unsigned long millisOffset;
+
 FSM fsm = FSM();
 
-SoftwareSerial fonaSS = SoftwareSerial(FONA_TX, FONA_RX);
+HardwareSerial fonaSS(1);
 SIM sim_device = SIM(&fonaSS, &fsm);
 
-SoftwareSerial ss(RXPinGPS, TXPinGPS);
+HardwareSerial ss(2);
 GPS gps_controller = GPS(&ss);
 
 void setup()
 {
-  watchdogBegin();
+  // watchdogBegin();
+
+  // We only keep RTC values when waking up from deep sleep
+  esp_sleep_wakeup_cause_t wakeup_reason;
+  wakeup_reason = esp_sleep_get_wakeup_cause();
+  if (wakeup_reason != ESP_SLEEP_WAKEUP_TIMER)
+  {
+    currentState = ENERGY;
+    currentLastInterval = 0;
+    millisOffset = 0;
+  }
 
   if (DEBUG)
   {
@@ -43,8 +58,6 @@ void loop()
   //   switch (command)
   //   {
   //   case 's':
-  //     // Get SoftwareSerial listenning
-  //     fonaSS.listen();
   //     sim_device.uploadData(gps_controller.lastLat, gps_controller.lastLon, true);
   //     break;
 
@@ -59,4 +72,9 @@ void loop()
   //     break;
   //   }
   // }
+}
+
+unsigned long getMillis()
+{
+  return millisOffset + millis();
 }
