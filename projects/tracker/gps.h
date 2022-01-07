@@ -9,6 +9,8 @@
 #define INVALID_LOCATION 0
 
 extern unsigned long getMillis();
+extern bool gpsOn;
+extern GPSdataStruct gpsData;
 
 class GPS
 {
@@ -17,19 +19,11 @@ public:
     GPS(HardwareSerial *softSerial);
 
     void clearPendingData(),
-    setup();
+        setup(),
+        turnOn(),
+        turnOff();
 
     int run();
-
-    bool detectNewPosition();
-
-    float lastLon,
-        lastLat;
-
-    bool pendingData; // Data available to be send
-
-    int resolution,   // Maximum HPOS value
-        newPosRadius; // Minimum displacement for considering a new position
 
 private:
     // The TinyGPS++ object
@@ -39,7 +33,9 @@ private:
     float previousLon,
         previousLat;
 
-     void smartDelay(unsigned long ms);
+    void readGPS(unsigned long ms);
+
+    bool detectNewPosition();
 };
 
 #endif // GPS_H

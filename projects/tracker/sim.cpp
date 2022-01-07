@@ -9,6 +9,7 @@ SIM::SIM(HardwareSerial *softSerial, FSM *fsm)
 }
 
 //--------------------------------------------------------------------
+// TODO this function should only setup the serial communication
 bool SIM::setup()
 {
 
@@ -78,6 +79,24 @@ bool SIM::setup()
         }
     }
     return true;
+}
+
+//--------------------------------------------------------------------
+void SIM::turnOn()
+{
+    gpio_hold_dis((gpio_num_t)SIM_PWR);
+    pinMode(SIM_PWR, OUTPUT);
+    digitalWrite(SIM_PWR, HIGH);
+    simOn = true;
+}
+
+//--------------------------------------------------------------------
+void SIM::turnOff()
+{
+    gpio_hold_dis((gpio_num_t)SIM_PWR);
+    pinMode(SIM_PWR, OUTPUT);
+    digitalWrite(SIM_PWR, LOW);
+    simOn = false;
 }
 
 //--------------------------------------------------------------------

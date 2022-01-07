@@ -4,8 +4,6 @@
 // Constructor
 FSM::FSM()
 {
-    state = currentState;
-    lastInterval = currentLastInterval;
 }
 
 //--------------------------------------------------------------------
@@ -14,83 +12,83 @@ void FSM::setup(int pin, GPS *gps, SIM *sim)
     _gps = gps;
     _sim = sim;
 
-    gpsErrors = 0;
-    gsmErrors = 0;
-
     // Pin for 12V check
     pin12V = pin;
     pinMode(pin12V, INPUT);
 
-    //Init EEPROM
-    EEPROM.begin(EEPROM_SIZE);
-
-    byte key = EEPROM.read(KEY_ADDR); // read the first byte from the EEPROM
-    if (key == EEPROM_KEY || key == (EEPROM_KEY + 1))
+    if (Tcheck == 0)
     {
-        // here if the key value read matches the value saved when writing eeprom
+        //Init EEPROM
+        EEPROM.begin(EEPROM_SIZE);
+
+        byte key = EEPROM.read(KEY_ADDR); // read the first byte from the EEPROM
+        if (key == EEPROM_KEY || key == (EEPROM_KEY + 1))
+        {
+            // here if the key value read matches the value saved when writing eeprom
+            if (DEBUG)
+            {
+                Serial.println("Using data from EEPROM");
+            }
+            Tcheck = EEPROM.read(Tcheck_ADDR);
+            MAX_ERRORS = EEPROM.read(MAX_ERRORS_ADDR);
+
+            byte hiByte = EEPROM.read(Tint_ADDR);
+            byte lowByte = EEPROM.read(Tint_ADDR + 1);
+            Tint = word(hiByte, lowByte); // see word function in Recipe 3.15
+
+            hiByte = EEPROM.read(TintB_ADDR);
+            lowByte = EEPROM.read(TintB_ADDR + 1);
+            TintB = word(hiByte, lowByte); // see word function in Recipe 3.15
+
+            TGPS = EEPROM.read(TGPS_ADDR);
+            TGPSB = EEPROM.read(TGPSB_ADDR);
+            SMART = EEPROM.read(SMART_ADDR);
+            Tsend = EEPROM.read(Tsend_ADDR);
+            TsendB = EEPROM.read(TsendB_ADDR);
+        }
+        else
+        {
+            // here if the key is not found, so write the default data
+            if (DEBUG)
+            {
+                Serial.println("Writing default data to EEPROM");
+            }
+            setTcheck(iTcheck);
+            setMAX_ERRORS(iMAX_ERRORS);
+            setTint(iTint);
+            setTintB(iTintB);
+            setTGPS(iTGPS);
+            setTGPSB(iTGPSB);
+            setSMART(iSMART);
+            setTsend(iTsend);
+            setTsendB(iTsendB);
+
+            EEPROM.write(KEY_ADDR, EEPROM_KEY); // write the KEY to indicate valid data
+        }
+
+        EEPROM.end();
+
         if (DEBUG)
         {
-            Serial.println("Using data from EEPROM");
+            Serial.print("Tcheck: ");
+            Serial.println(Tcheck);
+            Serial.print("MAX_ERRORS: ");
+            Serial.println(MAX_ERRORS);
+            Serial.print("Tint: ");
+            Serial.println(Tint);
+            Serial.print("TintB: ");
+            Serial.println(TintB);
+            Serial.print("TGPS: ");
+            Serial.println(TGPS);
+            Serial.print("TGPSB: ");
+            Serial.println(TGPSB);
+            Serial.print("SMART: ");
+            Serial.println(SMART);
+            Serial.print("Tsend: ");
+            Serial.println(Tsend);
+            Serial.print("TsendB: ");
+            Serial.println(TsendB);
         }
-        Tcheck = EEPROM.read(Tcheck_ADDR);
-        MAX_ERRORS = EEPROM.read(MAX_ERRORS_ADDR);
-
-        byte hiByte = EEPROM.read(Tint_ADDR);
-        byte lowByte = EEPROM.read(Tint_ADDR + 1);
-        Tint = word(hiByte, lowByte); // see word function in Recipe 3.15
-
-        hiByte = EEPROM.read(TintB_ADDR);
-        lowByte = EEPROM.read(TintB_ADDR + 1);
-        TintB = word(hiByte, lowByte); // see word function in Recipe 3.15
-
-        TGPS = EEPROM.read(TGPS_ADDR);
-        TGPSB = EEPROM.read(TGPSB_ADDR);
-        SMART = EEPROM.read(SMART_ADDR);
-        Tsend = EEPROM.read(Tsend_ADDR);
-        TsendB = EEPROM.read(TsendB_ADDR);
-    }
-    else
-    {
-        // here if the key is not found, so write the default data
-        if (DEBUG)
-        {
-            Serial.println("Writing default data to EEPROM");
-        }
-        setTcheck(iTcheck);
-        setMAX_ERRORS(iMAX_ERRORS);
-        setTint(iTint);
-        setTintB(iTintB);
-        setTGPS(iTGPS);
-        setTGPSB(iTGPSB);
-        setSMART(iSMART);
-        setTsend(iTsend);
-        setTsendB(iTsendB);
-
-        EEPROM.write(KEY_ADDR, EEPROM_KEY); // write the KEY to indicate valid data
-    }
-
-    EEPROM.end();
-
-    if (DEBUG)
-    {
-        Serial.print("Tcheck: ");
-        Serial.println(Tcheck);
-        Serial.print("MAX_ERRORS: ");
-        Serial.println(MAX_ERRORS);
-        Serial.print("Tint: ");
-        Serial.println(Tint);
-        Serial.print("TintB: ");
-        Serial.println(TintB);
-        Serial.print("TGPS: ");
-        Serial.println(TGPS);
-        Serial.print("TGPSB: ");
-        Serial.println(TGPSB);
-        Serial.print("SMART: ");
-        Serial.println(SMART);
-        Serial.print("Tsend: ");
-        Serial.println(Tsend);
-        Serial.print("TsendB: ");
-        Serial.println(TsendB);
     }
 }
 
@@ -142,6 +140,8 @@ void FSM::run()
         else
         { // 12V disconnected
             // TODO: Turn off GPS and GSM
+            _gps->turnOff();
+            _sim->turnOff();
             state = SLEEPING;
             if (DEBUG)
             {
@@ -159,11 +159,6 @@ void FSM::run()
             state = SEND_DATA;
             if (DEBUG)
             {
-                Serial.print(_gps->lastLat, 6);
-                Serial.print(", ");
-                Serial.print(_gps->lastLon, 6);
-                Serial.print(", ");
-                _gps->detectNewPosition();
                 Serial.print(getMillis());
                 Serial.println("-> State: SEND_DATA");
             }
@@ -174,7 +169,7 @@ void FSM::run()
             { // No GPS data in the time window allowed
                 gpsErrors++;
 
-                if (_gps->pendingData)
+                if (gpsData.pending)
                 { // Old data that haven't been sent
                     stateChange = getMillis();
                     state = SEND_DATA;
@@ -199,7 +194,7 @@ void FSM::run()
 
     // ------------------------------------------
     case SEND_DATA:
-        if (_sim->uploadData(_gps->lastLat, _gps->lastLon, true))
+        if (_sim->uploadData(0, 0, true))
         { // Data sent
             state = IDLE;
             if (DEBUG)
@@ -249,17 +244,9 @@ void FSM::run()
 
     // ------------------------------------------
     case SLEEPING:
-        esp_sleep_enable_timer_wakeup((unsigned long)Tcheck * uS_TO_S_FACTOR);
-
-         // ----- save state before sleeping ----
-        currentState = BATTERY;
-        currentLastInterval = lastInterval;
-        // This will be the offset on wake up
-        millisOffset = getMillis() + (unsigned long)Tcheck * MIN2MILLIS;
-        // ----------------------------------------
-        
-        // Going to sleep
-        esp_deep_sleep_start();
+        // ----- save state before sleeping ----
+        state = BATTERY;
+        rtc_sleep((unsigned long)Tcheck * MIN_TO_S_FACTOR);
         break;
 
     // ------------------------------------------
@@ -272,6 +259,8 @@ void FSM::run()
         if (false) //digitalRead(pin12V))
         {          // 12V connected
             // TODO: Turn on GPS and GSM
+            _gps->turnOn();
+            _sim->turnOn();
             lastInterval = getMillis();
             stateChange = lastInterval;
             state = READ_GPS;
@@ -283,9 +272,10 @@ void FSM::run()
         }
         else
         {
-            if (getMillis() - lastInterval > ((unsigned long)TintB * MIN2MILLIS))
+            if (getMillis() - lastInterval > ((unsigned long)TintB * MIN2MILLIS / 5))
             { // Beging location update on battery mode
                 // TODO: Turn on GPS
+                _gps->turnOn();
                 lastInterval = getMillis();
                 stateChange = lastInterval;
                 state = BAT_GPS;
@@ -313,18 +303,16 @@ void FSM::run()
         if (_gps->run() == VALID_LOCATION)
         { // GPS data ready
             // TODO: turn off GPS
-            if (!SMART || _gps->detectNewPosition())
+            _gps->turnOff();
+
+            if (!SMART || gpsData.new_pos)
             {
                 // TODO: turn on GSM
+                _sim->turnOn();
                 stateChange = getMillis();
                 state = BAT_SEND;
                 if (DEBUG)
                 {
-                    Serial.print(_gps->lastLat, 6);
-                    Serial.print(", ");
-                    Serial.print(_gps->lastLon, 6);
-                    Serial.print(", ");
-                    _gps->detectNewPosition();
                     Serial.print(getMillis());
                     Serial.println("-> State: BAT_SEND");
                 }
@@ -345,9 +333,11 @@ void FSM::run()
             { // No GPS data in the time window allowed
                 gpsErrors++;
                 // TODO: turn off GPS
-                if (_gps->pendingData)
+                _gps->turnOff();
+                if (gpsData.pending)
                 { // Old data that haven't been sent
                     // TODO: turn on GSM
+                    _sim->turnOn();
                     stateChange = getMillis();
                     state = BAT_SEND;
                     if (DEBUG)
@@ -371,9 +361,10 @@ void FSM::run()
 
     // ------------------------------------------
     case BAT_SEND:
-        if (_sim->uploadData(_gps->lastLat, _gps->lastLon, false))
+        if (_sim->uploadData(0, 0, false))
         { // Data sent
             // TODO: turn off GSM
+            _sim->turnOff();
             state = SLEEPING;
             if (DEBUG)
             {
@@ -386,6 +377,7 @@ void FSM::run()
             if (getMillis() - stateChange > ((unsigned long)TsendB * MIN2MILLIS))
             { // Data upload not achieved
                 // TODO: turn off GSM
+                _sim->turnOff();
                 gsmErrors++;
                 state = BAT_ERROR;
                 if (DEBUG)
@@ -402,12 +394,12 @@ void FSM::run()
         if (gsmErrors > MAX_ERRORS)
         {
             gsmErrors = 0;
-            setTsendB(2 * TsendB);
+            // Reset GSM
         }
         if (gpsErrors > MAX_ERRORS)
         {
             gpsErrors = 0;
-            setTGPSB(2 * TGPSB);
+            // Reset GPS
         }
         state = SLEEPING;
         if (DEBUG)

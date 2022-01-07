@@ -4,8 +4,12 @@
 #include "configs.h"
 #include <HardwareSerial.h>
 #include "Adafruit_FONA.h"
+#include <driver/rtc_io.h>
 
 class FSM;
+
+extern bool simOn;
+extern GPSdataStruct gpsData;
 
 class SIM
 {
@@ -14,6 +18,8 @@ public:
     SIM(HardwareSerial *softSerial, FSM *fsm);
     bool setup(),
         uploadData(float lat, float lon, bool power);
+    void turnOn(),
+        turnOff();
 
 private:
     // Adafruit_FONA fona;

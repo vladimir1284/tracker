@@ -6,30 +6,24 @@
 #include "gps.h"
 #include "sim.h"
 
-extern void enterSleep(unsigned long delay);
-
-enum states
-{
-    // Power connected
-    IDLE,
-    ENERGY,
-    READ_GPS,
-    SEND_DATA,
-    UPDATE_CFG,
-    ERROR,
-    // Battery powered
-    SLEEPING,
-    BATTERY,
-    BAT_GPS,
-    BAT_SEND,
-    BAT_CFG,
-    BAT_ERROR
-};
-
-extern states currentState;
-extern unsigned long currentLastInterval,
-    millisOffset;
+extern void rtc_sleep(unsigned long delay);
 extern unsigned long getMillis();
+
+extern states state;
+extern unsigned long lastInterval,
+    millisOffset;
+extern int gpsErrors,
+    gsmErrors;
+
+extern int Tcheck, // Time interval for power check (0 - 255) min
+    MAX_ERRORS,    // (0 - 255)
+    Tint,          // Time interval for position updates (0 - 65535) min
+    TintB,         // Time interval for position updates on battery (0 - 65535) min
+    TGPS,          // Time allow for fixing location (0 - 255) min
+    TGPSB,         // Time allow for fixing location on battery (0 - 255) min
+    SMART,         // Smart behaviour on battery (0 - 1)
+    TsendB,        // Time allow for sending data on battery (0 - 255) min
+    Tsend;         // Time allow for sending data (0 - 255) min
 
 class SIM;
 
@@ -52,25 +46,10 @@ public:
         setTsend(int val);
 
 private:
-    int pin12V,
-        gpsErrors,
-        gsmErrors;
+    int pin12V;
 
-    unsigned long lastInterval,
-        lastCheck,
+    unsigned long lastCheck,
         stateChange;
-
-    unsigned int Tcheck, // Time interval for power check (0 - 255) min
-        MAX_ERRORS,      // (0 - 255)
-        Tint,            // Time interval for position updates (0 - 65535) min
-        TintB,           // Time interval for position updates on battery (0 - 65535) min
-        TGPS,            // Time allow for fixing location (0 - 255) min
-        TGPSB,           // Time allow for fixing location on battery (0 - 255) min
-        SMART,           // Smart behaviour on battery (0 - 1)
-        TsendB,          // Time allow for sending data on battery (0 - 255) min
-        Tsend;           // Time allow for sending data (0 - 255) min
-
-    states state;
 
     GPS *_gps;
     SIM *_sim;
