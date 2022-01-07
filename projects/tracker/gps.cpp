@@ -138,7 +138,7 @@ void GPS::readGPS(unsigned long ms)
     unsigned long start = getMillis();
     do
     {
-        // wdt_reset(); //Reset the watchdog
+        timerWrite(timer, 0); //reset timer (feed watchdog)
         while (ss->available())
             gps.encode(ss->read());
     } while (getMillis() - start < ms);

@@ -4,6 +4,8 @@
 #include "fsm.h"
 #include "gps.h"
 
+hw_timer_t *timer = NULL;
+
 FSM fsm = FSM();
 
 HardwareSerial fonaSS(1);
@@ -12,9 +14,20 @@ SIM sim_device = SIM(&fonaSS, &fsm);
 HardwareSerial ss(2);
 GPS gps_controller = GPS(&ss);
 
+
+void IRAM_ATTR resetModule() {
+  ets_printf("reboot\n");
+  esp_restart();
+}
+
 void setup()
 {
-  // watchdogBegin();
+  // ------- watchdog begin --------------
+  timer = timerBegin(0, 80, true);                 //timer 0, div 80
+  timerAttachInterrupt(timer, &resetModule, true); //attach callback
+  timerAlarmWrite(timer, wdtTimeout, false);       //set time in us
+  timerAlarmEnable(timer);
+  // -------------------------------------
 
   rtc_handle_wakeup();
 

@@ -2,7 +2,16 @@
 #define SETTINGS_H
 
 #include <Arduino.h>
+#include "esp_system.h"
+
 #define DEBUG true
+
+// --------------- watchdog ------------------
+
+#define wdtTimeout 10000000ULL  //time in us to trigger the watchdog
+
+// --------------------------------------
+
 
 // --------------- SIM ------------------
 

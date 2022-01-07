@@ -11,6 +11,7 @@
 extern unsigned long getMillis();
 extern bool gpsOn;
 extern GPSdataStruct gpsData;
+extern hw_timer_t *timer;
 
 class GPS
 {
