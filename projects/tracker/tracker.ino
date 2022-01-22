@@ -312,10 +312,6 @@ void printMenu(void)
   Serial.println(F("[S] Create serial passthru tunnel"));
   Serial.println(F("-------------------------------------"));
   Serial.println(F(""));
-
-  // Status
-  fona.openWirelessConnection(true);
-  fona.wirelessConnStatus();
 }
 
 void loop()
