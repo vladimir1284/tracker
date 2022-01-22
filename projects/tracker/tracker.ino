@@ -1,4 +1,4 @@
-#define UPLOAD_URL "tracker_data"
+#define UPLOAD_URL "towit/tracker_data"
 // #include "configs.h"
 // #include "time.h"
 // // #include "rtc.h"
@@ -1028,7 +1028,7 @@ void loop()
         {
           Serial.println(F("Failed to read Batt"));
         }
-        sprintf(url, "%s/MT;%d;%s;R0;%d+%02d%02d%02d%02d%02d%02d+%.5f+%.5f+%.2f+%d+0+%d+%d",
+        sprintf(url, "/%s/MT;%d;%s;R0;%d+%02d%02d%02d%02d%02d%02d+%.5f+%.5f+%.2f+%d+0+%d+%d",
                 UPLOAD_URL,
                 mode,
                 imei,
@@ -1042,8 +1042,8 @@ void loop()
                 latitude,
                 longitude,
                 speed_kph,
-                heading,
-                vbat,
+                (int)heading,
+                (int)vbat,
                 0);
         uint16_t statuscode;
         int16_t length;
