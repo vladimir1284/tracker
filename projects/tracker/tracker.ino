@@ -1,3 +1,4 @@
+#define UPLOAD_URL "tracker_data"
 // #include "configs.h"
 // #include "time.h"
 // // #include "rtc.h"
@@ -985,46 +986,31 @@ void loop()
 
   case 'L':
   {
-    /*
-          // Uncomment this block if all you want to see is the AT command response
-          // check for GPS location
-          char gpsdata[120];
-          fona.getGPS(0, gpsdata, 120);
-          if (type == SIM808_V1)
-          Serial.println(F("Reply in format: mode,longitude,latitude,altitude,utctime(yyyymmddHHMMSS),ttff,satellites,speed,course"));
-          else if ( (type == SIM5320A) || (type == SIM5320E) || (type == SIM7500) || (type == SIM7600) )
-          Serial.println(F("Reply in format: [<lat>],[<N/S>],[<lon>],[<E/W>],[<date>],[<UTC time>(yyyymmddHHMMSS)],[<alt>],[<speed>],[<course>]"));
-          else
-          Serial.println(F("Reply in format: mode,fixstatus,utctime(yyyymmddHHMMSS),latitude,longitude,altitude,speed,course,fixmode,reserved1,HDOP,PDOP,VDOP,reserved2,view_satellites,used_satellites,reserved3,C/N0max,HPA,VPA"));
-
-          Serial.println(gpsdata);
-
-          break;
-        */
 
     float latitude, longitude, speed_kph, heading, altitude;
     // Comment out the stuff below if you don't care about UTC time
-    /*        float second;
-          uint16_t year;
-          uint8_t month, day, hour, minute;
-        */
+    float second;
+    uint16_t year;
+    uint8_t month, day, hour, minute;
+
     // Use the top line if you want to parse UTC time data as well, the line below it if you don't care
-    //        if (fona.getGPS(&latitude, &longitude, &speed_kph, &heading, &altitude, &year, &month, &day, &hour, &minute, &second)) {
-    if (fona.getGPS(&latitude, &longitude, &speed_kph, &heading, &altitude))
-    { // Use this line instead if you don't want UTC time
-      Serial.println(F("---------------------"));
-      Serial.print(F("Latitude: "));
-      Serial.println(latitude, 6);
-      Serial.print(F("Longitude: "));
-      Serial.println(longitude, 6);
-      Serial.print(F("Speed: "));
-      Serial.println(speed_kph);
-      Serial.print(F("Heading: "));
-      Serial.println(heading);
-      Serial.print(F("Altitude: "));
-      Serial.println(altitude);
-      // Comment out the stuff below if you don't care about UTC time
-      /*
+    if (fona.getGPS(&latitude, &longitude, &speed_kph, &heading, &altitude, &year, &month, &day, &hour, &minute, &second))
+    {
+      //if (fona.getGPS(&latitude, &longitude, &speed_kph, &heading, &altitude))
+      { // Use this line instead if you don't want UTC time
+        // Serial.println(F("---------------------"));
+        // Serial.print(F("Latitude: "));
+        // Serial.println(latitude, 6);
+        // Serial.print(F("Longitude: "));
+        // Serial.println(longitude, 6);
+        // Serial.print(F("Speed: "));
+        // Serial.println(speed_kph);
+        // Serial.print(F("Heading: "));
+        // Serial.println(heading);
+        // Serial.print(F("Altitude: "));
+        // Serial.println(altitude);
+        // Comment out the stuff below if you don't care about UTC time
+        /*
             Serial.print(F("Year: ")); Serial.println(year);
             Serial.print(F("Month: ")); Serial.println(month);
             Serial.print(F("Day: ")); Serial.println(day);
@@ -1033,8 +1019,81 @@ void loop()
             Serial.print(F("Second: ")); Serial.println(second);
             Serial.println(F("---------------------"));
           */
-    }
+        // read website URL
+        char url[200];
+        int mode = 1;
+        uint16_t vbat;
+        // read the battery voltage
+        if (!fona.getBattVoltage(&vbat))
+        {
+          Serial.println(F("Failed to read Batt"));
+        }
+        sprintf(url, "%s/MT;%d;%s;R0;%d+%02d%02d%02d%02d%02d%02d+%.5f+%.5f+%.2f+%d+0+%d+%d",
+                UPLOAD_URL,
+                mode,
+                imei,
+                0,
+                year - 2000,
+                month,
+                day,
+                hour,
+                minute,
+                (int)second,
+                latitude,
+                longitude,
+                speed_kph,
+                heading,
+                vbat,
+                0);
+        uint16_t statuscode;
+        int16_t length;
 
+        flushSerial();
+        Serial.println(F("Sending data to trailerrental.pythonanywhere.com"));
+
+        Serial.println(url);
+        //         if (!fona.openWirelessConnection(true))
+        //         {
+        //           Serial.println(F("Failed to open wireless connection"));
+        //           break;
+        //         }
+
+        //         fona.wirelessConnStatus();
+
+        //         if (!fona.HTTP_connect(url))
+        //         {
+        //           Serial.println(F("Failed to connect to server..."));
+        //           break;
+        //         }
+        //         if (!fona.HTTP_GET("/towit/tracker_data/MT;6;864713037301317;R0;5+220119033521+21.38810+-77.91893+0.33+0+0+3765+9"))
+        //         {
+        //           Serial.println("Get Failed!");
+        //           break;
+        //         }
+
+        //         while (length > 0)
+        //         {
+        //           while (fona.available())
+        //           {
+        //             char c = fona.read();
+
+        //             // Serial.write is too slow, we'll write directly to Serial register!
+        // #if defined(__AVR_ATmega328P__) || defined(__AVR_ATmega168__)
+        //             loop_until_bit_is_set(UCSR0A, UDRE0); /* Wait until data register empty. */
+        //             UDR0 = c;
+        // #else
+        //             Serial.write(c);
+        // #endif
+        //             length--;
+        //             if (!length)
+        //               break;
+        //           }
+        //         }
+        //         Serial.println(F("\n****"));
+        //         fona.HTTP_GET_end();
+        //         break;
+      }
+    }
     break;
   }
 
@@ -1120,7 +1179,7 @@ void loop()
     }
 
     fona.wirelessConnStatus();
-    
+
     if (!fona.HTTP_connect(url))
     {
       Serial.println(F("Failed to connect to server..."));
