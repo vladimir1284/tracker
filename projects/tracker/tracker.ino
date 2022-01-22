@@ -1118,22 +1118,18 @@ void loop()
       Serial.println(F("Failed to open wireless connection"));
       break;
     }
-    else
+
+    fona.wirelessConnStatus();
+    
+    if (!fona.HTTP_connect(url))
     {
-      fona.wirelessConnStatus();
-      if (!fona.HTTP_connect(url))
-      {
-        Serial.println(F("Failed to connect to server..."));
-        break;
-      }
-      else
-      {
-        if (!fona.HTTP_GET("/towit/tracker_data/MT;6;864713037301317;R0;5+220119033521+21.38810+-77.91893+0.33+0+0+3765+9"))
-        {
-          Serial.println("Get Failed!");
-          break;
-        }
-      }
+      Serial.println(F("Failed to connect to server..."));
+      break;
+    }
+    if (!fona.HTTP_GET("/towit/tracker_data/MT;6;864713037301317;R0;5+220119033521+21.38810+-77.91893+0.33+0+0+3765+9"))
+    {
+      Serial.println("Get Failed!");
+      break;
     }
 
     while (length > 0)
