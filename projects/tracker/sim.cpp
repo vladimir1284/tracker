@@ -9,76 +9,13 @@ SIM::SIM(HardwareSerial *softSerial, FSM *fsm)
 }
 
 //--------------------------------------------------------------------
-// TODO this function should only setup the serial communication
-bool SIM::setup()
+void SIM::setup()
 {
 
     fonaSerial->begin(SIMBaud, SERIAL_8N1, FONA_RX, FONA_TX);
 
-    if (!fona.begin(*fonaSerial))
-    {
-        if (DEBUG)
-        {
-            Serial.println(F("Couldn't find FONA"));
-        }
-        return false;
-    }
-
     // Configure APN
-    fona.setGPRSNetworkSettings(F(APN_NAME), F(""), F(""));
-
-    //Init EEPROM
-    EEPROM.begin(EEPROM_SIZE);
-
-    // Get tracker ID
-    byte key = EEPROM.read(KEY_ADDR); // read the first byte from the EEPROM
-    if (key == (EEPROM_KEY + 1))
-    {
-        byte hiByte = EEPROM.read(trackerID_ADDR);
-        byte lowByte = EEPROM.read(trackerID_ADDR + 1);
-
-        EEPROM.end();
-
-        trackerID = word(hiByte, lowByte); // see word function in Recipe 3.15
-        if (DEBUG)
-        {
-            Serial.print(F("Tracker ID:"));
-            Serial.println(trackerID);
-        }
-    }
-    else
-    {
-        EEPROM.end();
-
-        uint8_t imeiLen = fona.getIMEI(imei);
-        if (DEBUG)
-        {
-            Serial.print("Module IMEI: ");
-            Serial.println(imei);
-        }
-        if (imeiLen > 0)
-        {
-            // Get ID URL
-            sprintf(input, "%s/%s/%s/%s", BASE_URL, ID_URL, PASSWD, imei);
-            if (!communicate(input))
-            {
-                if (DEBUG)
-                {
-                    Serial.println(F("Couldn't get ID from remote server"));
-                }
-                return false;
-            }
-        }
-        else
-        {
-            if (DEBUG)
-            {
-                Serial.println(F("Couldn't find IMEI"));
-            }
-            return false;
-        }
-    }
-    return true;
+    // fona.setGPRSNetworkSettings(F(APN_NAME), F(""), F(""));
 }
 
 //--------------------------------------------------------------------
@@ -102,62 +39,71 @@ void SIM::turnOff()
 //--------------------------------------------------------------------
 bool SIM::communicate(char *url)
 {
-    // turn GPRS on
-    for (int i = 0; i < RETRAYS; i++)
+    // Initialize the module
+    if (!fona.begin(*fonaSerial))
     {
-        if (!fona.enableGPRS(true))
+        if (DEBUG)
+        {
+            Serial.println(F("Couldn't find FONA"));
+        }
+        return false;
+    }
+
+    // Get device imei if needed
+    if (imei_len == 0)
+    {
+        imei_len = fona.getIMEI(imei);
+        if (imei_len > 0)
         {
             if (DEBUG)
             {
-                Serial.println(F("Failed to turn on"));
+                Serial.print("Module IMEI: ");
+                Serial.println(imei);
             }
-            delay(SIMDELAY);
         }
         else
-        {
-            break;
-        }
-    }
-    if (DEBUG)
-    {
-        Serial.println(url);
-    }
-    for (int i = 0; i < RETRAYS; i++)
-    {
-        if (!fona.HTTP_GET_start(url, &statuscode, (uint16_t *)&length))
         {
             if (DEBUG)
             {
-                Serial.println("Failed!");
+                Serial.println(F("Couldn't find IMEI"));
             }
-            delay(SIMDELAY);
-        }
-        else
-        {
-            break;
+            return false;
         }
     }
+    return true;
 
-    bool state = getSerialData(length);
+    // // turn GPRS on
+    // if (!fona.enableGPRS(true))
+    // {
+    //     if (DEBUG)
+    //     {
+    //         Serial.println(F("Failed to turn on"));
+    //     }
+    //     delay(SIMDELAY);
+    // }
 
-    // turn GPRS off
-    for (int i = 0; i < RETRAYS; i++)
-    {
-        if (!fona.enableGPRS(false))
-        {
-            if (DEBUG)
-            {
-                Serial.println(F("Failed to turn off"));
-            }
-            delay(SIMDELAY);
-        }
-        else
-        {
-            break;
-        }
-    }
+    // if (!fona.HTTP_GET_start(url, &statuscode, (uint16_t *)&length))
+    // {
+    //     if (DEBUG)
+    //     {
+    //         Serial.println("Failed!");
+    //     }
+    //     delay(SIMDELAY);
+    // }
 
-    return state;
+    // bool state = getSerialData(length);
+
+    // // turn GPRS off
+    // if (!fona.enableGPRS(false))
+    // {
+    //     if (DEBUG)
+    //     {
+    //         Serial.println(F("Failed to turn off"));
+    //     }
+    //     delay(SIMDELAY);
+    // }
+
+    // return state;
 }
 
 //--------------------------------------------------------------------
@@ -212,39 +158,65 @@ float SIM::getCredit()
 int SIM::readBattery()
 {
     // read the battery voltage
-    uint16_t tmpV;
-    bool ok = fona.getBattVoltage(&tmpV);
+    return 3765;
+    // uint16_t tmpV;
+    // bool ok = fona.getBattVoltage(&tmpV);
 
-    if (!ok)
-    {
-        if (DEBUG)
-        {
-            Serial.println(F("Failed to read Batt"));
-        }
-        return 0;
-    }
-    else
-    {
-        if (DEBUG)
-        {
-            Serial.print(F("VBat = "));
-            Serial.print(tmpV);
-            Serial.println(F(" mV"));
-        }
-        return tmpV;
-    }
+    // if (!ok)
+    // {
+    //     if (DEBUG)
+    //     {
+    //         Serial.println(F("Failed to read Batt"));
+    //     }
+    //     return 0;
+    // }
+    // else
+    // {
+    //     if (DEBUG)
+    //     {
+    //         Serial.print(F("VBat = "));
+    //         Serial.print(tmpV);
+    //         Serial.println(F(" mV"));
+    //     }
+    //     return tmpV;
+    // }
 }
 
 //--------------------------------------------------------------------
-bool SIM::uploadData(float lat, float lon, bool power)
+bool SIM::uploadData(bool power)
 {
-    long latitude = (long)(100000 * lat);
-    long longitude = (long)(100000 * lon);
-    int vbat = readBattery();
-
     // Upload data URL path('tracker_data/<passwd>/<int:tracker_id>/<str:lat>/<str:lon>/<int:battery>/<int:power>/<int:errors>',
-    sprintf(input, "%s/%s/%s/%u/%ld/%ld/%u/%u/%u", BASE_URL, UPLOAD_URL, PASSWD, trackerID,
-            latitude, longitude, vbat, power, 0);
+    //http://trailerrental.pythonanywhere.com/towit/tracker_data/MT;6;864713037301317;R0;5+220109033521+21.38810+-77.91893+0.33+0+0+3765+9
+    int mode = 1;
+    if (power)
+    {
+        mode = 6;
+    }
+    sprintf(input, "%s/%s/MT;%d;%s;R0;%d+%02d%02d%02d%02d%02d%02d+%.5f+%.5f+%.2f+%d+0+%d+%d",
+                            BASE_URL, 
+                            UPLOAD_URL,
+                            mode,
+                            imei,
+                            gpsData.sat_num,
+                            gpsData.year-2000,
+                            gpsData.month,
+                            gpsData.day,
+                            gpsData.hour,
+                            gpsData.minute,
+                            gpsData.second,
+                            gpsData.latitude,
+                            gpsData.longitude,
+                            gpsData.speed,
+                            gpsData.heading,
+                            readBattery(),
+                            (int)seq_num
+                            );
+    // sprintf(input, "%s/%s/%s/%u/%ld/%ld/%u/%u/%u", BASE_URL, UPLOAD_URL, PASSWD, trackerID,
+    //         latitude, longitude, vbat, power, 0);
+    if (DEBUG)
+    {
+        Serial.println(input);
+    }
     if (!communicate(input))
     {
         if (DEBUG)
@@ -255,6 +227,7 @@ bool SIM::uploadData(float lat, float lon, bool power)
     }
     else
     {
+        seq_num++;
         return true;
     }
 }

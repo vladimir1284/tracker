@@ -8,7 +8,6 @@
 #define VALID_LOCATION 1
 #define INVALID_LOCATION 0
 
-extern unsigned long getMillis();
 extern bool gpsOn;
 extern GPSdataStruct gpsData;
 extern hw_timer_t *timer;

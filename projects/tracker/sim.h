@@ -10,16 +10,19 @@ class FSM;
 
 extern bool simOn;
 extern GPSdataStruct gpsData;
+extern int imei_len;
+extern byte seq_num;
+extern char imei[16];
 
 class SIM
 {
 
 public:
     SIM(HardwareSerial *softSerial, FSM *fsm);
-    bool setup(),
-        uploadData(float lat, float lon, bool power);
+    bool uploadData(bool power);
     void turnOn(),
-        turnOff();
+        turnOff(),
+        setup();
 
 private:
     // Adafruit_FONA fona;
@@ -29,7 +32,6 @@ private:
     uint16_t statuscode;
     int16_t length;
     // char url[URL_SIZE];
-    char imei[16] = {0}; // MUST use a 16 character buffer for IMEI!
     int trackerID = 0;
 
     int readBattery();

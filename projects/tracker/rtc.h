@@ -4,8 +4,8 @@
 // ---------------------------------------------
 // RTC memory to hold state values on deep sleep
 RTC_DATA_ATTR states state;
-RTC_DATA_ATTR unsigned long lastInterval,
-    millisOffset;
+RTC_DATA_ATTR time_t lastInterval;
+
 RTC_DATA_ATTR int gpsErrors,
     gsmErrors;
 RTC_DATA_ATTR bool simOn,
@@ -20,12 +20,17 @@ RTC_DATA_ATTR int Tcheck, // Time interval for power check (0 - 255) min
     SMART,                // Smart behaviour on battery (0 - 1)
     TsendB,               // Time allow for sending data on battery (0 - 255) min
     Tsend;                // Time allow for sending data (0 - 255) min
+
+RTC_DATA_ATTR char imei[16]; // MUST use a 16 character buffer for IMEI!
+RTC_DATA_ATTR int imei_len;
+RTC_DATA_ATTR byte seq_num;
+
 // ---------------------------------------------
 
-unsigned long getMillis()
-{
-    return millisOffset + millis();
-}
+// unsigned long getMillis()
+// {
+//     return millisOffset + millis();
+// }
 
 void rtc_handle_wakeup()
 {
@@ -36,20 +41,18 @@ void rtc_handle_wakeup()
     {
         state = ENERGY;
         lastInterval = 0;
-        millisOffset = 0;
         gpsErrors = 0;
         gsmErrors = 0;
         gpsData.pending = false;
         Tcheck = 0;
+        imei_len = 0;
+        seq_num = 0;
     }
 }
 
 void rtc_sleep(unsigned long delay)
 {
     esp_sleep_enable_timer_wakeup(delay);
-
-    // This will be the offset on wake up
-    millisOffset = getMillis() + delay / 1000;
 
     // Hold on IO pins value
     gpio_hold_en((gpio_num_t)SIM_PWR);

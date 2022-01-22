@@ -8,10 +8,9 @@
 
 // --------------- watchdog ------------------
 
-#define wdtTimeout 10000000ULL  //time in us to trigger the watchdog
+#define wdtTimeout 10000000ULL //time in us to trigger the watchdog
 
 // --------------------------------------
-
 
 // --------------- SIM ------------------
 
@@ -86,10 +85,10 @@ struct GPSdataStruct
 
 // --------------- FSM ------------------
 
-#define uS_TO_S_FACTOR   1000000ULL /* Conversion factor for micro seconds to seconds */
-#define MIN_TO_S_FACTOR 60000000ULL /* Conversion factor for micro seconds to seconds */
-#define MIN2MILLIS 600            // 00 x0.1 for debug
-#define PIN12V A0                 // Input pin for checking 12V connection
+#define uS_TO_S_FACTOR 1000000ULL    /* Conversion factor for micro seconds to seconds */
+#define MIN_TO_uS_FACTOR 60000000ULL /* Conversion factor for micro seconds to seconds */
+#define MIN_TO_S_FACTOR 6            // 0 x0.1 for debug
+#define PIN12V A0                    // Input pin for checking 12V connection
 
 enum states
 {
@@ -133,7 +132,7 @@ const int trackerID_ADDR = 12; // the EEPROM address used to store trackerID (2 
 // --------------------------------------
 
 // --------------- Handle Dynamic Configs ------------------
-#define MAX_INPUT_LENGTH 128
+#define MAX_INPUT_LENGTH 200
 
 // Error codes
 #define WRONG_PASS 200

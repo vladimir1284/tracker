@@ -135,11 +135,11 @@ bool GPS::detectNewPosition()
 //--------------------------------------------------------------------
 void GPS::readGPS(unsigned long ms)
 {
-    unsigned long start = getMillis();
+    unsigned long start = millis();
     do
     {
         timerWrite(timer, 0); //reset timer (feed watchdog)
         while (ss->available())
             gps.encode(ss->read());
-    } while (getMillis() - start < ms);
+    } while (millis() - start < ms);
 }

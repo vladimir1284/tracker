@@ -7,10 +7,9 @@
 #include "sim.h"
 
 extern void rtc_sleep(unsigned long delay);
-extern unsigned long getMillis();
 
 extern states state;
-extern unsigned long lastInterval,
+extern time_t lastInterval,
     millisOffset;
 extern int gpsErrors,
     gsmErrors;
