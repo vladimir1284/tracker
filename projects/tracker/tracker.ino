@@ -207,8 +207,8 @@ void setup()
   //fona.setNetworkSettings(F("telstra.internet")); // For Telstra (Australia) SIM card - CAT-M1 (Band 28)
   fona.setNetworkSettings(F("hologram")); // For Hologram SIM card
   fona.setFunctionality(1);               // AT+CFUN=1
-  fona.setPreferredMode(38);              // Use LTE only, not 2G
-  fona.setPreferredLTEMode(1);            // Use LTE CAT-M only, not NB-IoT
+  // fona.setPreferredMode(38);              // Use LTE only, not 2G
+  // fona.setPreferredLTEMode(1);            // Use LTE CAT-M only, not NB-IoT
   // Optionally configure HTTP gets to follow redirects over SSL.
   // Default is not to follow SSL redirects, however if you uncomment
   // the following line then redirects over SSL will be followed.
