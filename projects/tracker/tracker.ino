@@ -1157,7 +1157,7 @@ void loop()
     char url[80];
 
     flushSerial();
-    Serial.println(F("URL to read (e.g. trailerrental.pythonanywhere.com):"));
+    Serial.println(F("URL to read (e.g. trailerrental.pythonanywhere.com/towit/tracker_data):"));
     readline(url, 79);
     Serial.println(url);
 
@@ -1175,7 +1175,7 @@ void loop()
       Serial.println(F("Failed to connect to server..."));
       break;
     }
-    if (!fona.HTTP_GET("/towit/tracker_data/MT;6;864713037301317;R0;5+220119033521+21.38810+-77.91893+0.33+0+0+3765+9"))
+    if (!fona.HTTP_GET("/MT;6;864713037301317;R0;5+220119033521+21.38810+-77.91893+0.33+0+0+3765+9"))
     {
       Serial.println("Get Failed!");
       break;
