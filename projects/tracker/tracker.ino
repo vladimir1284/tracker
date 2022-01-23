@@ -1157,18 +1157,19 @@ void loop()
     char url[80];
 
     flushSerial();
-    Serial.println(F("URL to read (e.g. trailerrental.pythonanywhere.com/towit/tracker_data):"));
+    Serial.println(F("URL to read (e.g. http://trailerrental.pythonanywhere.com/towit/tracker_data):"));
     readline(url, 79);
     Serial.println(url);
 
     Serial.println(F("****"));
-    if (!fona.openWirelessConnection(true))
+    if (!fona.wirelessConnStatus())
     {
-      Serial.println(F("Failed to open wireless connection"));
-      break;
+      if (!fona.openWirelessConnection(true))
+      {
+        Serial.println(F("Failed to open wireless connection"));
+        break;
+      }
     }
-
-    fona.wirelessConnStatus();
 
     if (!fona.HTTP_connect(url))
     {
