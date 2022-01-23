@@ -160,7 +160,7 @@ void setup()
 
   // Turn on the module by pulsing PWRKEY low for a little bit
   // This amount of time depends on the specific module that's used
-  fona.powerOn(FONA_PWRKEY); // Power on the module
+  //fona.powerOn(FONA_PWRKEY); // Power on the module
 
   Serial.begin(9600);
   Serial.println(F("ESP32 SIMCom Basic Test"));
@@ -1171,12 +1171,12 @@ void loop()
       }
     }
 
-    if (!fona.HTTP_connect(url))
+    if (!fona.HTTP_connect("http://httpbin.org"))
     {
       Serial.println(F("Failed to connect to server..."));
       break;
     }
-    if (!fona.HTTP_GET("/MT;6;864713037301317;R0;5+220119033521+21.38810+-77.91893+0.33+0+0+3765+9"))
+    if (!fona.HTTP_GET(url))
     {
       Serial.println("Get Failed!");
       break;
