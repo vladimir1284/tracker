@@ -160,7 +160,7 @@ void setup()
 
   // Turn on the module by pulsing PWRKEY low for a little bit
   // This amount of time depends on the specific module that's used
-  fona.powerDown();
+  //fona.powerDown();
   fona.powerOn(FONA_PWRKEY); // Power on the module
 
   Serial.begin(9600);
