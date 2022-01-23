@@ -1113,7 +1113,15 @@ void loop()
 
     if (!fona.TCPconnected())
     {
-      if (!fona.TCPconnect("4.tcp.ngrok.io", 11826))
+      if (!fona.wirelessConnStatus())
+      {
+        if (!fona.openWirelessConnection(true))
+        {
+          Serial.println(F("Failed to open wireless connection"));
+          break;
+        }
+      }
+      if (!fona.TCPconnect("2.tcp.ngrok.io", 16736))
       {
         Serial.println(F("Failed to connect!"));
         break;
