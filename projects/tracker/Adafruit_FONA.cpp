@@ -2096,7 +2096,10 @@ boolean Adafruit_FONA_LTE::HTTP_connect(const char *server) {
   // Get HTTP status
   getReply(F("AT+SHSTATE?"));
   readline();
-  if (strstr(replybuffer, "+SHSTATE: 1") == NULL) return false;
+  if (strstr(replybuffer, "+SHSTATE: 1") == NULL) {
+    DEBUG_PRINT(replybuffer);
+    //return false;
+  }
   readline(); // Eat 'OK'
 
   // Clear HTTP header (HTTP header is appended)
