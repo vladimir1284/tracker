@@ -288,7 +288,7 @@ void printMenu(void)
   // Data Connection
   Serial.println(F("[G] Enable cellular data"));
   Serial.println(F("[g] Disable cellular data"));
-  Serial.println(F("[l] Query GSMLOC (2G)"));
+  Serial.println(F("[l] Test socket"));
 #if !defined(SIMCOM_3G) && !defined(SIMCOM_7500) && !defined(SIMCOM_7600)
   Serial.println(F("[w] Read webpage"));
   Serial.println(F("[W] Post to website"));
@@ -997,29 +997,6 @@ void loop()
     // Use the top line if you want to parse UTC time data as well, the line below it if you don't care
     if (fona.getGPS(&latitude, &longitude, &speed_kph, &heading, &altitude, &year, &month, &day, &hour, &minute, &second))
     {
-      //if (fona.getGPS(&latitude, &longitude, &speed_kph, &heading, &altitude))
-      // Use this line instead if you don't want UTC time
-      // Serial.println(F("---------------------"));
-      // Serial.print(F("Latitude: "));
-      // Serial.println(latitude, 6);
-      // Serial.print(F("Longitude: "));
-      // Serial.println(longitude, 6);
-      // Serial.print(F("Speed: "));
-      // Serial.println(speed_kph);
-      // Serial.print(F("Heading: "));
-      // Serial.println(heading);
-      // Serial.print(F("Altitude: "));
-      // Serial.println(altitude);
-      // Comment out the stuff below if you don't care about UTC time
-      /*
-            Serial.print(F("Year: ")); Serial.println(year);
-            Serial.print(F("Month: ")); Serial.println(month);
-            Serial.print(F("Day: ")); Serial.println(day);
-            Serial.print(F("Hour: ")); Serial.println(hour);
-            Serial.print(F("Minute: ")); Serial.println(minute);
-            Serial.print(F("Second: ")); Serial.println(second);
-            Serial.println(F("---------------------"));
-          */
       // read website URL
       char url[200];
       int mode = 1;
@@ -1053,13 +1030,14 @@ void loop()
       Serial.println(F("Sending data to trailerrental.pythonanywhere.com"));
 
       Serial.println(url);
-      if (!fona.openWirelessConnection(true))
+      if (!fona.wirelessConnStatus())
       {
-        Serial.println(F("Failed to open wireless connection"));
-        break;
+        if (!fona.openWirelessConnection(true))
+        {
+          Serial.println(F("Failed to open wireless connection"));
+          break;
+        }
       }
-
-      fona.wirelessConnStatus();
 
       if (!fona.HTTP_connect("http://trailerrental.pythonanywhere.com"))
       {
@@ -1130,20 +1108,35 @@ void loop()
   }
   case 'l':
   {
-    // check for GSMLOC (requires GPRS)
-    uint16_t returncode;
+    uint8_t buf[64];
+    uint8_t avail;
 
-    if (!fona.getGSMLoc(&returncode, replybuffer, 250))
-      Serial.println(F("Failed!"));
-    if (returncode == 0)
+    if (!fona.TCPconnected())
     {
-      Serial.println(replybuffer);
+      if (!fona.TCPconnect("4.tcp.ngrok.io", 11826))
+      {
+        Serial.println(F("Failed to connect!"));
+        break;
+      }
     }
-    else
+
+    if (!fona.TCPsend("MT;1;865235030717330;R0;0+220123154117+29.72928+-95.64912+0.00+45+0+4144+0", 74))
     {
-      Serial.print(F("Fail code #"));
-      Serial.println(returncode);
+      Serial.println(F("Failed to send!"));
+      break;
     }
+
+    if (!fona.TCPsend("MT;1;865235030717330;R0;0+220123154117+29.72928+-95.64912+0.00+45+0+4144+0", 74))
+    {
+      Serial.println(F("Failed to send!"));
+      break;
+    }
+
+    avail = fona.TCPavailable();
+
+    fona.TCPread(buf, avail);
+    
+    Serial.println(int(buf[0]));
 
     break;
   }
