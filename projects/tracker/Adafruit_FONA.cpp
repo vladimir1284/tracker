@@ -2111,7 +2111,7 @@ boolean Adafruit_FONA_LTE::HTTP_connect(const char *server) {
 boolean Adafruit_FONA_LTE::HTTP_GET(const char *URI) {
   // Use fona.HTTP_addHeader() as needed before using this function
   // Then use fona.HTTP_connect() to connect to the server first
-  char cmdBuff[150];
+  char cmdBuff[256];
 
   sprintf(cmdBuff, "AT+SHREQ=\"%s\",1", URI);
 
@@ -2135,7 +2135,7 @@ boolean Adafruit_FONA_LTE::HTTP_GET(const char *URI) {
 
   // Read server response
   getReply(F("AT+SHREAD=0,"), datalen, 10000);
-  readline();
+  readline(10000,true); // read multiline
   DEBUG_PRINT("\t<--- "); DEBUG_PRINTLN(replybuffer); // +SHREAD: <datalen>
   readline(10000);
   DEBUG_PRINT("\t<--- "); DEBUG_PRINTLN(replybuffer); // Print out server reply
