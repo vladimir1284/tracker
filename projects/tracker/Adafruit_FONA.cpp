@@ -2899,7 +2899,7 @@ boolean Adafruit_FONA::TCPconnect(char *server, uint16_t port) {
     mySerial->println(F("\""));
 
     if (! expectReply(ok_reply)) return false;
-    if (! expectReply(F("CONNECT OK"))) return false;
+    // if (! expectReply(F("CONNECT OK"))) return false;
   }
 
   // looks like it was a success (?)
