@@ -1121,24 +1121,24 @@ void loop()
           break;
         }
       }
-      if (!fona.TCPconnect("2.tcp.ngrok.io", 16736))
+      if (!fona.TCPconnect("cloudsocket.hologram.io", 9999))
       {
         Serial.println(F("Failed to connect!"));
         break;
       }
     }
-
-    if (!fona.TCPsend("MT;1;865235030717330;R0;0+220123154117+29.72928+-95.64912+0.00+45+0+4144+0", 74))
+// {"k":"&W0OdeMa","d":"Hello, World!","t":"TOPIC1"}
+    if (!fona.TCPsend("{\"k\":\"&W0OdeMa\",\"d\":\"prueba!\",\"t\":\"TOPIC1\"}", 49))
     {
       Serial.println(F("Failed to send!"));
       break;
     }
 
-    if (!fona.TCPsend("MT;1;865235030717330;R0;0+220123154117+29.72928+-95.64912+0.00+45+0+4144+0", 74))
-    {
-      Serial.println(F("Failed to send!"));
-      break;
-    }
+    // if (!fona.TCPsend("MT;1;865235030717330;R0;0+220123154117+29.72928+-95.64912+0.00+45+0+4144+0", 74))
+    // {
+    //   Serial.println(F("Failed to send!"));
+    //   break;
+    // }
 
     avail = fona.TCPavailable();
 
