@@ -1039,12 +1039,13 @@ void loop()
         }
       }
 
-      if (!fona.HTTP_connect("http://trailerrental.pythonanywhere.com"))
+      // if (!fona.HTTP_connect("http://trailerrental.pythonanywhere.com"))
+      if (!fona.HTTP_connect("http://httpbin.org"))
       {
         Serial.println(F("Failed to connect to server..."));
         break;
       }
-      if (!fona.HTTP_GET(url))
+      if (!fona.HTTP_GET("/get?"))
       {
         Serial.println("Get Failed!");
         break;
