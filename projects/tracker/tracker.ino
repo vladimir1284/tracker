@@ -993,12 +993,12 @@ void loop()
     float second;
     uint16_t year;
     uint8_t month, day, hour, minute;
+    char url[200];
 
     // Use the top line if you want to parse UTC time data as well, the line below it if you don't care
     if (fona.getGPS(&latitude, &longitude, &speed_kph, &heading, &altitude, &year, &month, &day, &hour, &minute, &second))
     {
       // read website URL
-      char url[200];
       int mode = 1;
       uint16_t vbat;
       // read the battery voltage
