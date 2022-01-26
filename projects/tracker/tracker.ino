@@ -1025,45 +1025,44 @@ void loop()
               0);
       uint16_t statuscode;
       int16_t length;
-
-      flushSerial();
-      Serial.println(F("Sending data to trailerrental.pythonanywhere.com"));
-
-      Serial.println(url);
-      if (!fona.wirelessConnStatus())
-      {
-        if (!fona.openWirelessConnection(true))
-        {
-          Serial.println(F("Failed to open wireless connection"));
-          break;
-        }
-      }
-
-      // if (!fona.HTTP_connect("http://trailerrental.pythonanywhere.com"))
-      if (!fona.HTTP_connect("http://httpbin.org"))
-      {
-        Serial.println(F("Failed to connect to server..."));
-        break;
-      }
-      if (!fona.HTTP_GET("/get?"))
-      {
-        Serial.println("Get Failed!");
-        break;
-      }
-
-      while (length > 0)
-      {
-        while (fona.available())
-        {
-          char c = fona.read();
-          Serial.write(c);
-          length--;
-          if (!length)
-            break;
-        }
-      }
-      Serial.println(F("\n****"));
     }
+    flushSerial();
+    Serial.println(F("Sending data to trailerrental.pythonanywhere.com"));
+
+    Serial.println(url);
+    if (!fona.wirelessConnStatus())
+    {
+      if (!fona.openWirelessConnection(true))
+      {
+        Serial.println(F("Failed to open wireless connection"));
+        break;
+      }
+    }
+
+    // if (!fona.HTTP_connect("http://trailerrental.pythonanywhere.com"))
+    if (!fona.HTTP_connect("http://httpbin.org"))
+    {
+      Serial.println(F("Failed to connect to server..."));
+      break;
+    }
+    if (!fona.HTTP_GET("/get?"))
+    {
+      Serial.println("Get Failed!");
+      break;
+    }
+
+    while (length > 0)
+    {
+      while (fona.available())
+      {
+        char c = fona.read();
+        Serial.write(c);
+        length--;
+        if (!length)
+          break;
+      }
+    }
+    Serial.println(F("\n****"));
     break;
   }
 
@@ -1128,7 +1127,7 @@ void loop()
         break;
       }
     }
-// {"k":"&W0OdeMa","d":"Hello, World!","t":"TOPIC1"}
+    // {"k":"&W0OdeMa","d":"Hello, World!","t":"TOPIC1"}
     if (!fona.TCPsend("{\"k\":\"&W0OdeMa\",\"d\":\"prueba!\",\"t\":\"TOPIC1\"}", 49))
     {
       Serial.println(F("Failed to send!"));
@@ -1144,7 +1143,7 @@ void loop()
     avail = fona.TCPavailable();
 
     fona.TCPread(buf, avail);
-    
+
     Serial.println(int(buf[0]));
 
     break;
