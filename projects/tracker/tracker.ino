@@ -994,6 +994,8 @@ void loop()
     uint16_t year;
     uint8_t month, day, hour, minute;
     char url[200];
+    uint16_t statuscode;
+    int16_t length;
 
     // Use the top line if you want to parse UTC time data as well, the line below it if you don't care
     if (fona.getGPS(&latitude, &longitude, &speed_kph, &heading, &altitude, &year, &month, &day, &hour, &minute, &second))
@@ -1023,8 +1025,6 @@ void loop()
               (int)heading,
               (int)vbat,
               0);
-      uint16_t statuscode;
-      int16_t length;
     }
     flushSerial();
     Serial.println(F("Sending data to trailerrental.pythonanywhere.com"));
