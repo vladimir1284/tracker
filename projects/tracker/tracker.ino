@@ -1045,9 +1045,14 @@ void loop()
       Serial.println(F("Failed to connect to server..."));
       break;
     }
-    if (!fona.HTTP_GET("/get?"))
+    // if (!fona.HTTP_GET("/get?"))
+    // {
+    //   Serial.println("Get Failed!");
+    //   break;
+    // }
+    if (!fona.HTTP_POST("/post", "MT;6;864713037301317;R0;5+220121033527+29.72939,-95.64918+0.33+0+0+4152+9", 73))
     {
-      Serial.println("Get Failed!");
+      Serial.println("POST Failed!");
       break;
     }
 
