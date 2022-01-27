@@ -55,11 +55,11 @@ uint8_t txfailures = 0;
 
 /****************************** OTHER STUFF ***************************************/
 // For temperature sensor
-#include <Wire.h>
-#include "Adafruit_MCP9808.h"
+// #include <Wire.h>
+// #include "Adafruit_MCP9808.h"
 
-// Create the MCP9808 temperature sensor object
-Adafruit_MCP9808 tempsensor = Adafruit_MCP9808();
+// // Create the MCP9808 temperature sensor object
+// Adafruit_MCP9808 tempsensor = Adafruit_MCP9808();
 
 uint8_t readline(char *buff, uint8_t maxbuff, uint16_t timeout = 0);
 char imei[16] = {0}; // Use this for device ID
@@ -92,11 +92,11 @@ void setup() {
   fona.powerOn(FONA_PWRKEY); // Power on the module
   moduleSetup(); // Establishes first-time serial comm and prints IMEI
 
-  tempsensor.wake(); // Wake up the MCP9808 if it was sleeping
-  if (!tempsensor.begin()) {
-    Serial.println("Couldn't find the MCP9808!");
-    while (1);
-  }
+  // tempsensor.wake(); // Wake up the MCP9808 if it was sleeping
+  // if (!tempsensor.begin()) {
+  //   Serial.println("Couldn't find the MCP9808!");
+  //   while (1);
+  // }
 
   // Unlock SIM card if needed
   // Remember to uncomment the "PIN" variable definition above
@@ -182,17 +182,17 @@ void loop() {
   // Measure battery level
   battLevel = readVcc(); // Get voltage in mV
 
-  // Measure temperature
-  tempsensor.wake(); // Wake up the MCP9808 if it was sleeping
-  float tempC = tempsensor.readTempC();
-  float tempF = tempC * 9.0 / 5.0 + 32;
-  Serial.print("Temp: "); Serial.print(tempC); Serial.print("*C\t"); 
-  Serial.print(tempF); Serial.println("*F");
+  // // Measure temperature
+  // tempsensor.wake(); // Wake up the MCP9808 if it was sleeping
+  // float tempC = tempsensor.readTempC();
+  // float tempF = tempC * 9.0 / 5.0 + 32;
+  // Serial.print("Temp: "); Serial.print(tempC); Serial.print("*C\t"); 
+  // Serial.print(tempF); Serial.println("*F");
   
-  Serial.println("Shutting down the MCP9808...");
-  tempsensor.shutdown(); // In this mode the MCP9808 draws only about 0.1uA
+  // Serial.println("Shutting down the MCP9808...");
+  // tempsensor.shutdown(); // In this mode the MCP9808 draws only about 0.1uA
 
-  float temperature = tempC; // Select what unit you want to use for this example
+  float temperature = 0.1*random(1,360); // Select what unit you want to use for this example
 
   // Turn on GPS if it wasn't on already (e.g., if the module wasn't turned off)
 #ifdef turnOffShield
