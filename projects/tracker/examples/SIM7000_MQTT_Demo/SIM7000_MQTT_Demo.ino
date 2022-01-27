@@ -246,6 +246,7 @@ void loop() {
     // fona.MQTT_setParameter("USERNAME", MQTT_USERNAME);
     // fona.MQTT_setParameter("PASSWORD", MQTT_PASSWORD);
    fona.MQTT_setParameter("KEEPTIME", "3600"); // Time to connect to server, 60s by default
+   fona.MQTT_setParameter("RETAIN", "1"); // Time to connect to server, 60s by default
     
     Serial.println(F("Connecting to MQTT broker..."));
     if (! fona.MQTT_connect(true)) {
