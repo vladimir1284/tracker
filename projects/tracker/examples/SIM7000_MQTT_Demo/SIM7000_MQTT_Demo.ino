@@ -36,8 +36,6 @@
 HardwareSerial fonaSS(1);
 Adafruit_FONA_LTE fona = Adafruit_FONA_LTE();
 
-Adafruit_FONA_LTE fona = Adafruit_FONA_LTE();
-
 /************************* MQTT PARAMETERS *********************************/
 #define MQTT_SERVER      "public.mqtthq.com"
 #define MQTT_PORT        1883
