@@ -285,70 +285,20 @@ void moduleSetup() {
 
   // Software serial:
   fonaSS.begin(115200, SERIAL_8N1, FONA_TX, FONA_RX); // baud rate, protocol, ESP32 RX pin, ESP32 TX pin
-
-  // Serial.println(F("Configuring to 9600 baud"));
-  // fonaSS.println("AT+IPR=9600"); // Set baud rate
-  // delay(100); // Short pause to let the command run
-  // fonaSS.begin(9600);
-  if (! fona.begin(fonaSS)) {
-    Serial.println(F("Couldn't find FONA"));
-    while (1); // Don't proceed if it couldn't find the device
-  }
-
-  // Hardware serial:
-  /*
-  fonaSerial->begin(115200); // Default SIM7000 baud rate
-
-  if (! fona.begin(*fonaSerial)) {
-    DEBUG_PRINTLN(F("Couldn't find SIM7000"));
-  }
-  */
-
-  // The commented block of code below is an alternative that will find the module at 115200
-  // Then switch it to 9600 without having to wait for the module to turn on and manually
-  // press the reset button in order to establish communication. However, once the baud is set
-  // this method will be much slower.
-  /*
-  fonaSerial->begin(115200); // Default LTE shield baud rate
-  fona.begin(*fonaSerial); // Don't use if statement because an OK reply could be sent incorrectly at 115200 baud
-
-  Serial.println(F("Configuring to 9600 baud"));
-  fona.setBaudrate(9600); // Set to 9600 baud
-  fonaSerial->begin(9600);
-  if (!fona.begin(*fonaSerial)) {
-    Serial.println(F("Couldn't find modem"));
-    while(1); // Don't proceed if it couldn't find the device
-  }
-  */
-
-  // type = fona.type();
-  // Serial.println(F("FONA is OK"));
-  // Serial.print(F("Found "));
-  // switch (type) {
-  //   case SIM800L:
-  //     Serial.println(F("SIM800L")); break;
-  //   case SIM800H:
-  //     Serial.println(F("SIM800H")); break;
-  //   case SIM808_V1:
-  //     Serial.println(F("SIM808 (v1)")); break;
-  //   case SIM808_V2:
-  //     Serial.println(F("SIM808 (v2)")); break;
-  //   case SIM5320A:
-  //     Serial.println(F("SIM5320A (American)")); break;
-  //   case SIM5320E:
-  //     Serial.println(F("SIM5320E (European)")); break;
-  //   case SIM7000:
-  //     Serial.println(F("SIM7000")); break;
-  //   case SIM7070:
-  //     Serial.println(F("SIM7070")); break;
-  //   case SIM7500:
-  //     Serial.println(F("SIM7500")); break;
-  //   case SIM7600:
-  //     Serial.println(F("SIM7600")); break;
-  //   default:
-  //     Serial.println(F("???")); break;
-  // }
   
+  Serial.println(F("Configuring to 9600 baud"));
+  fonaSS.println("AT+IPR=9600");                    // Set baud rate
+  delay(100);                                       // Short pause to let the command run
+  fonaSS.begin(9600, SERIAL_8N1, FONA_TX, FONA_RX); // Switch to 9600
+  if (!fona.begin(fonaSS))
+  {
+    Serial.println(F("Couldn't find FONA"));
+    while (1)
+      ; // Don't proceed if it couldn't find the device
+  }
+
+  type = fona.type();
+  Serial.println(F("FONA is OK"));
   // Print module IMEI number.
   uint8_t imeiLen = fona.getIMEI(imei);
   if (imeiLen > 0) {
