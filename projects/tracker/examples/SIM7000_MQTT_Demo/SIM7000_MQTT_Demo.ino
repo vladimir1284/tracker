@@ -37,7 +37,7 @@ HardwareSerial fonaSS(1);
 Adafruit_FONA_LTE fona = Adafruit_FONA_LTE();
 
 /************************* MQTT PARAMETERS *********************************/
-#define MQTT_SERVER      "public.mqtthq.com"
+#define MQTT_SERVER      "test.mosquitto.org"
 #define MQTT_PORT        1883
 // #define MQTT_USERNAME    "MQTT_USERNAME"
 // #define MQTT_PASSWORD    "MQTT_PASSWORD"
@@ -285,7 +285,7 @@ void moduleSetup() {
 
   // Software serial:
   fonaSS.begin(115200, SERIAL_8N1, FONA_TX, FONA_RX); // baud rate, protocol, ESP32 RX pin, ESP32 TX pin
-  
+
   Serial.println(F("Configuring to 9600 baud"));
   fonaSS.println("AT+IPR=9600");                    // Set baud rate
   delay(100);                                       // Short pause to let the command run
