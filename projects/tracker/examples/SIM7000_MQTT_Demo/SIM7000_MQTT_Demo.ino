@@ -284,7 +284,7 @@ void moduleSetup() {
   // When the module is on it should communicate right after pressing reset
 
   // Software serial:
-  fonaSS.begin(115200); // Default SIM7000 shield baud rate
+  fonaSS.begin(9600); // Default SIM7000 shield baud rate
 
   // Serial.println(F("Configuring to 9600 baud"));
   // fonaSS.println("AT+IPR=9600"); // Set baud rate
