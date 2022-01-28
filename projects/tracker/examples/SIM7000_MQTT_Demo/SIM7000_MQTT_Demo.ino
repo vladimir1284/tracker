@@ -204,39 +204,40 @@ void loop() {
   // Get a fix on location, try every 2s
   // Use the top line if you want to parse UTC time data as well, the line below it if you don't care
 //  while (!fona.getGPS(&latitude, &longitude, &speed_kph, &heading, &altitude, &year, &month, &day, &hour, &minute, &second)) {
-  while (!fona.getGPS(&latitude, &longitude, &speed_kph, &heading, &altitude)) {
-    Serial.println(F("Failed to get GPS location, retrying..."));
-    delay(2000); // Retry every 2s
-  }
-  Serial.println(F("Found 'eeeeem!"));
-  Serial.println(F("---------------------"));
-  Serial.print(F("Latitude: ")); Serial.println(latitude, 6);
-  Serial.print(F("Longitude: ")); Serial.println(longitude, 6);
-  Serial.print(F("Speed: ")); Serial.println(speed_kph);
-  Serial.print(F("Heading: ")); Serial.println(heading);
-  Serial.print(F("Altitude: ")); Serial.println(altitude);
-  /*
-  // Uncomment this if you care about parsing UTC time
-  Serial.print(F("Year: ")); Serial.println(year);
-  Serial.print(F("Month: ")); Serial.println(month);
-  Serial.print(F("Day: ")); Serial.println(day);
-  Serial.print(F("Hour: ")); Serial.println(hour);
-  Serial.print(F("Minute: ")); Serial.println(minute);
-  Serial.print(F("Second: ")); Serial.println(second);
-  */
-  Serial.println(F("---------------------"));
+  // while (!fona.getGPS(&latitude, &longitude, &speed_kph, &heading, &altitude)) {
+  //   Serial.println(F("Failed to get GPS location, retrying..."));
+  //   delay(2000); // Retry every 2s
+  // }
+  // Serial.println(F("Found 'eeeeem!"));
+  // Serial.println(F("---------------------"));
+  // Serial.print(F("Latitude: ")); Serial.println(latitude, 6);
+  // Serial.print(F("Longitude: ")); Serial.println(longitude, 6);
+  // Serial.print(F("Speed: ")); Serial.println(speed_kph);
+  // Serial.print(F("Heading: ")); Serial.println(heading);
+  // Serial.print(F("Altitude: ")); Serial.println(altitude);
+  // /*
+  // // Uncomment this if you care about parsing UTC time
+  // Serial.print(F("Year: ")); Serial.println(year);
+  // Serial.print(F("Month: ")); Serial.println(month);
+  // Serial.print(F("Day: ")); Serial.println(day);
+  // Serial.print(F("Hour: ")); Serial.println(hour);
+  // Serial.print(F("Minute: ")); Serial.println(minute);
+  // Serial.print(F("Second: ")); Serial.println(second);
+  // */
+  // Serial.println(F("---------------------"));
 
-  // Format the floating point numbers
-  dtostrf(latitude, 1, 6, latBuff); // float_val, min_width, digits_after_decimal, char_buffer
-  dtostrf(longitude, 1, 6, longBuff);
-  dtostrf(speed_kph, 1, 0, speedBuff);
-  dtostrf(heading, 1, 0, headBuff);
-  dtostrf(altitude, 1, 1, altBuff);
-  dtostrf(temperature, 1, 2, tempBuff);
-  dtostrf(battLevel, 1, 0, battBuff);
+  // // Format the floating point numbers
+  // dtostrf(latitude, 1, 6, latBuff); // float_val, min_width, digits_after_decimal, char_buffer
+  // dtostrf(longitude, 1, 6, longBuff);
+  // dtostrf(speed_kph, 1, 0, speedBuff);
+  // dtostrf(heading, 1, 0, headBuff);
+  // dtostrf(altitude, 1, 1, altBuff);
+  // dtostrf(temperature, 1, 2, tempBuff);
+  // dtostrf(battLevel, 1, 0, battBuff);
 
-  // Construct a combined, comma-separated location array
-  sprintf(locBuff, "%s,%s,%s,%s", speedBuff, latBuff, longBuff, altBuff); // This could look like "10,33.123456,-85.123456,120.5"
+  // // Construct a combined, comma-separated location array
+  // sprintf(locBuff, "%s,%s,%s,%s", speedBuff, latBuff, longBuff, altBuff); // This could look like "10,33.123456,-85.123456,120.5"
+  sprintf(locBuff, "%s,%s,%s,%s", "10", "33.123456", "-85.123456", "120.5"); // This could look like "10,33.123456,-85.123456,120.5"
   
   // If not already connected, connect to MQTT
   if (! fona.MQTT_connectionStatus()) {
