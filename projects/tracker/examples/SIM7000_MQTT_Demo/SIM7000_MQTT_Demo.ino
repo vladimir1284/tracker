@@ -259,7 +259,7 @@ void loop() {
 
   // Now publish all the GPS and temperature data to their respective topics!
   // Parameters for MQTT_publish: Topic, message (0-512 bytes), message length, QoS (0-2), retain (0-1)
-  if (!fona.MQTT_publish(GPS_TOPIC, locBuff, strlen(locBuff), 1, 0)) Serial.println(F("Failed to publish!")); // Send GPS location
+  if (!fona.MQTT_publish(GPS_TOPIC, locBuff, strlen(locBuff), 0, 1)) Serial.println(F("Failed to publish!")); // Send GPS location
   // if (!fona.MQTT_publish(TEMP_TOPIC, tempBuff, strlen(tempBuff), 1, 0)) Serial.println(F("Failed to publish!")); // Send temperature
   // if (!fona.MQTT_publish(BATT_TOPIC, battBuff, strlen(battBuff), 1, 0)) Serial.println(F("Failed to publish!")); // Send battery level
 
