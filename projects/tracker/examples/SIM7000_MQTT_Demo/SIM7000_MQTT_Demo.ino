@@ -43,7 +43,7 @@ Adafruit_FONA_LTE fona = Adafruit_FONA_LTE();
 // #define MQTT_PASSWORD    "MQTT_PASSWORD"
 
 // Set topic names to publish and subscribe to
-#define GPS_TOPIC       "towit/location"
+#define GPS_TOPIC       "864713037301317"
 #define TEMP_TOPIC      "towit/temperature"
 #define BATT_TOPIC      "towit/battery"
 #define SUB_TOPIC       "towit/command"     // Subscribe topic name
@@ -245,7 +245,7 @@ void loop() {
     // Set up MQTT username and password if necessary
     // fona.MQTT_setParameter("USERNAME", MQTT_USERNAME);
     // fona.MQTT_setParameter("PASSWORD", MQTT_PASSWORD);
-   fona.MQTT_setParameter("KEEPTIME", "3600"); // Time to connect to server, 60s by default
+   fona.MQTT_setParameter("KEEPTIME", "600"); // Time to connect to server, 60s by default
    fona.MQTT_setParameter("RETAIN", "1"); // Time to connect to server, 60s by default
     
     Serial.println(F("Connecting to MQTT broker..."));
@@ -260,10 +260,10 @@ void loop() {
   // Now publish all the GPS and temperature data to their respective topics!
   // Parameters for MQTT_publish: Topic, message (0-512 bytes), message length, QoS (0-2), retain (0-1)
   if (!fona.MQTT_publish(GPS_TOPIC, locBuff, strlen(locBuff), 1, 0)) Serial.println(F("Failed to publish!")); // Send GPS location
-  if (!fona.MQTT_publish(TEMP_TOPIC, tempBuff, strlen(tempBuff), 1, 0)) Serial.println(F("Failed to publish!")); // Send temperature
-  if (!fona.MQTT_publish(BATT_TOPIC, battBuff, strlen(battBuff), 1, 0)) Serial.println(F("Failed to publish!")); // Send battery level
+  // if (!fona.MQTT_publish(TEMP_TOPIC, tempBuff, strlen(tempBuff), 1, 0)) Serial.println(F("Failed to publish!")); // Send temperature
+  // if (!fona.MQTT_publish(BATT_TOPIC, battBuff, strlen(battBuff), 1, 0)) Serial.println(F("Failed to publish!")); // Send battery level
 
-  fona.MQTT_subscribe(SUB_TOPIC, 1); // Topic name, QoS
+  // fona.MQTT_subscribe(SUB_TOPIC, 1); // Topic name, QoS
   
   // Unsubscribe to topics if wanted:
 //  fona.MQTT_unsubscribe(SUB_TOPIC);
