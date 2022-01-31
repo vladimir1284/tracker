@@ -24,6 +24,10 @@
 #include "includes/FONAExtIncludes.h"
 #include "includes/platform/FONAPlatform.h"
 
+// ----- Watchdog ------
+#include "esp_system.h"
+extern hw_timer_t *timer;
+// ----------------------
 
 
 #define SIM800L 1
@@ -95,7 +99,7 @@
 class Adafruit_FONA : public FONAStreamType {
  public:
   Adafruit_FONA(int8_t);
-  boolean begin(FONAStreamType &port);
+  boolean begin(FONAStreamType &port, int FONA_PWRKEY);
   uint8_t type();
 
   // Stream
@@ -186,9 +190,10 @@ class Adafruit_FONA : public FONAStreamType {
   boolean enableGPS(boolean onoff);
   int8_t GPSstatus(void);
   uint8_t getGPS(uint8_t arg, char *buffer, uint8_t maxbuff);
+  boolean getGPS(float *lat, float *lon, float *speed_kph, uint16_t *heading, char *sats);
   // boolean getGPS(float *lat, float *lon, float *speed_kph=0, float *heading=0, float *altitude=0);
-  boolean getGPS(float *lat, float *lon, float *speed_kph, float *heading, float *altitude,
-                              uint16_t *year = NULL, uint8_t *month = NULL, uint8_t *day = NULL, uint8_t *hour = NULL, uint8_t *min = NULL, float *sec = NULL);
+//   boolean getGPS(float *lat, float *lon, float *speed_kph, float *heading, float *altitude,
+//                               uint16_t *year = NULL, uint8_t *month = NULL, uint8_t *day = NULL, uint8_t *hour = NULL, uint8_t *min = NULL, float *sec = NULL);
   boolean enableGPSNMEA(uint8_t nmea);
 
   // UDP raw connections

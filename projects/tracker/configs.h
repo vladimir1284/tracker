@@ -14,12 +14,8 @@
 
 // --------------- SIM ------------------
 
-#define BASE_URL "http://trailerrental.pythonanywhere.com/towit"
-#define ID_URL "tracker_id"
-#define UPLOAD_URL "tracker_data"
-#define CONFIGS_URL "tracker_parameters"
-#define PASSWD "c0ntr453n1a"
-#define APN_NAME "nauta"
+#define MSG_SIZE 20
+#define APN_NAME "hologram"
 
 #define RETRAYS 3
 #define SIMDELAY 10000 // ms
@@ -30,44 +26,19 @@
 #define FONA_TX 19
 #define FONA_RST -1
 #define SIM_PWR 4 // GPIO4 -> RTC_GPIO10
-#define SIMBaud 4800
 
 // --------------------------------------
 
-// --------------- GPS ------------------
-
-#define GPS_PWR 2
-#define RXPinGPS 16
-#define TXPinGPS 17
-#define GPSBaud 9600 // USA 4800 | CU 9600
-
-#define READ_GPS_DELAY 1500 // ms Time for continuosly collecting serial data from GPS module
-#define iHPOS 20
-#define iRADIUS 100 // m
-
-// Data structure
-struct GPSdataStruct
-{
-    bool pending,
-        new_pos;
-    int sat_num,
-        month,
-        day,
-        year,
-        hour,
-        minute,
-        second,
-        heading;
-    float latitude,
-        longitude,
-        speed;
-};
+// --------------- MQTT PARAMETERS -----------------
+#define MQTT_SERVER      "test.mosquitto.org"
+#define MQTT_PORT        1883
+// #define MQTT_USERNAME    "MQTT_USERNAME"
+// #define MQTT_PASSWORD    "MQTT_PASSWORD"
 
 // --------------------------------------
 
 // --------------- initial Configs ------------------
 
-#define iTcheck 15 // min
 #define iMAX_ERRORS 3
 
 // On Battery
@@ -79,29 +50,36 @@ struct GPSdataStruct
 // On Power connected
 #define iTGPS 10  // min
 #define iTint 60  // min
-#define iTsend 10 // min
+#define iTsend 3  // min
 
 // --------------------------------------
 
 // --------------- FSM ------------------
 
-#define uS_TO_S_FACTOR 1000000ULL    /* Conversion factor for micro seconds to seconds */
-#define MIN_TO_uS_FACTOR 60000000ULL /* Conversion factor for micro seconds to seconds */
+#define S_TO_uS_FACTOR 1000000ULL    /* Conversion factor for seconds to micro seconds */
+#define MIN_TO_uS_FACTOR 60000000ULL /* Conversion factor for minutes to micro seconds */
 #define MIN_TO_S_FACTOR 6            // 0 x0.1 for debug
-#define PIN12V A0                    // Input pin for checking 12V connection
+#define PIN12V 36                    // Input pin for checking 12V connection
+
+enum QoS {QoS0,QoS1,QoS2};  
+
+enum modes
+{
+    // Power connected
+    POWER_ON,
+    BATTERY
+};
 
 enum states
 {
     // Power connected
     IDLE,
-    ENERGY,
     READ_GPS,
     SEND_DATA,
     UPDATE_CFG,
     ERROR,
     // Battery powered
     SLEEPING,
-    BATTERY,
     BAT_GPS,
     BAT_SEND,
     BAT_CFG,
@@ -117,7 +95,7 @@ enum states
 const byte EEPROM_KEY = 0x99; // used to identify if valid data in EEPROM
 
 const int KEY_ADDR = 0;        // the EEPROM address used to store the ID
-const int Tcheck_ADDR = 1;     // the EEPROM address used to store Tcheck
+// const int Tcheck_ADDR = 1;     // the EEPROM address used to store Tcheck
 const int MAX_ERRORS_ADDR = 2; // the EEPROM address used to store MAX_ERRORS
 const int Tint_ADDR = 3;       // the EEPROM address used to store Tint (2 bytes)
 const int TintB_ADDR = 5;      // the EEPROM address used to store TintB (2 bytes)

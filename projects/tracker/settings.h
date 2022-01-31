@@ -1,20 +1,11 @@
-#if !defined(FSM_H)
-#define FSM_H
+#if !defined(SET_H)
+#define SET_H
 
 #include <EEPROM.h>
 #include "configs.h"
-#include "gps.h"
-#include "sim.h"
+#include "Adafruit_FONA.h"
 
-extern void rtc_sleep(unsigned long delay);
-
-extern states state;
-extern time_t lastInterval,
-    millisOffset;
-extern int gpsErrors,
-    gsmErrors;
-
-extern int Tcheck, // Time interval for power check (0 - 255) min
+extern int //Tcheck, // Time interval for power check (0 - 255) min (deprecated)
     MAX_ERRORS,    // (0 - 255)
     Tint,          // Time interval for position updates (0 - 65535) min
     TintB,         // Time interval for position updates on battery (0 - 65535) min
@@ -24,16 +15,14 @@ extern int Tcheck, // Time interval for power check (0 - 255) min
     TsendB,        // Time allow for sending data on battery (0 - 255) min
     Tsend;         // Time allow for sending data (0 - 255) min
 
-class SIM;
-
-class FSM
+class Settings
 {
 
 public:
-    FSM();
+    Settings();
 
     void run(),
-        setup(int pin, GPS *gps, SIM *sim),
+        setup(),
         setTcheck(int val),
         setMAX_ERRORS(int val),
         setTint(unsigned int val),
@@ -43,15 +32,6 @@ public:
         setSMART(int val),
         setTsendB(int val),
         setTsend(int val);
-
-private:
-    int pin12V;
-
-    unsigned long lastCheck,
-        stateChange;
-
-    GPS *_gps;
-    SIM *_sim;
 };
 
-#endif // FSM_H
+#endif // SET_H
