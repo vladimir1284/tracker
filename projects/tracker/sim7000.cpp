@@ -13,6 +13,11 @@ boolean Sim7000::prepareMessage()
     char sats;
     if (!fona.getGPS(&latitude, &longitude, &speed_kph, &heading, &sats))
     {
+        Serial.print(F("Latitude: ")); Serial.println(latitude, 6);
+        Serial.print(F("Longitude: ")); Serial.println(longitude, 6);
+        Serial.print(F("Speed: ")); Serial.println(speed_kph);
+        Serial.print(F("Heading: ")); Serial.println(heading);
+        Serial.print(F("N sats: ")); Serial.println(sats);
         return false;
     }
     else
@@ -42,6 +47,10 @@ void Sim7000::setup()
     // Press Arduino reset button if the module is still turning on and the board doesn't find it.
     // When the module is on it should communicate right after pressing reset
 
+    if (DEBUG)
+    {
+        Serial.println(F("Start!"));
+    }
     // Software serial:
     fonaSS.begin(115200, SERIAL_8N1, FONA_TX, FONA_RX); // baud rate, protocol, ESP32 RX pin, ESP32 TX pin
 
