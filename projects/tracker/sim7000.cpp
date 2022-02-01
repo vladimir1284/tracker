@@ -22,15 +22,18 @@ boolean Sim7000::prepareMessage()
 
         pending = true;
 
-        msg[0] = seq_num++;
-        msg[1] = (char)mode;
-        msg[2] = 0; // TODO haandle events
-        msg[3] = sats;
-        memcpy(&msg[4], (char *)&vbat, sizeof(vbat));
-        memcpy(&msg[6], (char *)&heading, sizeof(heading));
-        memcpy(&msg[8], (char *)&latitude, sizeof(latitude));
-        memcpy(&msg[12], (char *)&longitude, sizeof(longitude));
-        memcpy(&msg[16], (char *)&speed_kph, sizeof(speed_kph));
+// TODO haandle events
+        sprintf(msg, "%d,%d,%d,%.5f,%.5f,%d,%d,%d,%d", seq_num++, mode, 0, latitude, longitude, (int)speed_kph, heading, 0, vbat);
+
+        // msg[0] = seq_num++;
+        // msg[1] = (char)mode;
+        // msg[2] = 0; // TODO haandle events
+        // msg[3] = sats;
+        // memcpy(&msg[4], (char *)&vbat, sizeof(vbat));
+        // memcpy(&msg[6], (char *)&heading, sizeof(heading));
+        // memcpy(&msg[8], (char *)&latitude, sizeof(latitude));
+        // memcpy(&msg[12], (char *)&longitude, sizeof(longitude));
+        // memcpy(&msg[16], (char *)&speed_kph, sizeof(speed_kph));
 
         if (DEBUG)
         {
@@ -44,6 +47,7 @@ boolean Sim7000::prepareMessage()
             Serial.println(heading);
             Serial.print(F("N sats: "));
             Serial.println(sats);
+            Serial.println(msg);
         }
         return true;
     }
@@ -167,10 +171,10 @@ boolean Sim7000::uploadData(byte QoS)
         // fona.MQTT_setParameter("USERNAME", MQTT_USERNAME);
         // fona.MQTT_setParameter("PASSWORD", MQTT_PASSWORD);
         // fona.MQTT_setParameter("RETAIN", "1");     // Keep last message alaive
-        if (!fona.MQTT_dataFormatHex(false))
-        {
-            return false;
-        }
+        // if (!fona.MQTT_dataFormatHex(false))
+        // {
+        //     return false;
+        // }
         fona.MQTT_setParameter("KEEPTIME", "3600"); // Time to connect to server, 60s by default
         if (DEBUG)
         {
@@ -194,19 +198,7 @@ boolean Sim7000::uploadData(byte QoS)
     }
 
     // Publish data
-    if (DEBUG)
-    {
-        for (int i = 0; i < MSG_SIZE; i++)
-        {
-            Serial.print(msg[i], DEC);
-            Serial.print(',');
-        }
-        Serial.println();
-    }
-
-    // if (!fona.MQTT_publish(imei, msg, MSG_SIZE, QoS, 0))
-    const char myChars[21] = "Hello TOWIT Houston!";
-    if (!fona.MQTT_publish(imei, myChars, MSG_SIZE, QoS, 0))
+    if (!fona.MQTT_publish(imei, msg, strlen(msg), QoS, 0))
     {
         if (DEBUG)
         {
