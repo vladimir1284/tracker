@@ -1,4 +1,3 @@
-#define UPLOAD_URL "towit/tracker_data"
 #include "configs.h"
 #include "settings.h"
 #include "time.h"

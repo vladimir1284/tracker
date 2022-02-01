@@ -205,7 +205,7 @@ boolean Sim7000::uploadData(byte QoS)
     }
 
     // if (!fona.MQTT_publish(imei, msg, MSG_SIZE, QoS, 0))
-    const char myChars[21] = { 0,1,0,7,40,16,16,0,95,213,237,65,100,76,191,194,164,112,61,63 };
+    const char myChars[21] = "Hello TOWIT Houston!";
     if (!fona.MQTT_publish(imei, myChars, MSG_SIZE, QoS, 0))
     {
         if (DEBUG)
