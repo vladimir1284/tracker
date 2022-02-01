@@ -42,7 +42,7 @@ void rtc_handle_wakeup()
     wakeup_reason = esp_sleep_get_wakeup_cause();
     if (wakeup_reason != ESP_SLEEP_WAKEUP_TIMER)
     {
-        state = IDLE;
+        state = READ_GPS;
         lastInterval = 0;
         gpsErrors = 0;
         gsmErrors = 0;
