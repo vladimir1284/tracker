@@ -1544,7 +1544,7 @@ boolean Adafruit_FONA::getGPS(float *lat, float *lon, float *speed_kph, uint16_t
     //   *heading = atof(coursep);
     // }
 
-    tok = strtok(NULL, ",");
+    // tok = strtok(NULL, ",");
     tok = strtok(NULL, ",");
     tok = strtok(NULL, ",");
     tok = strtok(NULL, ",");
