@@ -1553,13 +1553,16 @@ boolean Adafruit_FONA::getGPS(float *lat, float *lon, float *speed_kph, uint16_t
     tok = strtok(NULL, ",");
 
     // only grab sats if needed
+
+      Serial.println("Here");
     if (sats != NULL)
     {
       // grab the speed in knots
       char *nsats = strtok(NULL, ",");
+      Serial.println("There");
       if (!nsats)
         return false;
-      Serial.println(nsats);
+      Serial.println(*nsats);
       *sats = atoi(nsats);
     }
 
