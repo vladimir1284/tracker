@@ -1545,8 +1545,8 @@ boolean Adafruit_FONA::getGPS(float *lat, float *lon, float *speed_kph, uint16_t
     // }
 
     // tok = strtok(NULL, ",");
-    tok = strtok(NULL, ",");
-    tok = strtok(NULL, ",");
+    // tok = strtok(NULL, ",");
+    // tok = strtok(NULL, ",");
     tok = strtok(NULL, ",");
     tok = strtok(NULL, ",");
     tok = strtok(NULL, ",");
@@ -1563,7 +1563,7 @@ boolean Adafruit_FONA::getGPS(float *lat, float *lon, float *speed_kph, uint16_t
       if (!nsats)
         return false;
       Serial.println(*nsats);
-      *sats = atoi(nsats);
+      *sats = (char) atoi(nsats);
     }
 
     (void)tok;
