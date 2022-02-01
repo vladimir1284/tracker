@@ -159,7 +159,7 @@ boolean Sim7000::uploadData(byte QoS)
     }
 
     // If not already connected, connect to MQTT
-    if (true)//!fona.MQTT_connectionStatus())
+    if (!fona.MQTT_connectionStatus())
     {
         // Set up MQTT parameters (see MQTT app note for explanation of parameter values)
         fona.MQTT_setParameter("URL", MQTT_SERVER, MQTT_PORT);
