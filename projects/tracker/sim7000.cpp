@@ -159,7 +159,7 @@ boolean Sim7000::uploadData(byte QoS)
     }
 
     // If not already connected, connect to MQTT
-    if (!fona.MQTT_connectionStatus())
+    if (true)//!fona.MQTT_connectionStatus())
     {
         // Set up MQTT parameters (see MQTT app note for explanation of parameter values)
         fona.MQTT_setParameter("URL", MQTT_SERVER, MQTT_PORT);
@@ -167,7 +167,7 @@ boolean Sim7000::uploadData(byte QoS)
         // fona.MQTT_setParameter("USERNAME", MQTT_USERNAME);
         // fona.MQTT_setParameter("PASSWORD", MQTT_PASSWORD);
         // fona.MQTT_setParameter("RETAIN", "1");     // Keep last message alaive
-        if (!fona.MQTT_dataFormatHex(true))
+        if (!fona.MQTT_dataFormatHex(false))
         {
             return false;
         }
