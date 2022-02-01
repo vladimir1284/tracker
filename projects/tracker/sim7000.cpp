@@ -13,11 +13,6 @@ boolean Sim7000::prepareMessage()
     char sats;
     if (!fona.getGPS(&latitude, &longitude, &speed_kph, &heading, &sats))
     {
-        Serial.print(F("Latitude: ")); Serial.println(latitude, 6);
-        Serial.print(F("Longitude: ")); Serial.println(longitude, 6);
-        Serial.print(F("Speed: ")); Serial.println(speed_kph);
-        Serial.print(F("Heading: ")); Serial.println(heading);
-        Serial.print(F("N sats: ")); Serial.println(sats);
         return false;
     }
     else
@@ -36,6 +31,20 @@ boolean Sim7000::prepareMessage()
         memcpy(&msg[8], (char *)&latitude, sizeof(latitude));
         memcpy(&msg[12], (char *)&longitude, sizeof(longitude));
         memcpy(&msg[16], (char *)&speed_kph, sizeof(speed_kph));
+
+        if (DEBUG)
+        {
+            Serial.print(F("Latitude: "));
+            Serial.println(latitude, 6);
+            Serial.print(F("Longitude: "));
+            Serial.println(longitude, 6);
+            Serial.print(F("Speed: "));
+            Serial.println(speed_kph);
+            Serial.print(F("Heading: "));
+            Serial.println(heading);
+            Serial.print(F("N sats: "));
+            Serial.println(sats);
+        }
         return true;
     }
 }
@@ -181,6 +190,11 @@ boolean Sim7000::uploadData(byte QoS)
     }
 
     // Publish data
+    for (int i = 0; i < MSG_SIZE; i++)
+    {
+        Serial.print(msg[i], DEC);
+        Serial.print(',');
+    }
     if (!fona.MQTT_publish(imei, msg, MSG_SIZE, QoS, 0))
     {
         if (DEBUG)
