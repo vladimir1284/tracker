@@ -194,7 +194,7 @@ boolean Sim7000::uploadData(byte QoS)
     }
 
     // Publish data
-    if (DEBUUG)
+    if (DEBUG)
     {
         for (int i = 0; i < MSG_SIZE; i++)
         {
