@@ -167,6 +167,10 @@ boolean Sim7000::uploadData(byte QoS)
         // fona.MQTT_setParameter("USERNAME", MQTT_USERNAME);
         // fona.MQTT_setParameter("PASSWORD", MQTT_PASSWORD);
         // fona.MQTT_setParameter("RETAIN", "1");     // Keep last message alaive
+        if (!fona.MQTT_dataFormatHex(true))
+        {
+            return false;
+        }
         fona.MQTT_setParameter("KEEPTIME", "3600"); // Time to connect to server, 60s by default
         if (DEBUG)
         {
@@ -190,11 +194,16 @@ boolean Sim7000::uploadData(byte QoS)
     }
 
     // Publish data
-    for (int i = 0; i < MSG_SIZE; i++)
+    if (DEBUUG)
     {
-        Serial.print(msg[i], DEC);
-        Serial.print(',');
+        for (int i = 0; i < MSG_SIZE; i++)
+        {
+            Serial.print(msg[i], DEC);
+            Serial.print(',');
+        }
+        Serial.println();
     }
+
     if (!fona.MQTT_publish(imei, msg, MSG_SIZE, QoS, 0))
     {
         if (DEBUG)
