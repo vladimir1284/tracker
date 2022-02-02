@@ -81,6 +81,8 @@ void setup()
 
   // Setup sim module
   sim_device.setup();
+  
+  fona.setFunctionality(1); // AT+CFUN=1
 
   // Setup FSM
   fsm_power_on.setup(&sim_device);
