@@ -30,7 +30,7 @@
 // --------------------------------------
 
 // --------------- MQTT PARAMETERS -----------------
-#define SERVER "http://trailerrental.pythonanywhere.com/"
+#define SERVER "http://trailerrental.pythonanywhere.com"
 #define ADDR "/towit/tracker_data"
 // #define MQTT_SERVER      "test.mosquitto.org"
 // #define MQTT_PORT        1883
