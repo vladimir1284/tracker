@@ -81,8 +81,8 @@ void setup()
 
   // Setup sim module
   sim_device.setup();
-  
-  fona.setFunctionality(1); // AT+CFUN=1
+
+  // fona.setFunctionality(1); // AT+CFUN=1
 
   // Setup FSM
   fsm_power_on.setup(&sim_device);
@@ -93,33 +93,33 @@ void setup()
 
 void loop()
 {
-  float lat, lon, speed;
-  char seq, mode, event, sats;
-  uint16_t vbat, heading;
+  // float lat, lon, speed;
+  // char seq, mode, event, sats;
+  // uint16_t vbat, heading;
 
-  seq = 10;
-  mode = 1;
-  event = 2;
-  sats = 5;
-  vbat = 4151;
-  heading = 300;
-  speed = 3.45;
-  lat = 29.72939;
-  lon = -95.64918;
-  sprintf(msg, "%s,%d,%d,%d,%.5f,%.5f,%d,%d,%d,%d", "865235030717330", seq, mode, 0, lat, lon, (int)speed, heading, 6, vbat);
-  Serial.print("len: ");
-  Serial.println(strlen(msg));
-  Serial.println(msg);
+  // seq = 10;
+  // mode = 1;
+  // event = 2;
+  // sats = 5;
+  // vbat = 4151;
+  // heading = 300;
+  // speed = 3.45;
+  // lat = 29.72939;
+  // lon = -95.64918;
+  // sprintf(msg, "%s,%d,%d,%d,%.5f,%.5f,%d,%d,%d,%d", "865235030717330", seq, mode, 0, lat, lon, (int)speed, heading, 6, vbat);
+  // Serial.print("len: ");
+  // Serial.println(strlen(msg));
+  // Serial.println(msg);
 
-  if (sim_device.uploadData())
-  {
-    while (1)
-      ;
-  }
-  timerWrite(timer, 0); //reset timer (feed watchdog)
-  // time_t now;
-  // time(&now);
-  // Serial.println(now);
-  delay(2000);
-  // fsm_power_on.run();
+  // if (sim_device.uploadData())
+  // {
+  //   while (1)
+  //     ;
+  // }
+  // timerWrite(timer, 0); //reset timer (feed watchdog)
+  // // time_t now;
+  // // time(&now);
+  // // Serial.println(now);
+  // delay(2000);
+  fsm_power_on.run();
 }
