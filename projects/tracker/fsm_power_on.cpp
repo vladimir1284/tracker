@@ -137,7 +137,7 @@ void FSMpower::run()
         {
             Serial.println(F("Connected to cell network!"));
         }
-        if (!_sim_device->uploadData(QoS0))
+        if (!_sim_device->uploadData())
         {
             if (DEBUG)
             {

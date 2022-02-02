@@ -14,7 +14,7 @@
 
 // --------------- SIM ------------------
 
-#define MSG_SIZE 20
+#define MSG_SIZE 128
 #define APN_NAME "hologram"
 
 #define RETRAYS 3
@@ -30,8 +30,10 @@
 // --------------------------------------
 
 // --------------- MQTT PARAMETERS -----------------
-#define MQTT_SERVER      "test.mosquitto.org"
-#define MQTT_PORT        1883
+#define SERVER "http://trailerrental.pythonanywhere.com/"
+#define ADDR "/towit/tracker_data"
+// #define MQTT_SERVER      "test.mosquitto.org"
+// #define MQTT_PORT        1883
 // #define MQTT_USERNAME    "MQTT_USERNAME"
 // #define MQTT_PASSWORD    "MQTT_PASSWORD"
 

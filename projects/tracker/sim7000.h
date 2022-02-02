@@ -20,7 +20,7 @@ class Sim7000
 public:
     Sim7000();
     bool prepareMessage(),
-        uploadData(byte QoS),
+        uploadData(),
         netStatus();
     void setup();
 

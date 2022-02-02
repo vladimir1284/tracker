@@ -91,10 +91,33 @@ void setup()
 
 void loop()
 {
-  // timerWrite(timer, 0); //reset timer (feed watchdog)
+  float lat, lon, speed;
+  char seq, mode, event, sats;
+  uint16_t vbat, heading;
+
+  seq = 10;
+  mode = 1;
+  event = 2;
+  sats = 5;
+  vbat = 4151;
+  heading = 300;
+  speed = 3.45;
+  lat = 29.72939;
+  lon = -95.64918;
+  sprintf(msg, "%s,%d,%d,%d,%.5f,%.5f,%d,%d,%d,%d", "865235030717330", seq, mode, 0, lat, lon, (int)speed, heading, 6, vbat);
+  Serial.print("len: ");
+  Serial.println(strlen(msg));
+  Serial.println(msg);
+
+  if (sim_device.uploadData())
+  {
+    while (1)
+      ;
+  }
+  timerWrite(timer, 0); //reset timer (feed watchdog)
   // time_t now;
   // time(&now);
   // Serial.println(now);
-  // delay(2000);
-  fsm_power_on.run();
+  delay(2000);
+  // fsm_power_on.run();
 }

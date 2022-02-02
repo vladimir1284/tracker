@@ -22,8 +22,10 @@ boolean Sim7000::prepareMessage()
 
         pending = true;
 
-// TODO haandle events
-        sprintf(msg, "%d,%d,%d,%.5f,%.5f,%d,%d,%d,%d", seq_num++, mode, 0, latitude, longitude, (int)speed_kph, heading, 0, vbat);
+        // TODO haandle events
+        sprintf(msg, "%s,%d,%d,%d,%.5f,%.5f,%d,%d,%d,%d", imei, seq_num++, mode, 0, latitude, longitude, (int)speed_kph, heading, 0, vbat);
+
+        // sprintf(msg, "%d,%d,%d,%.5f,%.5f,%d,%d,%d,%d", seq_num++, mode, 0, latitude, longitude, (int)speed_kph, heading, 0, vbat);
 
         // msg[0] = seq_num++;
         // msg[1] = (char)mode;
@@ -136,7 +138,7 @@ boolean Sim7000::netStatus()
 }
 
 //--------------------------------------------------------------------
-boolean Sim7000::uploadData(byte QoS)
+boolean Sim7000::uploadData()
 {
     // Open wireless connection if not already activated
     if (!fona.wirelessConnStatus())
@@ -162,50 +164,70 @@ boolean Sim7000::uploadData(byte QoS)
         }
     }
 
-    // If not already connected, connect to MQTT
-    if (!fona.MQTT_connectionStatus())
-    {
-        // Set up MQTT parameters (see MQTT app note for explanation of parameter values)
-        fona.MQTT_setParameter("URL", MQTT_SERVER, MQTT_PORT);
-        // Set up MQTT username and password if necessary
-        // fona.MQTT_setParameter("USERNAME", MQTT_USERNAME);
-        // fona.MQTT_setParameter("PASSWORD", MQTT_PASSWORD);
-        // fona.MQTT_setParameter("RETAIN", "1");     // Keep last message alaive
-        // if (!fona.MQTT_dataFormatHex(false))
-        // {
-        //     return false;
-        // }
-        fona.MQTT_setParameter("KEEPTIME", "3600"); // Time to connect to server, 60s by default
-        if (DEBUG)
-        {
-            Serial.println(F("Connecting to MQTT broker..."));
-        }
-        if (!fona.MQTT_connect(true))
-        {
-            if (DEBUG)
-            {
-                Serial.println(F("Failed to connect to broker!"));
-            }
-            return false;
-        }
-    }
-    else
+    // HTTP send data
+    if (!fona.HTTP_connect(SERVER))
     {
         if (DEBUG)
         {
-            Serial.println(F("Already connected to MQTT server!"));
-        }
-    }
-
-    // Publish data
-    if (!fona.MQTT_publish(imei, msg, strlen(msg), QoS, 0))
-    {
-        if (DEBUG)
-        {
-            Serial.println(F("Failed to publish!")); // Send GPS location
+            Serial.println(F("Failed to connect to server!"));
         }
         return false;
     }
+
+    // Upload data
+    if (!fona.HTTP_POST(ADDR, msg, strlen(msg)))
+    {
+        if (DEBUG)
+        {
+            Serial.println(F("Failed to upload!")); // Send GPS location
+        }
+        return false;
+    }
+
+    // // If not already connected, connect to MQTT
+    // if (!fona.MQTT_connectionStatus())
+    // {
+    //     // Set up MQTT parameters (see MQTT app note for explanation of parameter values)
+    //     fona.MQTT_setParameter("URL", MQTT_SERVER, MQTT_PORT);
+    //     // Set up MQTT username and password if necessary
+    //     // fona.MQTT_setParameter("USERNAME", MQTT_USERNAME);
+    //     // fona.MQTT_setParameter("PASSWORD", MQTT_PASSWORD);
+    //     // fona.MQTT_setParameter("RETAIN", "1");     // Keep last message alaive
+    //     // if (!fona.MQTT_dataFormatHex(false))
+    //     // {
+    //     //     return false;
+    //     // }
+    //     fona.MQTT_setParameter("KEEPTIME", "3600"); // Time to connect to server, 60s by default
+    //     if (DEBUG)
+    //     {
+    //         Serial.println(F("Connecting to MQTT broker..."));
+    //     }
+    //     if (!fona.MQTT_connect(true))
+    //     {
+    //         if (DEBUG)
+    //         {
+    //             Serial.println(F("Failed to connect to broker!"));
+    //         }
+    //         return false;
+    //     }
+    // }
+    // else
+    // {
+    //     if (DEBUG)
+    //     {
+    //         Serial.println(F("Already connected to MQTT server!"));
+    //     }
+    // }
+
+    // // Publish data
+    // if (!fona.MQTT_publish(imei, msg, strlen(msg), QoS, 0))
+    // {
+    //     if (DEBUG)
+    //     {
+    //         Serial.println(F("Failed to publish!")); // Send GPS location
+    //     }
+    //     return false;
+    // }
 }
 
 // void Sim7000::updateTrackerID(int value)
