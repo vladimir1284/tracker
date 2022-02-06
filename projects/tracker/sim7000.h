@@ -22,7 +22,11 @@ public:
     bool prepareMessage(),
         uploadData(),
         netStatus();
-    void setup();
+    void setup(),
+        turnOFF(),
+        turnON(),
+        reset(),
+        configure();
 
 private:
     // int configs_Tcheck,

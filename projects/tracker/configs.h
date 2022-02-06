@@ -8,7 +8,7 @@
 
 // --------------- watchdog ------------------
 
-#define wdtTimeout 10000000ULL //time in us to trigger the watchdog
+#define wdtTimeout 60000000ULL //time in us to trigger the watchdog
 
 // --------------------------------------
 
@@ -24,8 +24,8 @@
 
 #define FONA_RX 18
 #define FONA_TX 19
-#define FONA_RST -1
-#define SIM_PWR 4 // GPIO4 -> RTC_GPIO10
+#define SIM_PWR 35
+#define PWRKEY 4 // GPIO4 -> RTC_GPIO10
 
 // --------------------------------------
 
@@ -63,8 +63,6 @@
 #define MIN_TO_S_FACTOR 60            // 0 x0.1 for debug
 #define PIN12V 34                    // Input pin for checking 12V connection
 
-enum QoS {QoS0,QoS1,QoS2};  
-
 enum modes
 {
     // Power connected
@@ -78,14 +76,7 @@ enum states
     IDLE,
     READ_GPS,
     SEND_DATA,
-    UPDATE_CFG,
-    ERROR,
-    // Battery powered
-    SLEEPING,
-    BAT_GPS,
-    BAT_SEND,
-    BAT_CFG,
-    BAT_ERROR
+    ERROR
 };
 
 // --------------------------------------

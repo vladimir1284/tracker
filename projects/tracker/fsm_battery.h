@@ -1,5 +1,5 @@
-#if !defined(FSMpower_H)
-#define FSMpower_H
+#if !defined(FSMbattery_H)
+#define FSMbattery_H
 
 #include "configs.h"
 #include "settings.h"
@@ -7,6 +7,7 @@
 #include "Adafruit_FONA.h"
 
 extern void rtc_sleep(unsigned long delay);
+extern void rtc_light_sleep(unsigned long delay);
 extern Adafruit_FONA_LTE fona;
 extern Sim7000 sim_device;
 
@@ -17,11 +18,11 @@ extern time_t lastInterval;
 extern int gpsErrors,
     gsmErrors;
 
-class FSMpower
+class FSMbattery
 {
 
 public:
-    FSMpower();
+    FSMbattery();
 
     void run(),
         setup(Sim7000 *sim_device);
@@ -32,4 +33,4 @@ private:
     int tries;
 };
 
-#endif // FSMpower_H
+#endif // FSMbattery_H

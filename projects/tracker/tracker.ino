@@ -3,12 +3,14 @@
 #include "time.h"
 #include "rtc.h"
 #include "fsm_power_on.h"
+#include "fsm_battery.h"
 
 hw_timer_t *timer = NULL;
 
 Settings set_handler;
 Sim7000 sim_device;
 FSMpower fsm_power_on;
+FSMbattery fsm_battery;
 
 HardwareSerial fonaSS(1);
 Adafruit_FONA_LTE fona = Adafruit_FONA_LTE();
@@ -86,40 +88,32 @@ void setup()
 
   // Setup FSM
   fsm_power_on.setup(&sim_device);
+  fsm_battery.setup(&sim_device);
 
-  // Setup FSM
+  // Setup settings handler
   set_handler.setup();
 }
 
 void loop()
 {
-  // float lat, lon, speed;
-  // char seq, mode, event, sats;
-  // uint16_t vbat, heading;
 
-  // seq = 10;
-  // mode = 1;
-  // event = 2;
-  // sats = 5;
-  // vbat = 4151;
-  // heading = 300;
-  // speed = 3.45;
-  // lat = 29.72939;
-  // lon = -95.64918;
-  // sprintf(msg, "%s,%d,%d,%d,%.5f,%.5f,%d,%d,%d,%d", "865235030717330", seq, mode, 0, lat, lon, (int)speed, heading, 6, vbat);
-  // Serial.print("len: ");
-  // Serial.println(strlen(msg));
-  // Serial.println(msg);
-
-  // if (sim_device.uploadData())
-  // {
-  //   while (1)
-  //     ;
-  // }
   // timerWrite(timer, 0); //reset timer (feed watchdog)
   // // time_t now;
   // // time(&now);
   // // Serial.println(now);
   // delay(2000);
-  fsm_power_on.run();
+
+  switch (mode)
+  {
+  case POWER_ON:
+    fsm_power_on.run();
+    break;
+
+  case BATTERY:
+    fsm_battery.run();
+    break;
+
+  default:
+    break;
+  }
 }

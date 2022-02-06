@@ -25,18 +25,6 @@ boolean Sim7000::prepareMessage()
         // TODO haandle events
         sprintf(msg, "%s,%d,%d,%d,%.5f,%.5f,%d,%d,%d,%d", imei, seq_num++, mode, 0, latitude, longitude, (int)speed_kph, heading, 0, vbat);
 
-        // sprintf(msg, "%d,%d,%d,%.5f,%.5f,%d,%d,%d,%d", seq_num++, mode, 0, latitude, longitude, (int)speed_kph, heading, 0, vbat);
-
-        // msg[0] = seq_num++;
-        // msg[1] = (char)mode;
-        // msg[2] = 0; // TODO haandle events
-        // msg[3] = sats;
-        // memcpy(&msg[4], (char *)&vbat, sizeof(vbat));
-        // memcpy(&msg[6], (char *)&heading, sizeof(heading));
-        // memcpy(&msg[8], (char *)&latitude, sizeof(latitude));
-        // memcpy(&msg[12], (char *)&longitude, sizeof(longitude));
-        // memcpy(&msg[16], (char *)&speed_kph, sizeof(speed_kph));
-
         if (DEBUG)
         {
             Serial.print(F("Latitude: "));
@@ -56,7 +44,28 @@ boolean Sim7000::prepareMessage()
 }
 
 //--------------------------------------------------------------------
-void Sim7000::setup()
+void Sim7000::turnOFF()
+{
+    digitalWrite(SIM_PWR, LOW);
+}
+
+//--------------------------------------------------------------------
+void Sim7000::turnON()
+{
+    digitalWrite(SIM_PWR, HIGH);
+    configure();
+}
+
+//--------------------------------------------------------------------
+void Sim7000::reset()
+{
+    turnOFF();
+    delay(100); // Short pause to let the capacitors discharge
+    turnON();
+}
+
+//--------------------------------------------------------------------
+void Sim7000::configure()
 {
     // SIM7000 takes about 3s to turn on
     // Press Arduino reset button if the module is still turning on and the board doesn't find it.
@@ -76,7 +85,8 @@ void Sim7000::setup()
     fonaSS.println("AT+IPR=9600");                    // Set baud rate
     delay(100);                                       // Short pause to let the command run
     fonaSS.begin(9600, SERIAL_8N1, FONA_TX, FONA_RX); // Switch to 9600
-    if (!fona.begin(fonaSS, SIM_PWR))
+
+    if (!fona.begin(fonaSS, PWRKEY))
     {
         if (DEBUG)
         {
@@ -89,6 +99,24 @@ void Sim7000::setup()
     {
         Serial.println(F("FONA is OK"));
     }
+
+    // Turn off modem
+    fona.setFunctionality(0); // AT+CFUN=0
+
+    // Configure
+    fona.setNetworkSettings(F("hologram")); // For Hologram SIM card
+    fona.setPreferredMode(38);              // Use LTE only, not 2G
+    fona.setPreferredLTEMode(1);            // Use LTE CAT-M only, not NB-IoT
+}
+
+//--------------------------------------------------------------------
+void Sim7000::setup()
+{
+    pinMode(SIM_PWR, OUTPUT);
+
+    // Turn on the module
+    turnON();
+
     // Print module IMEI number.
     imei_len = fona.getIMEI(imei);
     if (imei_len > 0)
@@ -99,14 +127,6 @@ void Sim7000::setup()
             Serial.println(imei);
         }
     }
-
-    // Turn off modem
-    fona.setFunctionality(0); // AT+CFUN=0
-
-    // Configure
-    fona.setNetworkSettings(F("hologram")); // For Hologram SIM card
-    fona.setPreferredMode(38);              // Use LTE only, not 2G
-    fona.setPreferredLTEMode(1);            // Use LTE CAT-M only, not NB-IoT
 }
 
 //--------------------------------------------------------------------
@@ -183,182 +203,4 @@ boolean Sim7000::uploadData()
         }
         return false;
     }
-
-    // // If not already connected, connect to MQTT
-    // if (!fona.MQTT_connectionStatus())
-    // {
-    //     // Set up MQTT parameters (see MQTT app note for explanation of parameter values)
-    //     fona.MQTT_setParameter("URL", MQTT_SERVER, MQTT_PORT);
-    //     // Set up MQTT username and password if necessary
-    //     // fona.MQTT_setParameter("USERNAME", MQTT_USERNAME);
-    //     // fona.MQTT_setParameter("PASSWORD", MQTT_PASSWORD);
-    //     // fona.MQTT_setParameter("RETAIN", "1");     // Keep last message alaive
-    //     // if (!fona.MQTT_dataFormatHex(false))
-    //     // {
-    //     //     return false;
-    //     // }
-    //     fona.MQTT_setParameter("KEEPTIME", "3600"); // Time to connect to server, 60s by default
-    //     if (DEBUG)
-    //     {
-    //         Serial.println(F("Connecting to MQTT broker..."));
-    //     }
-    //     if (!fona.MQTT_connect(true))
-    //     {
-    //         if (DEBUG)
-    //         {
-    //             Serial.println(F("Failed to connect to broker!"));
-    //         }
-    //         return false;
-    //     }
-    // }
-    // else
-    // {
-    //     if (DEBUG)
-    //     {
-    //         Serial.println(F("Already connected to MQTT server!"));
-    //     }
-    // }
-
-    // // Publish data
-    // if (!fona.MQTT_publish(imei, msg, strlen(msg), QoS, 0))
-    // {
-    //     if (DEBUG)
-    //     {
-    //         Serial.println(F("Failed to publish!")); // Send GPS location
-    //     }
-    //     return false;
-    // }
 }
-
-// void Sim7000::updateTrackerID(int value)
-// {
-//     if (trackerID != value)
-//     {
-//         //Init EEPROM
-//         EEPROM.begin(EEPROM_SIZE);
-
-//         trackerID = value;
-//         byte hiByte = highByte(value);
-//         byte loByte = lowByte(value);
-//         EEPROM.write(trackerID_ADDR, hiByte);
-//         EEPROM.write(trackerID_ADDR + 1, loByte);
-//         EEPROM.write(KEY_ADDR, EEPROM_KEY + 1); // write the Key to indicate valid ID data
-//         if (DEBUG)
-//         {
-//             Serial.print("Tracker ID from remote server: ");
-//             Serial.println(value);
-//         }
-
-//         EEPROM.end();
-//     }
-// }
-
-// void Sim7000::updateTcheck(int value)
-// {
-//     if (value > 0)
-//     {
-//         if (DEBUG)
-//         {
-//             Serial.print("Tcheck: ");
-//             Serial.println(value);
-//         }
-//         _fsm->setTcheck(value);
-//     }
-// }
-// void Sim7000::updateMAX_ERRORS(int value)
-// {
-//     if (value > 0)
-//     {
-//         if (DEBUG)
-//         {
-//             Serial.print("MAX_ERRORS: ");
-//             Serial.println(value);
-//         }
-//         _fsm->setMAX_ERRORS(value);
-//     }
-// }
-// void Sim7000::updateTintB(int value)
-// {
-//     if (value > 0)
-//     {
-//         if (DEBUG)
-//         {
-//             Serial.print("TintB: ");
-//             Serial.println(value);
-//         }
-//         _fsm->setTintB(value);
-//     }
-// }
-// void Sim7000::updateTsendB(int value)
-// {
-//     if (value > 0)
-//     {
-//         if (DEBUG)
-//         {
-//             Serial.print("TsendB: ");
-//             Serial.println(value);
-//         }
-//         _fsm->setTsendB(value);
-//     }
-// }
-// void Sim7000::updateTGPSB(int value)
-// {
-//     if (value > 0)
-//     {
-//         if (DEBUG)
-//         {
-//             Serial.print("TGPSB: ");
-//             Serial.println(value);
-//         }
-//         _fsm->setTGPSB(value);
-//     }
-// }
-// void Sim7000::updateSMART(int value)
-// {
-//     if (value > -1)
-//     {
-//         if (DEBUG)
-//         {
-//             Serial.print("SMART: ");
-//             Serial.println(value);
-//         }
-//         _fsm->setSMART(value);
-//     }
-// }
-// void Sim7000::updateTGPS(int value)
-// {
-//     if (value > 0)
-//     {
-//         if (DEBUG)
-//         {
-//             Serial.print("TGPS: ");
-//             Serial.println(value);
-//         }
-//         _fsm->setTGPS(value);
-//     }
-// }
-// void Sim7000::updateTint(int value)
-// {
-//     if (value > 0)
-//     {
-//         if (DEBUG)
-//         {
-//             Serial.print("Tint: ");
-//             Serial.println(value);
-//         }
-//         _fsm->setTint(value);
-//     }
-// }
-
-// void Sim7000::updateTsend(int value)
-// {
-//     if (value > 0)
-//     {
-//         if (DEBUG)
-//         {
-//             Serial.print("Tsend: ");
-//             Serial.println(value);
-//         }
-//         _fsm->setTsend(value);
-//     }
-// }

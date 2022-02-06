@@ -28,7 +28,7 @@ RTC_DATA_ATTR bool pending;
 RTC_DATA_ATTR char msg[MSG_SIZE];
 
 // ---------------------------------------------
-
+// Low energy compsumption delay (in seconds)
 void rtc_light_sleep(unsigned long delay)
 {
     esp_sleep_enable_timer_wakeup(delay * S_TO_uS_FACTOR);
@@ -37,6 +37,9 @@ void rtc_light_sleep(unsigned long delay)
 
 void rtc_handle_wakeup()
 {
+    // Unlock IO pins value
+    gpio_hold_dis((gpio_num_t)SIM_PWR);
+
     // We only keep RTC values when waking up from deep sleep
     esp_sleep_wakeup_cause_t wakeup_reason;
     wakeup_reason = esp_sleep_get_wakeup_cause();
@@ -57,9 +60,9 @@ void rtc_sleep(unsigned long delay)
 {
     esp_sleep_enable_timer_wakeup(delay);
 
-    // // Hold on IO pins value
-    // gpio_hold_en((gpio_num_t)SIM_PWR);
-    // gpio_deep_sleep_hold_en();
+    // Hold on IO pins value
+    gpio_hold_en((gpio_num_t)SIM_PWR);
+    gpio_deep_sleep_hold_en();
 
     // Going to sleep
     esp_deep_sleep_start();

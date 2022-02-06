@@ -1,19 +1,19 @@
-#include "fsm_power_on.h"
+#include "fsm_battery.h"
 
 // Constructor
-FSMpower::FSMpower()
+FSMbattery::FSMbattery()
 {
 }
 
 //--------------------------------------------------------------------
-void FSMpower::setup(Sim7000 *sim_device)
+void FSMbattery::setup(Sim7000 *sim_device)
 {
     _sim_device = sim_device;
     tries = 3;
 }
 
 //--------------------------------------------------------------------
-void FSMpower::run()
+void FSMbattery::run()
 {
     time_t now;
     timerWrite(timer, 0); //reset timer (feed watchdog)
@@ -21,40 +21,14 @@ void FSMpower::run()
     {
     // ------------------------------------------
     case IDLE:
-        time(&now);
-        if (now - lastInterval > ((time_t)Tint * MIN_TO_S_FACTOR))
-        { // Beging location update
-            lastInterval = now;
-            stateChange = lastInterval;
-            state = READ_GPS;
-
-            // Enable GPS
-            tries = 3; // After 3 unsuccessful attemps the module is restarted
-            while (!fona.enableGPS(true))
-            {
-                if (--tries < 0)
-                {
-                    tries = 3; // Back to its original value
-                    _sim_device->reset();
-                    if (DEBUG)
-                    {
-                        Serial.println(F("Reseting the SIM module..."));
-                    }
-                }
-                if (DEBUG)
-                {
-                    Serial.println(F("Failed to turn on GPS, retrying..."));
-                }
-                timerWrite(timer, 0); //reset timer (feed watchdog)
-                delay(2000);          // Retry every 2s
-            }
-            tries = 3; // Back to its original value
-            if (DEBUG)
-            {
-                Serial.print(now);
-                Serial.println("-> State: READ_GPS");
-            }
+        state = READ_GPS;
+        if (DEBUG)
+        {
+            Serial.print(now);
+            Serial.println("-> State: READ_GPS");
         }
+        _sim_device->turnOFF();
+        rtc_sleep((time_t)TintB * MIN_TO_uS_FACTOR);
         break;
 
     // ------------------------------------------
@@ -104,7 +78,7 @@ void FSMpower::run()
                     Serial.println(F("Failed to turn on GPS, retrying..."));
                 }
                 timerWrite(timer, 0); //reset timer (feed watchdog)
-                delay(2000);          // Retry every 2s
+                rtc_light_sleep(2);          // Retry every 2s
                 break;
             }
             tries = 3; // Back to its original value
@@ -127,7 +101,7 @@ void FSMpower::run()
                 Serial.println(F("Failed to get GPS location, retrying..."));
             }
             timerWrite(timer, 0); //reset timer (feed watchdog)
-            delay(2000);          // Retry every 2s
+            rtc_light_sleep(59);  // Retry every 1min
             break;
         }
         else
@@ -173,7 +147,7 @@ void FSMpower::run()
                 Serial.println(F("Failed to connect to cell network, retrying..."));
             }
             timerWrite(timer, 0); //reset timer (feed watchdog)
-            delay(2000);          // Retry every 2s
+            rtc_light_sleep(2);   // Retry every 2s
             break;
         }
         tries = 3; // Back to its original value
@@ -197,11 +171,11 @@ void FSMpower::run()
                 Serial.println(F("Failed to send data, retrying..."));
             }
             timerWrite(timer, 0); //reset timer (feed watchdog)
-            delay(2000);          // Retry every 2s
+            rtc_light_sleep(2);   // Retry every 2s
             break;
         }
         else
-        {   
+        {
             // Data sent
             tries = 3; // Back to its original value
             state = IDLE;

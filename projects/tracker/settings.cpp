@@ -185,3 +185,136 @@ void Settings::setTsend(int val)
         EEPROM.write(Tsend_ADDR, val); // save the value in eeprom
     }
 }
+
+// void Sim7000::updateTrackerID(int value)
+// {
+//     if (trackerID != value)
+//     {
+//         //Init EEPROM
+//         EEPROM.begin(EEPROM_SIZE);
+
+//         trackerID = value;
+//         byte hiByte = highByte(value);
+//         byte loByte = lowByte(value);
+//         EEPROM.write(trackerID_ADDR, hiByte);
+//         EEPROM.write(trackerID_ADDR + 1, loByte);
+//         EEPROM.write(KEY_ADDR, EEPROM_KEY + 1); // write the Key to indicate valid ID data
+//         if (DEBUG)
+//         {
+//             Serial.print("Tracker ID from remote server: ");
+//             Serial.println(value);
+//         }
+
+//         EEPROM.end();
+//     }
+// }
+
+// void Sim7000::updateTcheck(int value)
+// {
+//     if (value > 0)
+//     {
+//         if (DEBUG)
+//         {
+//             Serial.print("Tcheck: ");
+//             Serial.println(value);
+//         }
+//         _fsm->setTcheck(value);
+//     }
+// }
+// void Sim7000::updateMAX_ERRORS(int value)
+// {
+//     if (value > 0)
+//     {
+//         if (DEBUG)
+//         {
+//             Serial.print("MAX_ERRORS: ");
+//             Serial.println(value);
+//         }
+//         _fsm->setMAX_ERRORS(value);
+//     }
+// }
+// void Sim7000::updateTintB(int value)
+// {
+//     if (value > 0)
+//     {
+//         if (DEBUG)
+//         {
+//             Serial.print("TintB: ");
+//             Serial.println(value);
+//         }
+//         _fsm->setTintB(value);
+//     }
+// }
+// void Sim7000::updateTsendB(int value)
+// {
+//     if (value > 0)
+//     {
+//         if (DEBUG)
+//         {
+//             Serial.print("TsendB: ");
+//             Serial.println(value);
+//         }
+//         _fsm->setTsendB(value);
+//     }
+// }
+// void Sim7000::updateTGPSB(int value)
+// {
+//     if (value > 0)
+//     {
+//         if (DEBUG)
+//         {
+//             Serial.print("TGPSB: ");
+//             Serial.println(value);
+//         }
+//         _fsm->setTGPSB(value);
+//     }
+// }
+// void Sim7000::updateSMART(int value)
+// {
+//     if (value > -1)
+//     {
+//         if (DEBUG)
+//         {
+//             Serial.print("SMART: ");
+//             Serial.println(value);
+//         }
+//         _fsm->setSMART(value);
+//     }
+// }
+// void Sim7000::updateTGPS(int value)
+// {
+//     if (value > 0)
+//     {
+//         if (DEBUG)
+//         {
+//             Serial.print("TGPS: ");
+//             Serial.println(value);
+//         }
+//         _fsm->setTGPS(value);
+//     }
+// }
+// void Sim7000::updateTint(int value)
+// {
+//     if (value > 0)
+//     {
+//         if (DEBUG)
+//         {
+//             Serial.print("Tint: ");
+//             Serial.println(value);
+//         }
+//         _fsm->setTint(value);
+//     }
+// }
+
+// void Sim7000::updateTsend(int value)
+// {
+//     if (value > 0)
+//     {
+//         if (DEBUG)
+//         {
+//             Serial.print("Tsend: ");
+//             Serial.println(value);
+//         }
+//         _fsm->setTsend(value);
+//     }
+// }
