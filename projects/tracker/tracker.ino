@@ -31,6 +31,8 @@ void detectMode()
   {
     mode = BATTERY;
   }
+  // TODO comment the foollowing line
+  mode = BATTERY;
 }
 
 void IRAM_ATTR isr()

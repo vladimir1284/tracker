@@ -8,7 +8,7 @@ pwd = '177HT6AXZNrDVi4eO30Lc6nsoNuCnE'
 # Vars
 dev = "1618549"
 num = "+522226111169"
-sms = "Hi from python!"
+sms = "Hi from python 2!"
 
 # Send SMS
 response = requests.post(
