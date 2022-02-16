@@ -32,7 +32,7 @@ void detectMode()
     mode = BATTERY;
   }
   // TODO comment the foollowing line
-  mode = BATTERY;
+  mode = POWER_ON;
 }
 
 void IRAM_ATTR isr()
