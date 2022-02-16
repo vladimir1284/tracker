@@ -76,13 +76,13 @@ void Sim7000::configure()
         Serial.println(F("Start!"));
     }
     // Software serial:
-    fonaSS.begin(115200, SERIAL_8N1, FONA_TX, FONA_RX); // baud rate, protocol, ESP32 RX pin, ESP32 TX pin
+    fonaSS.begin(9600, SERIAL_8N1, FONA_TX, FONA_RX); // baud rate, protocol, ESP32 RX pin, ESP32 TX pin
 
     if (DEBUG)
     {
-        Serial.println(F("Configuring to 9600 baud"));
+        Serial.println(F("Configuring to 115200 baud"));
     }
-    fonaSS.println("AT+IPR=9600");                    // Set baud rate
+    fonaSS.println("AT+IPR=115200");                    // Set baud rate
     delay(100);                                       // Short pause to let the command run
     fonaSS.begin(9600, SERIAL_8N1, FONA_TX, FONA_RX); // Switch to 9600
 
