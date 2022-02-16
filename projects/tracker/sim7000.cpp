@@ -84,7 +84,7 @@ void Sim7000::configure()
     }
     fonaSS.println("AT+IPR=115200");                    // Set baud rate
     delay(100);                                       // Short pause to let the command run
-    fonaSS.begin(9600, SERIAL_8N1, FONA_TX, FONA_RX); // Switch to 9600
+    fonaSS.begin(115200, SERIAL_8N1, FONA_TX, FONA_RX); // Switch to 9600
 
     if (!fona.begin(fonaSS, PWRKEY))
     {
