@@ -24,7 +24,7 @@
 
 #define FONA_RX 18
 #define FONA_TX 19
-#define SIM_PWR 35
+#define SIM_PWR 25
 #define PWRKEY 4 // GPIO4 -> RTC_GPIO10
 
 // --------------------------------------
@@ -59,7 +59,7 @@
 // --------------- FSM ------------------
 
 #define S_TO_uS_FACTOR 1000000ULL    /* Conversion factor for seconds to micro seconds */
-#define MIN_TO_uS_FACTOR 60000000ULL /* Conversion factor for minutes to micro seconds */
+#define MIN_TO_uS_FACTOR 2500000ULL //60000000ULL /* Conversion factor for minutes to micro seconds */
 #define MIN_TO_S_FACTOR 60            // 0 x0.1 for debug
 #define PIN12V 34                    // Input pin for checking 12V connection
 
