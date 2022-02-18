@@ -196,7 +196,7 @@ void setup() {
   fona.setNetLED(false); // Disable network status LED
   */
 
-  fonaSerial->print("AT+CNMI=2,1\r\n");  // Set up the FONA to send a +CMTI notification when an SMS is received
+  fonaSS->print("AT+CNMI=2,1\r\n");  // Set up the FONA to send a +CMTI notification when an SMS is received
 
   Serial.println("FONA Ready");
 }
