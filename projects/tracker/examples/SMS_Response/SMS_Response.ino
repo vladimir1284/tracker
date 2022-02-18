@@ -81,7 +81,7 @@ void setup() {
   // This amount of time depends on the specific module that's used
   fona.powerOn(FONA_PWRKEY); // Power on the module
 
-  Serial.begin(9600);
+  Serial.begin(115200);
   Serial.println(F("SMS Response Test"));
   Serial.println(F("Initializing....(May take several seconds)"));
 
@@ -196,7 +196,7 @@ void setup() {
   fona.setNetLED(false); // Disable network status LED
   */
 
-  fonaSS->print("AT+CNMI=2,1\r\n");  // Set up the FONA to send a +CMTI notification when an SMS is received
+  fonaSS.print("AT+CNMI=2,1\r\n");  // Set up the FONA to send a +CMTI notification when an SMS is received
 
   Serial.println("FONA Ready");
 }
