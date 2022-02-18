@@ -62,34 +62,10 @@
 // We default to using software serial. If you want to use hardware serial
 // (because hardSerial isnt supported) comment out the following three lines 
 // and uncomment the HardwareSerial line
-#include <SoftwareSerial.h>
-SoftwareSerial fonaSS = SoftwareSerial(FONA_TX, FONA_RX);
-
-// Use the following line for ESP8266 instead of the line above (comment out the one above)
-//SoftwareSerial fonaSS = SoftwareSerial(FONA_TX, FONA_RX, false, 256); // TX, RX, inverted logic, buffer size
-
-SoftwareSerial *fonaSerial = &fonaSS;
-
-// Hardware serial is also possible!
-//HardwareSerial *fonaSerial = &Serial1;
-
-// For ESP32 hardware serial use these lines instead
-//#include <HardwareSerial.h>
-//HardwareSerial fonaSS(1);
-
-// Use this for 2G modules
-#ifdef SIMCOM_2G
-  Adafruit_FONA fona = Adafruit_FONA(FONA_RST);
-  
-// Use this one for 3G modules
-#elif defined(SIMCOM_3G)
-  Adafruit_FONA_3G fona = Adafruit_FONA_3G(FONA_RST);
-  
-// Use this one for LTE CAT-M/NB-IoT modules (like SIM7000)
-// Notice how we don't include the reset pin because it's reserved for emergencies on the LTE module!
-#elif defined(SIMCOM_7000) || defined(SIMCOM_7070) || defined(SIMCOM_7500) || defined(SIMCOM_7600)
+// For ESP32 hardware serial
+#include <HardwareSerial.h>
+HardwareSerial fonaSS(1);
 Adafruit_FONA_LTE fona = Adafruit_FONA_LTE();
-#endif
 
 uint8_t readline(char *buff, uint8_t maxbuff, uint16_t timeout = 0);
 uint8_t type;
