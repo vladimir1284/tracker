@@ -800,8 +800,8 @@ int8_t Adafruit_FONA::getNumSMS(void)
   uint16_t numsms;
 
   // get into text mode
-  // if (!sendCheckReply(F("AT+CMGF=1"), ok_reply))
-  //   return -1;
+  if (!sendCheckReply(F("AT+CMGF=1"), ok_reply))
+    return -1;
 
   // ask how many sms are stored
   if (sendParseReply(F("AT+CPMS?"), F(FONA_PREF_SMS_STORAGE ","), &numsms))

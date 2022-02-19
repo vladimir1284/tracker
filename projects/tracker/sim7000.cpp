@@ -47,7 +47,7 @@ boolean Sim7000::prepareMessage()
 bool Sim7000::checkSMS()
 {
     char smsBuffer[MAX_INPUT_LENGTH];
-    
+
     fona.setFunctionality(1); // AT+CFUN=1
 
     int numSMS = fona.getNumSMS();
@@ -56,15 +56,41 @@ bool Sim7000::checkSMS()
         Serial.print("Number of SMS available: ");
         Serial.println(numSMS);
     }
-    // Retrieve SMS value.
-    uint16_t smslen;
-    if (fona.readSMS(0, smsBuffer, MAX_INPUT_LENGTH, &smslen))
-    { // pass in buffer and max len!
-        if (DEBUG)
+    if (numSMS > 0)
+    {
+        // Retrieve SMS value.
+        uint16_t smslen;
+        if (fona.readSMS(0, smsBuffer, MAX_INPUT_LENGTH, &smslen))
+        { // pass in buffer and max len!
+            if (DEBUG)
+            {
+                Serial.println(smsBuffer);
+            }
+        }
+        // Delete the original message after it is processed.
+        if (fona.deleteSMS(0))
         {
-            Serial.println(smsBuffer);
+            if (DEBUG)
+            {
+                Serial.println(F("OK!"));
+            }
+        }
+        else
+        {
+            if (DEBUG)
+            {
+                Serial.println(F("Couldn't delete SMS in slot 0!"));
+            }
         }
     }
+    else
+    {
+        if (DEBUG)
+        {
+            Serial.println("There are no SMS available!");
+        }
+    }
+
     return true;
 }
 
