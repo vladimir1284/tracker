@@ -93,29 +93,30 @@ void setup()
   fsm_battery.setup(&sim_device);
 
   // Setup settings handler
-  set_handler.setup();
+  set_handler.setup(&sim_device);
 }
 
 void loop()
 {
 
-  // timerWrite(timer, 0); //reset timer (feed watchdog)
-  // // time_t now;
-  // // time(&now);
-  // // Serial.println(now);
-  // delay(2000);
+  timerWrite(timer, 0); //reset timer (feed watchdog)
+  // time_t now;
+  // time(&now);
+  // Serial.println(now);
+  set_handler.run();
+  delay(2000);
 
-  switch (mode)
-  {
-  case POWER_ON:
-    fsm_power_on.run();
-    break;
+  // switch (mode)
+  // {
+  // case POWER_ON:
+  //   fsm_power_on.run();
+  //   break;
 
-  case BATTERY:
-    fsm_battery.run();
-    break;
+  // case BATTERY:
+  //   fsm_battery.run();
+  //   break;
 
-  default:
-    break;
-  }
+  // default:
+  //   break;
+  // }
 }

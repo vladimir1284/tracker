@@ -3,6 +3,7 @@
 
 #include <EEPROM.h>
 #include "configs.h"
+#include "sim7000.h"
 #include "Adafruit_FONA.h"
 
 extern int //Tcheck, // Time interval for power check (0 - 255) min (deprecated)
@@ -22,7 +23,7 @@ public:
     Settings();
 
     void run(),
-        setup(),
+        setup(Sim7000 *sim_device),
         setTcheck(int val),
         setMAX_ERRORS(int val),
         setTint(unsigned int val),
@@ -32,6 +33,10 @@ public:
         setSMART(int val),
         setTsendB(int val),
         setTsend(int val);
+
+private:
+    Sim7000 *_sim_device;
+    
 };
 
 #endif // SET_H

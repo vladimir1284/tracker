@@ -44,6 +44,29 @@ boolean Sim7000::prepareMessage()
 }
 
 //--------------------------------------------------------------------
+bool Sim7000::checkSMS()
+{
+    char smsBuffer[MAX_INPUT_LENGTH];
+    
+    int numSMS = fona.getNumSMS();
+    if (DEBUG)
+    {
+        Serial.print("Number of SMS available: ");
+        Serial.println(numSMS);
+    }
+    // Retrieve SMS value.
+    uint16_t smslen;
+    if (fona.readSMS(0, smsBuffer, MAX_INPUT_LENGTH, &smslen))
+    { // pass in buffer and max len!
+        if (DEBUG)
+        {
+            Serial.println(smsBuffer);
+        }
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------
 void Sim7000::turnOFF()
 {
     digitalWrite(SIM_PWR, LOW);

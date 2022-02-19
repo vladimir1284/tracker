@@ -113,15 +113,6 @@ void FSMpower::run()
 
         if (!_sim_device->prepareMessage())
         {
-            // if (--tries < 0)
-            // {
-            //     _sim_device->reset();
-            //     tries = 3; // Back to its original value
-            //     if (DEBUG)
-            //     {
-            //         Serial.println(F("Reseting the SIM module..."));
-            //     }
-            // }
             if (DEBUG)
             {
                 Serial.println(F("Failed to get GPS location, retrying..."));
