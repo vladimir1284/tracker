@@ -32,7 +32,7 @@ void detectMode()
     mode = BATTERY;
   }
   // TODO comment the foollowing line
-  mode = BATTERY;
+  mode = POWER_ON;
 }
 
 void IRAM_ATTR isr()
@@ -99,24 +99,24 @@ void setup()
 void loop()
 {
 
-  timerWrite(timer, 0); //reset timer (feed watchdog)
-  // time_t now;
-  // time(&now);
-  // Serial.println(now);
-  set_handler.run();
-  delay(2000);
+  // timerWrite(timer, 0); //reset timer (feed watchdog)
+  // // time_t now;
+  // // time(&now);
+  // // Serial.println(now);
+  // set_handler.run();
+  // delay(2000);
 
-  // switch (mode)
-  // {
-  // case POWER_ON:
-  //   fsm_power_on.run();
-  //   break;
+  switch (mode)
+  {
+  case POWER_ON:
+    fsm_power_on.run();
+    break;
 
-  // case BATTERY:
-  //   fsm_battery.run();
-  //   break;
+  case BATTERY:
+    fsm_battery.run();
+    break;
 
-  // default:
-  //   break;
-  // }
+  default:
+    break;
+  }
 }

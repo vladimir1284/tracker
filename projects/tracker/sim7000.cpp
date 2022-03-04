@@ -49,6 +49,7 @@ bool Sim7000::checkSMS()
     char smsBuffer[MAX_INPUT_LENGTH];
 
     fona.setFunctionality(1); // AT+CFUN=1
+    delay(100);
 
     int numSMS = fona.getNumSMS();
     if (DEBUG)

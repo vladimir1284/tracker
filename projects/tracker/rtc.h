@@ -39,6 +39,7 @@ void rtc_handle_wakeup()
 {
     // Unlock IO pins value
     gpio_hold_dis((gpio_num_t)SIM_PWR);
+    gpio_hold_dis((gpio_num_t)PWRKEY);
 
     // We only keep RTC values when waking up from deep sleep
     esp_sleep_wakeup_cause_t wakeup_reason;
@@ -62,6 +63,7 @@ void rtc_sleep(unsigned long delay)
 
     // Hold on IO pins value
     gpio_hold_en((gpio_num_t)SIM_PWR);
+    gpio_hold_en((gpio_num_t)PWRKEY);
     gpio_deep_sleep_hold_en();
 
     // Going to sleep

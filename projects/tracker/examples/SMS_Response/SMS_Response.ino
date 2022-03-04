@@ -45,7 +45,7 @@
 //#define SIMCOM_7600
 
 #define FONA_PWRKEY 4
-#define FONA_RST 5
+#define FONA_RST 25
 #define FONA_TX 18 // ESP32 hardware serial RX2 (GPIO16)
 #define FONA_RX 19 // ESP32 hardware serial TX2 (GPIO17)
 //#define T_ALERT 12 // Connect with solder jumper
