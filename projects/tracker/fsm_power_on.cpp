@@ -153,7 +153,7 @@ void FSMpower::run()
             if (--tries < 0)
             {
                 _sim_device->reset();
-                tries = 3; // Back to its original value
+                tries = 30; // Back to its original value
                 if (DEBUG)
                 {
                     Serial.println(F("Reseting the SIM module..."));
