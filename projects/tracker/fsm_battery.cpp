@@ -92,6 +92,7 @@ void FSMbattery::run()
                 Serial.println(F("Failed to get GPS location, retrying..."));
             }
             timerWrite(timer, 0); //reset timer (feed watchdog)
+            digitalWrite(SIM_PWR, HIGH);
             rtc_light_sleep(59);  // Retry every 1min
             break;
         }
