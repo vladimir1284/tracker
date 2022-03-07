@@ -123,7 +123,7 @@ void FSMpower::run()
         }
         else
         {
-            // tries = 3; // Back to its original value
+            tries = 30; // Back to its original value
 
             // GPS data ready
             time(&now);
