@@ -9,7 +9,7 @@ FSMbattery::FSMbattery()
 void FSMbattery::setup(Sim7000 *sim_device)
 {
     _sim_device = sim_device;
-    tries = 3;
+    tries = 30;
 }
 
 //--------------------------------------------------------------------
@@ -67,7 +67,7 @@ void FSMbattery::run()
                 if (--tries < 0)
                 {
                     _sim_device->reset();
-                    tries = 3; // Back to its original value
+                    tries = 30; // Back to its original value
                     if (DEBUG)
                     {
                         Serial.println(F("Reseting the SIM module..."));
@@ -141,7 +141,7 @@ void FSMbattery::run()
             rtc_light_sleep(2);   // Retry every 2s
             break;
         }
-        tries = 3; // Back to its original value
+        tries = 30; // Back to its original value
         if (DEBUG)
         {
             Serial.println(F("Connected to cell network!"));
@@ -151,7 +151,7 @@ void FSMbattery::run()
             if (--tries < 0)
             {
                 _sim_device->reset();
-                tries = 3; // Back to its original value
+                tries = 30; // Back to its original value
                 if (DEBUG)
                 {
                     Serial.println(F("Reseting the SIM module..."));
@@ -168,7 +168,7 @@ void FSMbattery::run()
         else
         {
             // Data sent
-            tries = 3; // Back to its original value
+            tries = 30; // Back to its original value
             state = IDLE;
             pending = false;
             if (DEBUG)
