@@ -81,7 +81,7 @@ void FSMbattery::run()
                 rtc_light_sleep(2);          // Retry every 2s
                 break;
             }
-            tries = 3; // Back to its original value
+            tries = 30; // Back to its original value
             Serial.println(F("Turned on GPS!"));
         }
 
@@ -127,7 +127,7 @@ void FSMbattery::run()
             if (--tries < 0)
             {
                 _sim_device->reset();
-                tries = 3; // Back to its original value
+                tries = 30; // Back to its original value
                 if (DEBUG)
                 {
                     Serial.println(F("Reseting the SIM module..."));
