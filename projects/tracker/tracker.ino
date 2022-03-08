@@ -68,12 +68,12 @@ void setup()
   }
   // -------------------------------------
 
-  // ------- watchdog begin --------------
-  timer = timerBegin(0, 80, true);                 //timer 0, div 80
-  timerAttachInterrupt(timer, &resetModule, true); //attach callback
-  timerAlarmWrite(timer, wdtTimeout, false);       //set time in us
-  timerAlarmEnable(timer);
-  // -------------------------------------
+  // // ------- watchdog begin --------------
+  // timer = timerBegin(0, 80, true);                 //timer 0, div 80
+  // timerAttachInterrupt(timer, &resetModule, true); //attach callback
+  // timerAlarmWrite(timer, wdtTimeout, false);       //set time in us
+  // timerAlarmEnable(timer);
+  // // -------------------------------------
 
   // ------- Detect mode --------------
   pinMode(PIN12V, INPUT_PULLUP); // TODO this must be INPUT with an external pull down
@@ -98,7 +98,8 @@ void setup()
 
 void loop()
 {
-
+  Serial.print("Goin to sleep...");
+  rtc_sleep(10000000L);
   // timerWrite(timer, 0); //reset timer (feed watchdog)
   // // time_t now;
   // // time(&now);
@@ -106,17 +107,17 @@ void loop()
   // set_handler.run();
   // delay(2000);
 
-  switch (mode)
-  {
-  case POWER_ON:
-    fsm_power_on.run();
-    break;
+  // switch (mode)
+  // {
+  // case POWER_ON:
+  //   fsm_power_on.run();
+  //   break;
 
-  case BATTERY:
-    fsm_battery.run();
-    break;
+  // case BATTERY:
+  //   fsm_battery.run();
+  //   break;
 
-  default:
-    break;
-  }
+  // default:
+  //   break;
+  // }
 }
