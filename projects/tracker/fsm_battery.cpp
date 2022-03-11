@@ -28,8 +28,8 @@ void FSMbattery::run()
             Serial.println("-> State: READ_GPS");
         }
         _sim_device->turnOFF();
-        rtc_sleep((time_t) MIN_TO_uS_FACTOR);
-        // rtc_sleep((time_t)TintB * MIN_TO_uS_FACTOR);
+        rtc_sleep((time_t) (2*MIN_TO_uS_FACTOR));
+        // rtc_sleep((time_t)(TintB * MIN_TO_uS_FACTOR));
         break;
 
     // ------------------------------------------
