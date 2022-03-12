@@ -6,7 +6,7 @@
 #include "sim7000.h"
 #include "Adafruit_FONA.h"
 
-extern void rtc_sleep(unsigned long delay);
+extern void rtc_sleep(uint64_t delay);
 extern Adafruit_FONA_LTE fona;
 extern Sim7000 sim_device;
 
@@ -27,7 +27,7 @@ public:
         setup(Sim7000 *sim_device);
 
 private:
-    unsigned long stateChange;
+    uint64_t stateChange;
     Sim7000 *_sim_device;
     int tries;
 };

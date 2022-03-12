@@ -87,7 +87,7 @@ void watchdogBegin()
     wdgSetup();
 }
 
-void enterSleep(unsigned long sleep_ms)
+void enterSleep(uint64_t sleep_ms)
 {
     int nWakes;
     nWakes = (int)(sleep_ms / 8000);
