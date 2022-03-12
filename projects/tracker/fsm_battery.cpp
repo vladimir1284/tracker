@@ -8,6 +8,10 @@ FSMbattery::FSMbattery()
 //--------------------------------------------------------------------
 void FSMbattery::setup(Sim7000 *sim_device)
 {
+    time_t now;
+    time(&now);
+    stateChange = now;
+    
     _sim_device = sim_device;
     tries = 30;
 }
@@ -28,14 +32,14 @@ void FSMbattery::run()
             Serial.println("-> State: READ_GPS");
         }
         _sim_device->turnOFF();
-        rtc_sleep((time_t) (15*MIN_TO_uS_FACTOR));
-        // rtc_sleep((time_t)(TintB * MIN_TO_uS_FACTOR));
+        rtc_sleep(60 * MIN_TO_uS_FACTOR);
+        // rtc_sleep(TintB * MIN_TO_uS_FACTOR);
         break;
 
     // ------------------------------------------
     case READ_GPS:
         time(&now);
-        if (now - stateChange > ((time_t)TGPS * MIN_TO_S_FACTOR))
+        if (now - stateChange > (TGPS * MIN_TO_S_FACTOR))
         { // No GPS data in the time window allowed
             gpsErrors++;
 
@@ -79,7 +83,7 @@ void FSMbattery::run()
                     Serial.println(F("Failed to turn on GPS, retrying..."));
                 }
                 timerWrite(timer, 0); //reset timer (feed watchdog)
-                rtc_light_sleep(2);          // Retry every 2s
+                rtc_light_sleep(2);   // Retry every 2s
                 break;
             }
             tries = 30; // Back to its original value
@@ -110,7 +114,7 @@ void FSMbattery::run()
     // ------------------------------------------
     case SEND_DATA:
         time(&now);
-        if (now - stateChange > ((time_t)Tsend * MIN_TO_S_FACTOR))
+        if (now - stateChange > (Tsend * MIN_TO_S_FACTOR))
         { // Data upload not achieved
             gsmErrors++;
             state = ERROR;
