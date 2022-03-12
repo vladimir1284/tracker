@@ -29,7 +29,7 @@ RTC_DATA_ATTR char msg[MSG_SIZE];
 
 // ---------------------------------------------
 // Low energy compsumption delay (in seconds)
-void rtc_light_sleep(unsigned long delay)
+void rtc_light_sleep(uint64_t delay)
 {
     // Hold on IO pins value
     gpio_hold_en((gpio_num_t)SIM_PWR);
@@ -66,7 +66,7 @@ void rtc_handle_wakeup()
     }
 }
 
-void rtc_sleep(unsigned long delay)
+void rtc_sleep(uint64_t delay)
 {
     esp_sleep_enable_timer_wakeup(delay);
 
