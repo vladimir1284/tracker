@@ -104,20 +104,20 @@ void loop()
   // // time_t now;
   // // time(&now);
   // // Serial.println(now);
-  // set_handler.run();
-  // delay(2000);
+  set_handler.run();
+  delay(2000);
 
-  switch (mode)
-  {
-  case POWER_ON:
-    fsm_power_on.run();
-    break;
+  // switch (mode)
+  // {
+  // case POWER_ON:
+  //   fsm_power_on.run();
+  //   break;
 
-  case BATTERY:
-    fsm_battery.run();
-    break;
+  // case BATTERY:
+  //   fsm_battery.run();
+  //   break;
 
-  default:
-    break;
-  }
+  // default:
+  //   break;
+  // }
 }

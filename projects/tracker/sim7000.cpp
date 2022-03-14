@@ -60,27 +60,32 @@ bool Sim7000::checkSMS()
     if (numSMS > 0)
     {
         // Retrieve SMS value.
-        uint16_t smslen;
-        if (fona.readSMS(0, smsBuffer, MAX_INPUT_LENGTH, &smslen))
-        { // pass in buffer and max len!
-            if (DEBUG)
-            {
-                Serial.println(smsBuffer);
-            }
-        }
-        // Delete the original message after it is processed.
-        if (fona.deleteSMS(0))
+        for (size_t i = 0; i < numSMS; i++)
         {
-            if (DEBUG)
-            {
-                Serial.println(F("OK!"));
+            uint16_t smslen;
+            if (fona.readSMS(i, smsBuffer, MAX_INPUT_LENGTH, &smslen))
+            { // pass in buffer and max len!
+                if (DEBUG)
+                {
+                    Serial.println(smsBuffer);
+                }
             }
-        }
-        else
-        {
-            if (DEBUG)
+            // Delete the original message after it is processed.
+            if (fona.deleteSMS(i))
             {
-                Serial.println(F("Couldn't delete SMS in slot 0!"));
+                if (DEBUG)
+                {
+                    Serial.println(F("OK!"));
+                }
+            }
+            else
+            {
+                if (DEBUG)
+                {
+                    Serial.print(F("Couldn't delete SMS in slot "));
+                    Serial.print(i);
+                    Serial.println(F("!"));
+                }
             }
         }
     }
