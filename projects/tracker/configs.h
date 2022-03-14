@@ -81,7 +81,7 @@ enum states
 
 #define EEPROM_SIZE 32
 
-const byte EEPROM_KEY = 0x99; // used to identify if valid data in EEPROM
+const byte EEPROM_KEY = 0x89; // used to identify if valid data in EEPROM
 
 const int KEY_ADDR = 0;        // the EEPROM address used to store the ID
 // const int Tcheck_ADDR = 1;     // the EEPROM address used to store Tcheck
