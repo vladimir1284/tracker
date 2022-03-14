@@ -125,7 +125,7 @@ void Settings::run()
                 Serial.print("configs_TintB: ");
                 Serial.println(configs_TintB);
             }
-            setMAX_ERRORS(configs_TintB);
+            setTintB(configs_TintB);
         }
 
         int configs_TsendB = doc["TsendB"]; // 10
@@ -136,7 +136,7 @@ void Settings::run()
                 Serial.print("configs_TsendB: ");
                 Serial.println(configs_TsendB);
             }
-            setMAX_ERRORS(configs_TsendB);
+            setTsendB(configs_TsendB);
         }
 
         int configs_TGPSB = doc["TGPSB"]; // 10
@@ -147,7 +147,7 @@ void Settings::run()
                 Serial.print("configs_TGPSB: ");
                 Serial.println(configs_TGPSB);
             }
-            setMAX_ERRORS(configs_TGPSB);
+            setTGPSB(configs_TGPSB);
         }
 
         bool configs_SMART = doc["SMART"]; // true
@@ -158,7 +158,7 @@ void Settings::run()
                 Serial.print("configs_SMART: ");
                 Serial.println(configs_SMART);
             }
-            setMAX_ERRORS(configs_SMART);
+            setSMART(configs_SMART);
         }
 
         int configs_TGPS = doc["TGPS"]; // 10
@@ -169,7 +169,7 @@ void Settings::run()
                 Serial.print("configs_TGPS: ");
                 Serial.println(configs_TGPS);
             }
-            setMAX_ERRORS(configs_TGPS);
+            setTGPS(configs_TGPS);
         }
 
         int configs_Tint = doc["Tint"]; // 60
@@ -180,7 +180,7 @@ void Settings::run()
                 Serial.print("configs_Tint: ");
                 Serial.println(configs_Tint);
             }
-            setMAX_ERRORS(configs_Tint);
+            setTint(configs_Tint);
         }
 
         int configs_Tsend = doc["Tsend"]; // 10
@@ -191,7 +191,7 @@ void Settings::run()
                 Serial.print("configs_Tsend: ");
                 Serial.println(configs_Tsend);
             }
-            setMAX_ERRORS(configs_Tsend);
+            setTsend(configs_Tsend);
         }
     }
 }
