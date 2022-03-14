@@ -93,8 +93,6 @@ void Settings::run()
         {
             Serial.println(_sim_device->smsBuffer);
         }
-        //char input[MAX_INPUT_LENGTH] = "{\"Tcheck\":15,\"MAX_ERRORS\":3,\"TintB\":360,\"TsendB\":10,\"TGPSB\":10,\"SMART\":true,\"TGPS\":10,\"Tint\":60,\"Tsend\":10}";
-
         StaticJsonDocument<96> doc;
 
         DeserializationError error = deserializeJson(doc, _sim_device->smsBuffer, MAX_INPUT_LENGTH);
@@ -205,6 +203,11 @@ void Settings::setMAX_ERRORS(int val)
     {
         MAX_ERRORS = val;
         EEPROM.write(MAX_ERRORS_ADDR, val); // save the value in eeprom
+        if (DEBUG)
+        {
+            Serial.print("Written MAX_ERRORS to EEPROM! val: ");
+            Serial.println(val);
+        }
     }
 }
 
@@ -218,6 +221,11 @@ void Settings::setTint(unsigned int val)
         byte loByte = lowByte(val);
         EEPROM.write(Tint_ADDR, hiByte);
         EEPROM.write(Tint_ADDR + 1, loByte);
+        if (DEBUG)
+        {
+            Serial.print("Written Tint to EEPROM! val: ");
+            Serial.println(val);
+        }
     }
 }
 
@@ -231,6 +239,11 @@ void Settings::setTintB(unsigned int val)
         byte loByte = lowByte(val);
         EEPROM.write(TintB_ADDR, hiByte);
         EEPROM.write(TintB_ADDR + 1, loByte);
+        if (DEBUG)
+        {
+            Serial.print("Written TintB to EEPROM! val: ");
+            Serial.println(val);
+        }
     }
 }
 
@@ -241,6 +254,11 @@ void Settings::setTGPS(int val)
     {
         TGPS = val;
         EEPROM.write(TGPS_ADDR, val); // save the value in eeprom
+        if (DEBUG)
+        {
+            Serial.print("Written TGPS to EEPROM! val: ");
+            Serial.println(val);
+        }
     }
 }
 
@@ -251,6 +269,11 @@ void Settings::setTGPSB(int val)
     {
         TGPSB = val;
         EEPROM.write(TGPSB_ADDR, val); // save the value in eeprom
+        if (DEBUG)
+        {
+            Serial.print("Written TGPSB to EEPROM! val: ");
+            Serial.println(val);
+        }
     }
 }
 
@@ -261,6 +284,11 @@ void Settings::setSMART(int val)
     {
         SMART = val;
         EEPROM.write(SMART_ADDR, val); // save the value in eeprom
+        if (DEBUG)
+        {
+            Serial.print("Written SMART to EEPROM! val: ");
+            Serial.println(val);
+        }
     }
 }
 
@@ -271,6 +299,11 @@ void Settings::setTsendB(int val)
     {
         TsendB = val;
         EEPROM.write(TsendB_ADDR, val); // save the value in eeprom
+        if (DEBUG)
+        {
+            Serial.print("Written TsendB to EEPROM! val: ");
+            Serial.println(val);
+        }
     }
 }
 
@@ -281,5 +314,10 @@ void Settings::setTsend(int val)
     {
         Tsend = val;
         EEPROM.write(Tsend_ADDR, val); // save the value in eeprom
+        if (DEBUG)
+        {
+            Serial.print("Written Tsend to EEPROM! val: ");
+            Serial.println(val);
+        }
     }
 }
