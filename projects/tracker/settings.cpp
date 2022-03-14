@@ -93,11 +93,11 @@ void Settings::run()
         {
             Serial.println(_sim_device->smsBuffer);
         }
-        char input[MAX_INPUT_LENGTH] = "{\"Tcheck\":15,\"MAX_ERRORS\":3,\"TintB\":360,\"TsendB\":10,\"TGPSB\":10,\"SMART\":true,\"TGPS\":10,\"Tint\":60,\"Tsend\":10}";
+        //char input[MAX_INPUT_LENGTH] = "{\"Tcheck\":15,\"MAX_ERRORS\":3,\"TintB\":360,\"TsendB\":10,\"TGPSB\":10,\"SMART\":true,\"TGPS\":10,\"Tint\":60,\"Tsend\":10}";
 
         StaticJsonDocument<96> doc;
 
-        DeserializationError error = deserializeJson(doc, input, MAX_INPUT_LENGTH);
+        DeserializationError error = deserializeJson(doc, _sim_device->smsBuffer, MAX_INPUT_LENGTH);
         if (error)
         {
             if (DEBUG)
