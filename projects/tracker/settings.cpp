@@ -89,7 +89,112 @@ void Settings::run()
 {
     if (_sim_device->checkSMS())
     {
-        Serial.println(_sim_device->smsBuffer);
+        if (DEBUG)
+        {
+            Serial.println(_sim_device->smsBuffer);
+        }
+        char input[MAX_INPUT_LENGTH] = "{\"Tcheck\":15,\"MAX_ERRORS\":3,\"TintB\":360,\"TsendB\":10,\"TGPSB\":10,\"SMART\":true,\"TGPS\":10,\"Tint\":60,\"Tsend\":10}";
+
+        StaticJsonDocument<96> doc;
+
+        DeserializationError error = deserializeJson(doc, input, MAX_INPUT_LENGTH);
+        if (error)
+        {
+            if (DEBUG)
+            {
+                Serial.print(F("deserializeJson() failed: "));
+                Serial.println(error.c_str());
+            }
+            return;
+        }
+
+        int configs_MAX_ERRORS = doc["MAX_ERRORS"]; // 3
+        if (configs_MAX_ERRORS)
+        {
+            if (DEBUG)
+            {
+                Serial.print("MAX_ERRORS: ");
+                Serial.println(configs_MAX_ERRORS);
+            }
+            setMAX_ERRORS(configs_MAX_ERRORS);
+        }
+
+        int configs_TintB = doc["TintB"]; // 360
+        if (configs_TintB)
+        {
+            if (DEBUG)
+            {
+                Serial.print("configs_TintB: ");
+                Serial.println(configs_TintB);
+            }
+            setMAX_ERRORS(configs_TintB);
+        }
+
+        int configs_TsendB = doc["TsendB"]; // 10
+        if (configs_TsendB)
+        {
+            if (DEBUG)
+            {
+                Serial.print("configs_TsendB: ");
+                Serial.println(configs_TsendB);
+            }
+            setMAX_ERRORS(configs_TsendB);
+        }
+
+        int configs_TGPSB = doc["TGPSB"]; // 10
+        if (configs_TGPSB)
+        {
+            if (DEBUG)
+            {
+                Serial.print("configs_TGPSB: ");
+                Serial.println(configs_TGPSB);
+            }
+            setMAX_ERRORS(configs_TGPSB);
+        }
+
+        bool configs_SMART = doc["SMART"]; // true
+        if (configs_SMART)
+        {
+            if (DEBUG)
+            {
+                Serial.print("configs_SMART: ");
+                Serial.println(configs_SMART);
+            }
+            setMAX_ERRORS(configs_SMART);
+        }
+
+        int configs_TGPS = doc["TGPS"]; // 10
+        if (configs_TGPS)
+        {
+            if (DEBUG)
+            {
+                Serial.print("configs_TGPS: ");
+                Serial.println(configs_TGPS);
+            }
+            setMAX_ERRORS(configs_TGPS);
+        }
+
+        int configs_Tint = doc["Tint"]; // 60
+        if (configs_Tint)
+        {
+            if (DEBUG)
+            {
+                Serial.print("configs_Tint: ");
+                Serial.println(configs_Tint);
+            }
+            setMAX_ERRORS(configs_Tint);
+        }
+
+        int configs_Tsend = doc["Tsend"]; // 10
+        if (configs_Tsend)
+        {
+            if (DEBUG)
+            {
+                Serial.print("configs_Tsend: ");
+                Serial.println(configs_Tsend);
+            }
+            setMAX_ERRORS(configs_Tsend);
+        }
     }
 }
 

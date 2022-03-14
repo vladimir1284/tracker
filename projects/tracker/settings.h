@@ -5,6 +5,7 @@
 #include "configs.h"
 #include "sim7000.h"
 #include "Adafruit_FONA.h"
+#include <ArduinoJson.h>
 
 extern int //Tcheck, // Time interval for power check (0 - 255) min (deprecated)
     MAX_ERRORS,    // (0 - 255)
