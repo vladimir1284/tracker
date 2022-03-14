@@ -106,6 +106,9 @@ void Settings::run()
             return;
         }
 
+        //Init EEPROM
+        EEPROM.begin(EEPROM_SIZE);
+
         int configs_MAX_ERRORS = doc["MAX_ERRORS"]; // 3
         if (configs_MAX_ERRORS)
         {
@@ -193,6 +196,8 @@ void Settings::run()
             }
             setTsend(configs_Tsend);
         }
+
+        EEPROM.end();
     }
 }
 
