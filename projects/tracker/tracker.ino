@@ -105,7 +105,7 @@ void loop()
   // // time(&now);
   // // Serial.println(now);
   set_handler.run();
-  delay(20000);
+  delay(5000);
 
   // switch (mode)
   // {

@@ -46,8 +46,6 @@ boolean Sim7000::prepareMessage()
 //--------------------------------------------------------------------
 bool Sim7000::checkSMS()
 {
-    char smsBuffer[MAX_INPUT_LENGTH];
-
     fona.setFunctionality(1); // AT+CFUN=1
     delay(100);
 
@@ -67,7 +65,8 @@ bool Sim7000::checkSMS()
             { // pass in buffer and max len!
                 if (DEBUG)
                 {
-                    Serial.println(smsBuffer);
+                    Serial.print("Read SMS in slot ");
+                    Serial.println(i);
                 }
             }
             // Delete the original message after it is processed.
@@ -77,6 +76,7 @@ bool Sim7000::checkSMS()
                 {
                     Serial.println(F("OK!"));
                 }
+                return true;
             }
             else
             {
@@ -97,7 +97,7 @@ bool Sim7000::checkSMS()
         }
     }
 
-    return true;
+    return false;
 }
 
 //--------------------------------------------------------------------

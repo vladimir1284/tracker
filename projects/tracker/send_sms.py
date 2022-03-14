@@ -6,9 +6,9 @@ usr = 'apikey'
 pwd = '177HT6AXZNrDVi4eO30Lc6nsoNuCnE'
 
 # Vars
-dev = "1618549"
+dev = "1684251"
 num = "+522226111169"
-sms = "Hi from python 2!"
+sms = "Hi from python 3!"
 
 # Send SMS
 response = requests.post(

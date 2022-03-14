@@ -29,6 +29,8 @@ public:
         reset(),
         configure();
 
+    char smsBuffer[MAX_INPUT_LENGTH];
+
 };
 
 #endif // SIM7000_H

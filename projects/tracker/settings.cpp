@@ -87,7 +87,10 @@ void Settings::setup(Sim7000 *sim_device)
 //--------------------------------------------------------------------
 void Settings::run()
 {
-    _sim_device->checkSMS();
+    if (_sim_device->checkSMS())
+    {
+        Serial.println(_sim_device->smsBuffer);
+    }
 }
 
 //--------------------------------------------------------------------
