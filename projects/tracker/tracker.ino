@@ -21,24 +21,10 @@ void IRAM_ATTR resetModule()
   esp_restart();
 }
 
-void detectMode()
-{
-  if (digitalRead(PIN12V))
-  {
-    mode = POWER_ON;
-  }
-  else
-  {
-    mode = BATTERY;
-  }
-  // TODO comment the foollowing line
-  mode = BATTERY;
-}
-
-void IRAM_ATTR isr()
-{
-  detectMode();
-}
+// void IRAM_ATTR isr()
+// {
+//   detectMode();
+// }
 
 void setup()
 {
@@ -76,9 +62,7 @@ void setup()
   // -------------------------------------
 
   // ------- Detect mode --------------
-  pinMode(PIN12V, INPUT_PULLUP); // TODO this must be INPUT with an external pull down
-  detectMode();
-  attachInterrupt(PIN12V, isr, CHANGE);
+  pinMode(PIN12V, INPUT); // TODO this must be INPUT with an external pull down
   // -------------------------------------
 
   rtc_handle_wakeup();
@@ -86,14 +70,15 @@ void setup()
   // Setup sim module
   sim_device.setup();
 
-  // fona.setFunctionality(1); // AT+CFUN=1
-
   // Setup FSM
   fsm_power_on.setup(&sim_device);
   fsm_battery.setup(&sim_device);
 
   // Setup settings handler
   set_handler.setup(&sim_device);
+  set_handler.run();
+  // Turn off modem
+  fona.setFunctionality(0); // AT+CFUN=0
 }
 
 void loop()
@@ -104,20 +89,20 @@ void loop()
   // // time_t now;
   // // time(&now);
   // // Serial.println(now);
-  set_handler.run();
-  delay(5000);
+  // delay(5000);
+  detectMode();
 
-  // switch (mode)
-  // {
-  // case POWER_ON:
-  //   fsm_power_on.run();
-  //   break;
+  switch (mode)
+  {
+  case POWER_ON:
+    fsm_power_on.run();
+    break;
 
-  // case BATTERY:
-  //   fsm_battery.run();
-  //   break;
+  case BATTERY:
+    fsm_battery.run();
+    break;
 
-  // default:
-  //   break;
-  // }
+  default:
+    break;
+  }
 }

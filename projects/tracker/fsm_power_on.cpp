@@ -9,7 +9,7 @@ FSMpower::FSMpower()
 void FSMpower::setup(Sim7000 *sim_device)
 {
     _sim_device = sim_device;
-    tries = 3;
+    tries = RETRIES;
 }
 
 //--------------------------------------------------------------------
@@ -29,12 +29,12 @@ void FSMpower::run()
             state = READ_GPS;
 
             // Enable GPS
-            tries = 3; // After 3 unsuccessful attemps the module is restarted
+            tries = RETRIES; // After 3 unsuccessful attemps the module is restarted
             while (!fona.enableGPS(true))
             {
                 if (--tries < 0)
                 {
-                    tries = 3; // Back to its original value
+                    tries = RETRIES; // Back to its original value
                     _sim_device->reset();
                     if (DEBUG)
                     {
@@ -48,7 +48,7 @@ void FSMpower::run()
                 timerWrite(timer, 0); //reset timer (feed watchdog)
                 delay(2000);          // Retry every 2s
             }
-            tries = 3; // Back to its original value
+            tries = RETRIES; // Back to its original value
             if (DEBUG)
             {
                 Serial.print(now);
@@ -93,7 +93,7 @@ void FSMpower::run()
                 if (--tries < 0)
                 {
                     _sim_device->reset();
-                    tries = 3; // Back to its original value
+                    tries = RETRIES; // Back to its original value
                     if (DEBUG)
                     {
                         Serial.println(F("Reseting the SIM module..."));
@@ -107,7 +107,7 @@ void FSMpower::run()
                 delay(2000);          // Retry every 2s
                 break;
             }
-            tries = 3; // Back to its original value
+            tries = RETRIES; // Back to its original value
             Serial.println(F("Turned on GPS!"));
         }
 
@@ -123,7 +123,7 @@ void FSMpower::run()
         }
         else
         {
-            tries = 30; // Back to its original value
+            tries = RETRIES; // Back to its original value
 
             // GPS data ready
             time(&now);
@@ -137,6 +137,7 @@ void FSMpower::run()
         time(&now);
         if (now - stateChange > ((time_t)Tsend * MIN_TO_S_FACTOR))
         { // Data upload not achieved
+            set_handler.run(); // check SMS
             gsmErrors++;
             state = ERROR;
             if (DEBUG)
@@ -153,7 +154,7 @@ void FSMpower::run()
             if (--tries < 0)
             {
                 _sim_device->reset();
-                tries = 30; // Back to its original value
+                tries = RETRIES; // Back to its original value
                 if (DEBUG)
                 {
                     Serial.println(F("Reseting the SIM module..."));
@@ -167,7 +168,7 @@ void FSMpower::run()
             delay(2000);          // Retry every 2s
             break;
         }
-        tries = 3; // Back to its original value
+        tries = RETRIES; // Back to its original value
         if (DEBUG)
         {
             Serial.println(F("Connected to cell network!"));
@@ -177,7 +178,7 @@ void FSMpower::run()
             if (--tries < 0)
             {
                 _sim_device->reset();
-                tries = 3; // Back to its original value
+                tries = RETRIES; // Back to its original value
                 if (DEBUG)
                 {
                     Serial.println(F("Reseting the SIM module..."));
@@ -194,7 +195,8 @@ void FSMpower::run()
         else
         {   
             // Data sent
-            tries = 3; // Back to its original value
+            tries = RETRIES; // Back to its original value
+            set_handler.run(); // check SMS
             state = IDLE;
             pending = false;
             if (DEBUG)

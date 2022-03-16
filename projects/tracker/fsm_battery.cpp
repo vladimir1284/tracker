@@ -11,9 +11,9 @@ void FSMbattery::setup(Sim7000 *sim_device)
     time_t now;
     time(&now);
     stateChange = now;
-    
+
     _sim_device = sim_device;
-    tries = 30;
+    tries = RETRIES;
 }
 
 //--------------------------------------------------------------------
@@ -72,7 +72,7 @@ void FSMbattery::run()
                 if (--tries < 0)
                 {
                     _sim_device->reset();
-                    tries = 30; // Back to its original value
+                    tries = RETRIES; // Back to its original value
                     if (DEBUG)
                     {
                         Serial.println(F("Reseting the SIM module..."));
@@ -86,7 +86,7 @@ void FSMbattery::run()
                 rtc_light_sleep(2);   // Retry every 2s
                 break;
             }
-            tries = 30; // Back to its original value
+            tries = RETRIES; // Back to its original value
             Serial.println(F("Turned on GPS!"));
         }
 
@@ -116,6 +116,7 @@ void FSMbattery::run()
         time(&now);
         if (now - stateChange > (Tsend * MIN_TO_S_FACTOR))
         { // Data upload not achieved
+            set_handler.run(); // check SMS
             gsmErrors++;
             state = ERROR;
             if (DEBUG)
@@ -132,7 +133,7 @@ void FSMbattery::run()
             if (--tries < 0)
             {
                 _sim_device->reset();
-                tries = 30; // Back to its original value
+                tries = RETRIES; // Back to its original value
                 if (DEBUG)
                 {
                     Serial.println(F("Reseting the SIM module..."));
@@ -146,7 +147,7 @@ void FSMbattery::run()
             rtc_light_sleep(2);   // Retry every 2s
             break;
         }
-        tries = 30; // Back to its original value
+        tries = RETRIES; // Back to its original value
         if (DEBUG)
         {
             Serial.println(F("Connected to cell network!"));
@@ -156,7 +157,7 @@ void FSMbattery::run()
             if (--tries < 0)
             {
                 _sim_device->reset();
-                tries = 30; // Back to its original value
+                tries = RETRIES; // Back to its original value
                 if (DEBUG)
                 {
                     Serial.println(F("Reseting the SIM module..."));
@@ -173,9 +174,10 @@ void FSMbattery::run()
         else
         {
             // Data sent
-            tries = 30; // Back to its original value
+            tries = RETRIES; // Back to its original value
             state = IDLE;
             pending = false;
+            set_handler.run(); // check SMS
             if (DEBUG)
             {
                 Serial.print(now);

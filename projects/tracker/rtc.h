@@ -38,7 +38,7 @@ void rtc_light_sleep(uint64_t delay)
 
     esp_sleep_enable_timer_wakeup(delay * S_TO_uS_FACTOR);
     esp_light_sleep_start();
-    
+
     // Unlock IO pins value
     gpio_hold_dis((gpio_num_t)SIM_PWR);
     gpio_hold_dis((gpio_num_t)PWRKEY);
@@ -60,7 +60,6 @@ void rtc_handle_wakeup()
         gpsErrors = 0;
         gsmErrors = 0;
         pending = false;
-        Tcheck = 0;
         imei_len = 0;
         seq_num = 0;
     }
@@ -77,6 +76,49 @@ void rtc_sleep(uint64_t delay)
 
     // Going to sleep
     esp_deep_sleep_start();
+}
+
+// ---------------------------------------------
+// Detect battery powered debouncing input signal
+void detectMode()
+{
+    modes initial_mode = mode;
+    if (mode == POWER_ON)
+    {
+        for (int i = 0; i < 3; i++)
+        {
+            if (digitalRead(PIN12V))
+            {
+                mode = POWER_ON;
+                break;
+            }
+            mode = BATTERY;
+            delay(5);
+        }
+    }
+    else
+    {
+        for (int i = 0; i < 3; i++)
+        {
+            if (!digitalRead(PIN12V))
+            {
+                mode = BATTERY;
+                break;
+            }
+            mode = POWER_ON;
+            delay(5);
+        }
+    }
+    if (initial_mode != mode)
+    {
+        state = READ_GPS; // Force update on mode change
+        if (DEBUG)
+        {
+            Serial.print("Mode: ");
+            Serial.println(mode);
+        }
+        
+    }
 }
 
 #endif // RTC_H

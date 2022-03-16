@@ -17,8 +17,7 @@
 #define MSG_SIZE 128
 #define APN_NAME "hologram"
 
-#define RETRAYS 3
-#define SIMDELAY 10000 // ms
+#define RETRIES 30
 #define CREDIT_INIT 7
 #define CREDIT_LEN 6
 
