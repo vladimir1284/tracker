@@ -74,6 +74,9 @@ void rtc_sleep(uint64_t delay)
     gpio_hold_en((gpio_num_t)PWRKEY);
     gpio_deep_sleep_hold_en();
 
+    // Wakeup on energy connection
+    esp_sleep_enable_ext1_wakeup(BUTTON_PIN_BITMASK,ESP_EXT1_WAKEUP_ANY_HIGH);
+
     // Going to sleep
     esp_deep_sleep_start();
 }
