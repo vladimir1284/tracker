@@ -86,7 +86,7 @@ void loop()
   // // Serial.println(now);
   // delay(5000);
   detectMode();
-  rtc_sleep(MIN_TO_uS_FACTOR);
+  rtc_sleep(15*MIN_TO_uS_FACTOR);
   // switch (mode)
   // {
   // case POWER_ON:
