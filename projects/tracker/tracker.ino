@@ -86,18 +86,18 @@ void loop()
   // // Serial.println(now);
   // delay(5000);
   detectMode();
-  rtc_sleep(15*MIN_TO_uS_FACTOR);
-  // switch (mode)
-  // {
-  // case POWER_ON:
-  //   fsm_power_on.run();
-  //   break;
+  // rtc_sleep(15*MIN_TO_uS_FACTOR);
+  switch (mode)
+  {
+  case POWER_ON:
+    fsm_power_on.run();
+    break;
 
-  // case BATTERY:
-  //   fsm_battery.run();
-  //   break;
+  case BATTERY:
+    fsm_battery.run();
+    break;
 
-  // default:
-  //   break;
-  // }
+  default:
+    break;
+  }
 }
