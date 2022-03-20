@@ -95,21 +95,21 @@ boolean Adafruit_FONA::begin(Stream &port, int FONA_PWRKEY)
     delay(100);
   }
 
-  // turn off Echo!
-  sendCheckReply(F("ATE0"), ok_reply);
-  // delay(300);
+  // // turn off Echo!
+  // sendCheckReply(F("ATE0"), ok_reply);
+  // // delay(300);
 
-  // if (!sendCheckReply(F("ATE0"), ok_reply))
+  // // if (!sendCheckReply(F("ATE0"), ok_reply))
+  // // {
+  // //   return false;
+  // // }
+  // for (int i = 0; i < 10; i++)
   // {
-  //   return false;
+  //   if (sendCheckReply(F("ATE0"), ok_reply, 1000))
+  //   {
+  //     break;
+  //   }
   // }
-  for (int i = 0; i < 10; i++)
-  {
-    if (sendCheckReply(F("ATE0"), ok_reply, 1000))
-    {
-      break;
-    }
-  }
 
   // turn on hangupitude
   if (_rstpin != 99)
