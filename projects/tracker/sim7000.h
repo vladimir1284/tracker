@@ -22,12 +22,12 @@ public:
     bool prepareMessage(),
         uploadData(),
         checkSMS(),
-        netStatus();
+        netStatus(),
+        configure();
     void setup(),
         turnOFF(),
         turnON(),
-        reset(),
-        configure();
+        reset();
 
     char smsBuffer[MAX_INPUT_LENGTH];
 

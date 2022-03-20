@@ -110,7 +110,16 @@ void Sim7000::turnOFF()
 void Sim7000::turnON()
 {
     digitalWrite(SIM_PWR, HIGH);
-    configure();
+    for (int i = 0; i < 3; i++)
+    {
+        if (configure())
+        {
+            break;
+        }
+        turnOFF();
+        delay(100); // Short pause to let the capacitors discharge
+        digitalWrite(SIM_PWR, HIGH);
+    }
 }
 
 //--------------------------------------------------------------------
@@ -122,7 +131,7 @@ void Sim7000::reset()
 }
 
 //--------------------------------------------------------------------
-void Sim7000::configure()
+bool Sim7000::configure()
 {
     // SIM7000 takes about 3s to turn on
     // Press Arduino reset button if the module is still turning on and the board doesn't find it.
@@ -149,8 +158,9 @@ void Sim7000::configure()
         {
             Serial.println(F("Couldn't find FONA"));
         }
-        while (1)
-            ; // Don't proceed if it couldn't find the device
+        return false;
+        // while (1)
+        //     ; // Don't proceed if it couldn't find the device
     }
     if (DEBUG)
     {
@@ -162,8 +172,9 @@ void Sim7000::configure()
 
     // Configure
     fona.setNetworkSettings(F(APN_NAME)); // For Hologram SIM card
-    fona.setPreferredMode(38);              // Use LTE only, not 2G
-    fona.setPreferredLTEMode(1);            // Use LTE CAT-M only, not NB-IoT
+    fona.setPreferredMode(38);            // Use LTE only, not 2G
+    fona.setPreferredLTEMode(1);          // Use LTE CAT-M only, not NB-IoT
+    return true;
 }
 
 //--------------------------------------------------------------------
