@@ -103,6 +103,13 @@ boolean Adafruit_FONA::begin(Stream &port, int FONA_PWRKEY)
   // {
   //   return false;
   // }
+  for (int i = 0; i < 10; i++)
+  {
+    if (sendCheckReply(F("ATE0"), ok_reply, 1000))
+    {
+      break;
+    }
+  }
 
   // turn on hangupitude
   if (_rstpin != 99)
@@ -1554,7 +1561,7 @@ boolean Adafruit_FONA::getGPS(float *lat, float *lon, float *speed_kph, uint16_t
 
     // only grab sats if needed
 
-      Serial.println("Here");
+    Serial.println("Here");
     if (sats != NULL)
     {
       // grab the speed in knots
@@ -1563,7 +1570,7 @@ boolean Adafruit_FONA::getGPS(float *lat, float *lon, float *speed_kph, uint16_t
       if (!nsats)
         return false;
       Serial.println(*nsats);
-      *sats = (char) atoi(nsats);
+      *sats = (char)atoi(nsats);
     }
 
     (void)tok;
