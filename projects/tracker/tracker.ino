@@ -21,11 +21,6 @@ void IRAM_ATTR resetModule()
   esp_restart();
 }
 
-// void IRAM_ATTR isr()
-// {
-//   detectMode();
-// }
-
 void setup()
 {
   if (DEBUG)
@@ -83,7 +78,7 @@ void setup()
 
 void loop()
 {
-  // Serial.print("Goin to sleep...");
+  // Serial.print(BUTTON_PIN_BITMASK);
   // rtc_sleep(10000000L);
   // timerWrite(timer, 0); //reset timer (feed watchdog)
   // // time_t now;
@@ -91,18 +86,18 @@ void loop()
   // // Serial.println(now);
   // delay(5000);
   detectMode();
+  rtc_sleep(MIN_TO_uS_FACTOR);
+  // switch (mode)
+  // {
+  // case POWER_ON:
+  //   fsm_power_on.run();
+  //   break;
 
-  switch (mode)
-  {
-  case POWER_ON:
-    fsm_power_on.run();
-    break;
+  // case BATTERY:
+  //   fsm_battery.run();
+  //   break;
 
-  case BATTERY:
-    fsm_battery.run();
-    break;
-
-  default:
-    break;
-  }
+  // default:
+  //   break;
+  // }
 }
