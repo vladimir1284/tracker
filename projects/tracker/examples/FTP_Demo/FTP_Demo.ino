@@ -101,14 +101,7 @@ void setup() {
     delay(2000);
   }
 
-  // Initialize SD card
-  Serial.print(F("Initializing SD card... "));
-  
-  if (!SD.begin(CS_pin)) {
-    Serial.println(F("failed!"));
-    while (1);
-  }
-  Serial.println(F("done!"));
+
 
   // Read the contents of a text file in the root directory of the FTP server
   // Make sure the file exists on your FTP server in the specified directory!
