@@ -105,6 +105,7 @@ void loop()
 #define serverIP "ftp.drivehq.com" // Use global IP for remote connection
 #define serverPort 21
 
+  fona.setFunctionality(1); // AT+CFUN=0
   // Open wireless connection if not already activated
   if (!fona.wirelessConnStatus())
   {
