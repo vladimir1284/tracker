@@ -136,4 +136,5 @@ void loop()
     Serial.println(F("Failed to connect to FTP server!"));
     delay(2000);
   }
+  while (1);
 }
