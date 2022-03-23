@@ -85,19 +85,55 @@ void loop()
   // // time(&now);
   // // Serial.println(now);
   // delay(5000);
-  detectMode();
+
+  // detectMode();
   // rtc_sleep(15*MIN_TO_uS_FACTOR);
-  switch (mode)
+  // switch (mode)
+  // {
+  // case POWER_ON:
+  //   fsm_power_on.run();
+  //   break;
+
+  // case BATTERY:
+  //   fsm_battery.run();
+  //   break;
+
+  // default:
+  //   break;
+  // }
+  /************************* FTP SETTINGS *********************************/
+#define serverIP "ftp.drivehq.com" // Use global IP for remote connection
+#define serverPort 21
+
+  // Open wireless connection if not already activated
+  if (!fona.wirelessConnStatus())
   {
-  case POWER_ON:
-    fsm_power_on.run();
-    break;
+    while (!fona.openWirelessConnection(true))
+    {
+      if (DEBUG)
+      {
+        Serial.println(F("Failed to enable connection, retrying..."));
+      }
+      delay(2000);
+    }
+    if (DEBUG)
+    {
+      Serial.println(F("Enabled data!"));
+    }
+  }
+  else
+  {
+    if (DEBUG)
+    {
+      Serial.println(F("Data already enabled!"));
+    }
+  }
 
-  case BATTERY:
-    fsm_battery.run();
-    break;
-
-  default:
-    break;
+  // Connect to FTP server
+  Serial.println(F("Connecting to FTP server..."));
+  while (!fona.FTP_Connect(serverIP, serverPort, "vladimir1284", "ganador"))
+  {
+    Serial.println(F("Failed to connect to FTP server!"));
+    delay(2000);
   }
 }
