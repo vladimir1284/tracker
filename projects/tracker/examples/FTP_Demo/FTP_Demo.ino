@@ -14,16 +14,7 @@
  *  License: GNU GPL v3.0
  */
 
-#include "Adafruit_FONA.h" // https://github.com/botletics/SIM7000-LTE-Shield/tree/master/Code
-#include "SPIFFS.h"
-File myFile;
-
-const int CS_pin = 53;
-
-#if defined(ARDUINO_SAMD_ZERO) && defined(SERIAL_PORT_USBVIRTUAL)
-  // Required for Serial on Zero based boards
-  #define Serial SERIAL_PORT_USBVIRTUAL
-#endif
+#include "../Adafruit_FONA.h" // https://github.com/botletics/SIM7000-LTE-Shield/tree/master/Code
 
 // Define *one* of the following lines:
 //#define SIMCOM_2G // SIM800/808/900/908, etc.
@@ -107,9 +98,9 @@ void setup() {
   // Make sure the file exists on your FTP server in the specified directory!
   Serial.println(F("Reading file from FTP server..."));
 
-  char * readContent = fona.FTP_GET("hello_world.ino", "/", 1024);
-  Serial.println(readContent); // DEBUG
-  free(readContent); // Free up memory alloc
+  // const char * readContent = fona.FTP_GET("hello_world.ino", "/", 1024);
+  Serial.println(fona.FTP_GET("hello_world.ino", "/", 1024)); // DEBUG
+  // free(readContent); // Free up memory alloc
 
   // // Write the content we just read from the FTP file onto our local copy
   // if (!writeToFile("test.txt", readContent)) Serial.println(F("Failed to write to file!"));
