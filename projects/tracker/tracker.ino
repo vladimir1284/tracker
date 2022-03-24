@@ -101,43 +101,53 @@ void loop()
   // default:
   //   break;
   // }
-  /************************* FTP SETTINGS *********************************/
-#define serverIP "ftp.drivehq.com" // Use global IP for remote connection
-#define serverPort 21
 
-  // Open wireless connection if not already activated
-  if (!fona.wirelessConnStatus())
-  {
-    while (!fona.openWirelessConnection(true))
-    {
-      if (DEBUG)
-      {
-        Serial.println(F("Failed to enable connection, retrying..."));
-      }
-      delay(2000);
-    }
-    if (DEBUG)
-    {
-      Serial.println(F("Enabled data!"));
-    }
-  }
-  else
-  {
-    if (DEBUG)
-    {
-      Serial.println(F("Data already enabled!"));
-    }
-  }
+  //   /************************* FTP SETTINGS *********************************/
+  // #define serverIP "ftp.drivehq.com" // Use global IP for remote connection
+  // #define serverPort 21
 
-  // Connect to FTP server
-  Serial.println(F("Connecting to FTP server..."));
-  while (!fona.FTP_Connect(serverIP, serverPort, "vladimir1284", "ganador"))
+  //   // Open wireless connection if not already activated
+  //   if (!fona.wirelessConnStatus())
+  //   {
+  //     while (!fona.openWirelessConnection(true))
+  //     {
+  //       if (DEBUG)
+  //       {
+  //         Serial.println(F("Failed to enable connection, retrying..."));
+  //       }
+  //       delay(2000);
+  //     }
+  //     if (DEBUG)
+  //     {
+  //       Serial.println(F("Enabled data!"));
+  //     }
+  //   }
+  //   else
+  //   {
+  //     if (DEBUG)
+  //     {
+  //       Serial.println(F("Data already enabled!"));
+  //     }
+  //   }
+
+  //   // Connect to FTP server
+  //   Serial.println(F("Connecting to FTP server..."));
+  //   while (!fona.FTP_Connect(serverIP, serverPort, "vladimir1284", "ganador"))
+  //   {
+  //     Serial.println(F("Failed to connect to FTP server!"));
+  //     delay(2000);
+  //   }
+  //   const char *readContent = fona.FTP_GET("hello_world.ino", "/", 107);
+  //   Serial.println(readContent); // DEBUG
+  //   while (1)
+  //     ;
+
+  while (Serial.available())
   {
-    Serial.println(F("Failed to connect to FTP server!"));
-    delay(2000);
+    fonaSS.write(Serial.read());
   }
-  const char *readContent = fona.FTP_GET("hello_world.ino", "/", 107);
-  Serial.println(readContent); // DEBUG
-  while (1)
-    ;
+  while (fonaSS.available())
+  {
+    Serial.write(fonaSS.read());
+  }
 }
