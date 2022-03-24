@@ -73,7 +73,7 @@ void setup()
   set_handler.setup(&sim_device);
   set_handler.run();
   // Turn off modem
-  fona.setFunctionality(0); // AT+CFUN=0
+  //fona.setFunctionality(0); // AT+CFUN=0
 }
 
 void loop()
@@ -105,7 +105,6 @@ void loop()
 #define serverIP "ftp.drivehq.com" // Use global IP for remote connection
 #define serverPort 21
 
-  fona.setFunctionality(1); // AT+CFUN=0
   // Open wireless connection if not already activated
   if (!fona.wirelessConnStatus())
   {
@@ -137,5 +136,8 @@ void loop()
     Serial.println(F("Failed to connect to FTP server!"));
     delay(2000);
   }
-  while (1);
+  const char *readContent = fona.FTP_GET("hello_world.ino", "/", 107);
+  Serial.println(readContent); // DEBUG
+  while (1)
+    ;
 }
