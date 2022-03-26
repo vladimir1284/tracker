@@ -3,11 +3,15 @@
 
 #include <Arduino.h>
 
+uint32_t vibrationNumber,
+    lastVibrationCheck;
+
 // ---------------------------------------------
 // RTC memory to hold state values on deep sleep
 RTC_DATA_ATTR modes mode;
 RTC_DATA_ATTR states state;
 RTC_DATA_ATTR time_t lastInterval;
+RTC_DATA_ATTR time_t nextWakeUp;
 
 RTC_DATA_ATTR int gpsErrors,
     gsmErrors;
@@ -26,6 +30,7 @@ RTC_DATA_ATTR int imei_len;
 RTC_DATA_ATTR byte seq_num;
 RTC_DATA_ATTR bool pending;
 RTC_DATA_ATTR char msg[MSG_SIZE];
+RTC_DATA_ATTR bool moving;
 
 // ---------------------------------------------
 // Low energy compsumption delay (in seconds)
@@ -44,15 +49,62 @@ void rtc_light_sleep(uint64_t delay)
     gpio_hold_dis((gpio_num_t)PWRKEY);
 }
 
+void rtc_sleep(uint64_t delay)
+{
+    esp_sleep_enable_timer_wakeup(delay);
+
+    // Compute next wake up
+    time_t now;
+    time(&now);
+    nextWakeUp = now + delay / 1e6;
+
+    // Hold on IO pins value
+    gpio_hold_en((gpio_num_t)SIM_PWR);
+    gpio_hold_en((gpio_num_t)PWRKEY);
+    gpio_deep_sleep_hold_en();
+
+    // Wakeup on energy connection
+    uint64_t BUTTON_PIN_BITMASK = PWR_PIN_BITMASK;
+    if (!moving)
+    {
+        BUTTON_PIN_BITMASK |= VBR_PIN_BITMASK; // Wake on vibration
+    }
+
+    esp_sleep_enable_ext1_wakeup(BUTTON_PIN_BITMASK, ESP_EXT1_WAKEUP_ANY_HIGH);
+
+    // Going to sleep
+    esp_deep_sleep_start();
+}
+
 void rtc_handle_wakeup()
 {
+    // Find out the reazon for waking up
+    esp_sleep_wakeup_cause_t wakeup_reason;
+    wakeup_reason = esp_sleep_get_wakeup_cause();
+
+    if (ESP_SLEEP_WAKEUP_EXT1)
+    {
+        int GPIO_reason = esp_sleep_get_ext1_wakeup_status();
+        int pin = (int)((log(GPIO_reason)) / log(2));
+        if (DEBUG)
+        {
+            Serial.print("GPIO that triggered the wake up: GPIO ");
+            Serial.println(pin);
+        }
+        if (pin == PINVBR)
+        {
+            time_t now;
+            time(&now);
+            moving = true;
+            rtc_sleep(1e6 * (nextWakeUp - now));
+        }
+    }
+
     // Unlock IO pins value
     gpio_hold_dis((gpio_num_t)SIM_PWR);
     gpio_hold_dis((gpio_num_t)PWRKEY);
 
     // We only keep RTC values when waking up from deep sleep
-    esp_sleep_wakeup_cause_t wakeup_reason;
-    wakeup_reason = esp_sleep_get_wakeup_cause();
     if (wakeup_reason != ESP_SLEEP_WAKEUP_TIMER)
     {
         state = READ_GPS;
@@ -62,23 +114,33 @@ void rtc_handle_wakeup()
         pending = false;
         imei_len = 0;
         seq_num = 0;
+        vibrationNumber = 0;
     }
 }
 
-void rtc_sleep(uint64_t delay)
+// ---------------------------------------------
+// Detect movement every MOVDELAY seconds
+void detectMovement()
 {
-    esp_sleep_enable_timer_wakeup(delay);
-
-    // Hold on IO pins value
-    gpio_hold_en((gpio_num_t)SIM_PWR);
-    gpio_hold_en((gpio_num_t)PWRKEY);
-    gpio_deep_sleep_hold_en();
-
-    // Wakeup on energy connection
-    esp_sleep_enable_ext1_wakeup(BUTTON_PIN_BITMASK,ESP_EXT1_WAKEUP_ANY_HIGH);
-
-    // Going to sleep
-    esp_deep_sleep_start();
+    if (!moving)
+    {
+        time_t now;
+        time(&now);
+        if (now - lastVibrationCheck > MOVDELAY)
+        {
+            lastVibrationCheck = now;
+            if (DEBUG)
+            {
+                Serial.print("Vibrations detected: ");
+                Serial.println(vibrationNumber);
+            }
+            if (vibrationNumber > MOVTHRESHOLD)
+            {
+                moving = true;
+            }
+            vibrationNumber = 0;
+        }
+    }
 }
 
 // ---------------------------------------------
@@ -120,7 +182,6 @@ void detectMode()
             Serial.print("Mode: ");
             Serial.println(mode);
         }
-        
     }
 }
 

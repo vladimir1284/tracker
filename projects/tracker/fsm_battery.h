@@ -13,6 +13,7 @@ extern Sim7000 sim_device;
 extern Settings set_handler;
 extern states state;
 extern bool pending;
+extern bool moving;
 extern Sim7000 sim_device;
 extern time_t lastInterval;
 extern int gpsErrors,

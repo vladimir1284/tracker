@@ -37,84 +37,100 @@ void FSMbattery::run()
 
     // ------------------------------------------
     case READ_GPS:
-        time(&now);
-        if (now - stateChange > (TGPS * MIN_TO_S_FACTOR))
-        { // No GPS data in the time window allowed
-            gpsErrors++;
-
-            if (pending)
-            { // Old data that haven't been sent
-                stateChange = now;
-                state = SEND_DATA;
-                if (DEBUG)
-                {
-                    Serial.print(now);
-                    Serial.println("-> State: SEND_DATA (old)");
-                }
-            }
-            else
-            { // No data to be send
-                state = ERROR;
-                if (DEBUG)
-                {
-                    Serial.print(now);
-                    Serial.println("-> State: ERROR");
-                }
-            }
-        }
-
-        if (!fona.GPSstatus())
+        if (moving)
         {
-            // Enable GPS
-            if (!fona.enableGPS(true))
-            {
-                if (--tries < 0)
-                {
-                    _sim_device->reset();
-                    tries = RETRIES; // Back to its original value
+            time(&now);
+            if (now - stateChange > (TGPS * MIN_TO_S_FACTOR))
+            { // No GPS data in the time window allowed
+                gpsErrors++;
+
+                if (pending)
+                { // Old data that haven't been sent
+                    stateChange = now;
+                    state = SEND_DATA;
                     if (DEBUG)
                     {
-                        Serial.println(F("Reseting the SIM module..."));
+                        Serial.print(now);
+                        Serial.println("-> State: SEND_DATA (old)");
                     }
                 }
+                else
+                { // No data to be send
+                    state = ERROR;
+                    if (DEBUG)
+                    {
+                        Serial.print(now);
+                        Serial.println("-> State: ERROR");
+                    }
+                }
+            }
+
+            if (!fona.GPSstatus())
+            {
+                // Enable GPS
+                if (!fona.enableGPS(true))
+                {
+                    if (--tries < 0)
+                    {
+                        _sim_device->reset();
+                        tries = RETRIES; // Back to its original value
+                        if (DEBUG)
+                        {
+                            Serial.println(F("Reseting the SIM module..."));
+                        }
+                    }
+                    if (DEBUG)
+                    {
+                        Serial.println(F("Failed to turn on GPS, retrying..."));
+                    }
+                    timerWrite(timer, 0); //reset timer (feed watchdog)
+                    rtc_light_sleep(2);   // Retry every 2s
+                    break;
+                }
+                tries = RETRIES; // Back to its original value
+                Serial.println(F("Turned on GPS!"));
+            }
+
+            if (!_sim_device->prepareMessage())
+            {
                 if (DEBUG)
                 {
-                    Serial.println(F("Failed to turn on GPS, retrying..."));
+                    Serial.println(F("Failed to get GPS location, retrying..."));
                 }
                 timerWrite(timer, 0); //reset timer (feed watchdog)
-                rtc_light_sleep(2);   // Retry every 2s
+                rtc_light_sleep(59);  // Retry every 1min
                 break;
             }
-            tries = RETRIES; // Back to its original value
-            Serial.println(F("Turned on GPS!"));
-        }
-
-        if (!_sim_device->prepareMessage())
-        {
-            if (DEBUG)
+            else // Message ready
             {
-                Serial.println(F("Failed to get GPS location, retrying..."));
+                // GPS data ready
+                time(&now);
+                stateChange = now;
+                state = SEND_DATA;
+                moving = false;
             }
-            timerWrite(timer, 0); //reset timer (feed watchdog)
-            rtc_light_sleep(59);  // Retry every 1min
-            break;
         }
-        else
+        else // Not moving
         {
-            // tries = 3; // Back to its original value
-
             // GPS data ready
             time(&now);
             stateChange = now;
             state = SEND_DATA;
+            if (DEBUG)
+            {
+                Serial.println(F("Not moving! Avoiding GPS activation!"));
+                Serial.print(now);
+                Serial.println("-> State: SEND_DATA");
+            }
         }
+
         break;
 
     // ------------------------------------------
     case SEND_DATA:
         time(&now);
         if (now - stateChange > (Tsend * MIN_TO_S_FACTOR))
-        { // Data upload not achieved
+        {                      // Data upload not achieved
             set_handler.run(); // check SMS
             gsmErrors++;
             state = ERROR;

@@ -57,7 +57,7 @@
 #define MIN_TO_uS_FACTOR 60000000ULL //60000000ULL /* Conversion factor for minutes to micro seconds */
 #define MIN_TO_S_FACTOR 60            // 0 x0.1 for debug
 #define PIN12V 34                    // Input pin for checking 12V connection
-#define BUTTON_PIN_BITMASK 0x400000000 // 2^PIN12V;
+#define PWR_PIN_BITMASK 0x400000000 // 2^PIN12V 0b100,00000000,00000000,00000000,00000000
 
 enum modes
 {
@@ -104,6 +104,14 @@ const int trackerID_ADDR = 12; // the EEPROM address used to store trackerID (2 
 // Error codes
 #define WRONG_PASS 200
 #define WRONG_ID 201
+
+// --------------------------------------
+
+// --------------- Vibration sensor ------------------
+#define MOVTHRESHOLD 10
+#define MOVDELAY 10
+#define PINVBR 33
+#define VBR_PIN_BITMASK 0x200000000 // 2^PINVBR 0b10,00000000,00000000,00000000,00000000
 
 // --------------------------------------
 

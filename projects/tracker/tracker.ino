@@ -15,6 +15,10 @@ FSMbattery fsm_battery;
 HardwareSerial fonaSS(1);
 Adafruit_FONA_LTE fona = Adafruit_FONA_LTE();
 
+void IRAM_ATTR isr() {
+    vibrationNumber++;
+}
+
 void IRAM_ATTR resetModule()
 {
   ets_printf("reboot\n");
@@ -28,6 +32,8 @@ void setup()
     // Initialize serial port
     Serial.begin(115200);
   }
+  
+  rtc_handle_wakeup();
 
   // ------- Reduce frequecy --------------
   setCpuFrequencyMhz(10);
@@ -60,7 +66,10 @@ void setup()
   pinMode(PIN12V, INPUT); // TODO this must be INPUT with an external pull down
   // -------------------------------------
 
-  rtc_handle_wakeup();
+  // ------- Detect movement --------------
+  attachInterrupt(PINVBR, isr, RISING);
+  // -------------------------------------
+
 
   // Setup sim module
   sim_device.setup();
@@ -86,21 +95,22 @@ void loop()
   // // Serial.println(now);
   // delay(5000);
 
-  // detectMode();
-  // rtc_sleep(15*MIN_TO_uS_FACTOR);
-  // switch (mode)
-  // {
-  // case POWER_ON:
-  //   fsm_power_on.run();
-  //   break;
+  detectMode();
+  detectMovement();
+  //rtc_sleep(15*MIN_TO_uS_FACTOR);
+  switch (mode)
+  {
+  case POWER_ON:
+    fsm_power_on.run();
+    break;
 
-  // case BATTERY:
-  //   fsm_battery.run();
-  //   break;
+  case BATTERY:
+    fsm_battery.run();
+    break;
 
-  // default:
-  //   break;
-  // }
+  default:
+    break;
+  }
 
   //   /************************* FTP SETTINGS *********************************/
   // #define serverIP "ftp.drivehq.com" // Use global IP for remote connection
@@ -142,12 +152,12 @@ void loop()
   //   while (1)
   //     ;
 
-  while (Serial.available())
-  {
-    fonaSS.write(Serial.read());
-  }
-  while (fonaSS.available())
-  {
-    Serial.write(fonaSS.read());
-  }
+  // while (Serial.available())
+  // {
+  //   fonaSS.write(Serial.read());
+  // }
+  // while (fonaSS.available())
+  // {
+  //   Serial.write(fonaSS.read());
+  // }
 }
