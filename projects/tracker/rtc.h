@@ -121,7 +121,7 @@ void rtc_handle_wakeup()
 
     if (ESP_SLEEP_WAKEUP_EXT1)
     {
-        int GPIO_reason = esp_sleep_get_ext1_wakeup_status();
+        uint64_t GPIO_reason = esp_sleep_get_ext1_wakeup_status();
         int pin = (int)((log(GPIO_reason)) / log(2));
         if (DEBUG)
         {
