@@ -115,6 +115,7 @@ void rtc_handle_wakeup()
         imei_len = 0;
         seq_num = 0;
         vibrationNumber = 0;
+        moving = true;
     }
 }
 
