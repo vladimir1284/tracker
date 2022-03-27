@@ -57,6 +57,12 @@ void rtc_sleep(uint64_t delay)
     time_t now;
     time(&now);
     nextWakeUp = now + delay / 1e6;
+    if (DEBUG)
+    {
+        Serial.print("Sleeping for: ");
+        Serial.print(delay / 1e6);
+        Serial.println("s...");
+    }
 
     // Hold on IO pins value
     gpio_hold_en((gpio_num_t)SIM_PWR);
@@ -70,6 +76,13 @@ void rtc_sleep(uint64_t delay)
         BUTTON_PIN_BITMASK |= VBR_PIN_BITMASK; // Wake on vibration
     }
 
+    if (DEBUG)
+    {
+        Serial.print("BUTTON_PIN_BITMASK = ");
+        Serial.print((int)(BUTTON_PIN_BITMASK >> 32));
+    }
+
+
     esp_sleep_enable_ext1_wakeup(BUTTON_PIN_BITMASK, ESP_EXT1_WAKEUP_ANY_HIGH);
 
     // Going to sleep
@@ -81,6 +94,30 @@ void rtc_handle_wakeup()
     // Find out the reazon for waking up
     esp_sleep_wakeup_cause_t wakeup_reason;
     wakeup_reason = esp_sleep_get_wakeup_cause();
+    if (DEBUG)
+    {
+        switch (wakeup_reason)
+        {
+        case ESP_SLEEP_WAKEUP_EXT0:
+            Serial.println("Wakeup caused by external signal using RTC_IO");
+            break;
+        case ESP_SLEEP_WAKEUP_EXT1:
+            Serial.println("Wakeup caused by external signal using RTC_CNTL");
+            break;
+        case ESP_SLEEP_WAKEUP_TIMER:
+            Serial.println("Wakeup caused by timer");
+            break;
+        case ESP_SLEEP_WAKEUP_TOUCHPAD:
+            Serial.println("Wakeup caused by touchpad");
+            break;
+        case ESP_SLEEP_WAKEUP_ULP:
+            Serial.println("Wakeup caused by ULP program");
+            break;
+        default:
+            Serial.printf("Wakeup was not caused by deep sleep: %d\n", wakeup_reason);
+            break;
+        }
+    }
 
     if (ESP_SLEEP_WAKEUP_EXT1)
     {
@@ -115,6 +152,7 @@ void rtc_handle_wakeup()
         imei_len = 0;
         seq_num = 0;
         vibrationNumber = 0;
+        lastVibrationCheck = 0;
         moving = true;
     }
 }
