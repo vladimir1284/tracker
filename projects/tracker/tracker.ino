@@ -67,7 +67,7 @@ void setup()
   // -------------------------------------
 
   // ------- Detect movement --------------
-  attachInterrupt(PINVBR, isr, RISING);
+  // attachInterrupt(PINVBR, isr, RISING);
   // -------------------------------------
 
 

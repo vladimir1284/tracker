@@ -107,7 +107,7 @@ void FSMbattery::run()
                 time(&now);
                 stateChange = now;
                 state = SEND_DATA;
-                moving = false;
+                // moving = false;
             }
         }
         else // Not moving
