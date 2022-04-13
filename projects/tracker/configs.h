@@ -21,8 +21,8 @@
 #define CREDIT_INIT 7
 #define CREDIT_LEN 6
 
-#define FONA_RX 18
-#define FONA_TX 19
+#define FONA_RX 19
+#define FONA_TX 18
 #define SIM_PWR 25
 #define PWRKEY 4 // GPIO4 -> RTC_GPIO10
 
@@ -39,7 +39,7 @@
 #define iMAX_ERRORS 3
 
 // On Battery
-#define iTintB 360 // min
+#define iTintB 720 // min
 #define iTsendB 10 // min
 #define iTGPSB 10  // min
 #define iSMART true
