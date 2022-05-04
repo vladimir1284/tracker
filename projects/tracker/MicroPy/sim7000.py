@@ -1,154 +1,158 @@
+
+# pylint: disable=import-outside-toplevel
+# pylint: disable=consider-using-f-string
+ 
 import time
+from adafruit_fona import FONA
+try:
+    from typing import Optional
+    from ulogging import RootLogger
+    from machine import Pin, UART
+except ImportError:
+    pass
+
+SERVER   = "http://trailerrental.pythonanywhere.com"
+ADDR	 = "/towit/tracker_data"
+APN_NAME = "hologram"
+FONA_TX  = 18
+FONA_RX  = 19
 
 class Sim7000:
-    def __init__(self, log):
-        self.log = log
+
+    def __init__(
+        self, 
+        simpwr: Pin, 
+        debug: int = 0,
+        log: Optional[RootLogger] = None
+        )-> None:
+
+        self._simpwr = simpwr
+
+        if log is None and debug >= 0:
+            import ulogging
+            log = ulogging.getLogger("sim7000")
+            if debug > 0:
+                log.setLevel(ulogging.DEBUG)
+        self._log = log
+
+        self.gps_data = []
+        
+        # Reset the module for a clean startup
+        self.reset()
+
+        self._log.debug("Starting configuration...")
+        # Hardware serial:
+        uart = UART(1, baudrate=115200, tx=FONA_TX, rx=FONA_RX)
+        
+        self._fona = FONA(uart, debug = debug, log = self._log)
+
+        self._log.debug("Module IMEI: {}".format(self._fona.imei))
+
+        # Turn off modem
+        self._fona.setFunctionality(self._fona.RADIO_OFF)
+        
+        # Configure
+        self._fona.setNetworkSettings(APN_NAME)
+        self._fona.setPreferredMode(self._fona.LTE_ONLY) # Use LTE only, not 2G
+        self._fona.setPreferredLTEMode(self._fona.CAT_M) # Use LTE CAT-M only, not NB-IoT
 
     #--------------------------------------------------------------------
-    def prepareMessage(self):
-        if not fona.getGPS([latitude, longitude, speed_kph, heading, sats]):
+    def prepareMessage(self) -> bool:
+        if int(self._fona.gps[0]) != 1:
             return False
         else:
-            # Read the module's power supply voltage
-            vbat = fona.getBattVoltage()
+            # Parse GPS response
+            # +CGNSINF: <GNSS run status>,<Fix status>,<UTC date & Time>,<Latitude>,<Longitude>,
+            # <MSL Altitude>,<Speed Over Ground>,<Course Over Ground>,<Fix Mode>,<Reserved1>,
+            # <HDOP>,<PDOP>,<VDOP>,<Reserved2>,<GNSS Satellites in View>,<GNSS Satellites Used>,
+            # <GLONASS Satellites Used>,<Reserved3>,<C/N0 max>,<HPA>,<VPA>
+            try:
+                HDOP = int(self._fona.gps[10])
+                if HDOP < 20:
+                    latitude  = float(self._fona.gps[3])
+                    longitude = float(self._fona.gps[4])
+                    speed_kph = float(self._fona.gps[6])
+                    heading   = int(self._fona.gps[7])
+                    sats      = int(self._fona.gps[15])
+                else:
+                    return False
+            except Exception as err:
+                print(err)
 
-            pending = True
+            # pending = True
 
-            # TODO handle events
-            msg = "%s,%i,%i,%i,%.5f,%.5f,%i,%i,%i,%i" % (imei, seq_num, mode, 0, latitude, longitude, int(speed_kph), heading, 0, vbat)
-            seq_num += 1
+            # # TODO handle events
+            # msg = "%s,%i,%i,%i,%.5f,%.5f,%i,%i,%i,%i" % (self._fona.imei, seq_num, mode, 0, latitude, longitude, int(speed_kph), heading, 0, self._fona.battVoltage)
+            # seq_num += 1
 
-            self.log.debug("Latitude: %.5f" % latitude)
-            self.log.debug("Longitude: %.5f" % longitude)
-            self.log.debug("Speed: %.1f km/h" % speed_kph)
-            self.log.debug("Heading: %i deg" % heading)
-            self.log.debug("N sats: %i" % sats)
-            self.log.debug(msg)
+            self._log.debug(" Latitude: {:.5f}\n Longitude: {:.5f}\n Speed: {:.1f}km/h\n Heading: {} deg\n N sats: {}".
+                            format(latitude, longitude, speed_kph, heading, sats))
+            self.gps_data = [latitude, longitude, speed_kph, heading, sats]
+            # self._log.debug(msg)
 
             return True
 
     #--------------------------------------------------------------------
-    def checkSMS(self):
-        fona.setFunctionality(1) # AT+CFUN=1
-        time.sleep_ms(100)
+    def checkSMS(self)->str:
+        # Returns the body of the first sms if any and deletes it
+        # Returns an empty string "" if there are problems
 
-        numSMS = fona.getNumSMS()
-        self.log.debug("Number of SMS available: %i" % numSMS)
+        self._fona.setFunctionality(1) # AT+CFUN=1
+        time.sleep(0.1)
+
+        numSMS = self._fona.num_sms()
+        self._log.debug("Number of SMS available: {}".format(numSMS))
         
         if numSMS > 0:
             # Retrieve SMS value.
             for i in range(numSMS):
-                if fona.readSMS(i, smsBuffer, MAX_INPUT_LENGTH, smslen): # pass in buffer and max len!
-                    self.log.debug("Read SMS in slot %i" % i)
+                sms = self._fona.read_sms(i)[1]
+                self._log.debug("Read SMS in slot {}:\n{}".format(i, sms))
 
                 # Delete the original message after it is processed.
-                if fona.deleteSMS(i):
-                    self.log.debug("SMS in slot %i have been deleted!" % i)
-                    return True
+                if self._fona.delete_sms(i):
+                    self._log.debug("SMS in slot {} have been deleted!".format(i))
+                    return sms
                 else:
-                    self.log.debug("Couldn't delete SMS in slot %i!" % i)
+                    self._log.error("Couldn't delete SMS in slot {}!".format(i))
         else:
-            self.log.debug("There are no SMS available!")
+            self._log.debug("There are no SMS available!")
 
-        return False
+        return ""
 
     #--------------------------------------------------------------------
-    def turnOF(self):
-        digitalWrite(SIM_PWR, LOW)
+    def turnOFF(self):
+        self._simpwr.value(0)
 
     #--------------------------------------------------------------------
     def turnON(self):
-        digitalWrite(SIM_PWR, HIGH)
-        for i in range(3):
-            if configure():
-                break
-            turnOF)
-            time.sleep_ms(100) # Short pause to let the capacitors discharge
-            digitalWrite(SIM_PWR, HIGH)
+        self._simpwr.value(1)
+        time.sleep(3) # SIM7000 takes about 3s to turn on
+
 
     #--------------------------------------------------------------------
     def reset(self):
-        self.turnOF()
-        time.sleep_ms(100) # Short pause to let the capacitors discharge
+        self.turnOFF()
+        time.sleep(0.1) # Short pause to let the capacitors discharge
         self.turnON()
-
-    #--------------------------------------------------------------------
-    def configure(self):
-        # SIM7000 takes about 3s to turn on
-        # Press Arduino reset button if the module is still turning on and the board doesn't find it.
-        # When the module is on it should communicate right after pressing reset
-
-        self.log.debug("Starting configuration...")
-        # Software serial:
-        fonaSS.begin(115200, SERIAL_8N1, FONA_TX, FONA_RX) # baud rate, protocol, ESP32 RX pin, ESP32 TX pin
-
-        if not fona.begin(fonaSS, PWRKEY):
-            self.log.error("Couldn't find FONA")
-            return False
-            # while (1)
-            #     ; // Don't proceed if it couldn't find the device
-        if DEBUG:
-            Serial.println("FONA is OK")
-
-        # Turn off modem
-        fona.setFunctionality(0) # AT+CFUN=0
-
-        # Configure
-        fona.setNetworkSettings(APN_NAME) # For Hologram SIM card
-        fona.setPreferredMode(38)            # Use LTE only, not 2G
-        fona.setPreferredLTEMode(1)          # Use LTE CAT-M only, not NB-IoT
-        return True
-
-    #--------------------------------------------------------------------
-    def setup(self):
-        pinMode(SIM_PWR, OUTPUT)
-
-        # Turn on the module
-        turnON()
-
-        # Print module IMEI number.
-        imei_len = fona.getIMEI(imei)
-        if imei_len > 0:
-            self.log.debug("Module IMEI: %i" % imei)
-
-    #--------------------------------------------------------------------
-    def netStatus(self):
-        n = fona.getNetworkStatus()
-        self.log.debug("Network status %i:" % n)
-        if n == 0:
-            self.log.debug("Not registered")
-        if n == 1:
-            self.log.debug("Registered (home)")
-        if n == 2:
-            self.log.debug("Not registered (searching)")
-        if n == 3:
-            self.log.debug("Denied")
-        if n == 4:
-            self.log.debug("Unknown")
-        if n == 5:
-            self.log.debug("Registered roaming")
-        if not (n == 1 or n == 5):
-            return False
-        else:
-            return True
 
     #--------------------------------------------------------------------
     def uploadData(self):
         # Open wireless connection if not already activated
-        if not fona.wirelessConnStatus():
-            if not fona.openWirelessConnection(True):
-                self.log.debug("Failed to enable connection, retrying...")
+        if not self._fona.wirelessConnStatus():
+            if not self._fona.openWirelessConnection(True):
+                self._log.debug("Failed to enable connection, retrying...")
                 return False
-            self.log.debug("Data enabled!")
+            self._log.debug("Data enabled!")
         else:
-            self.log.debug("Data already enabled!")
+            self._log.debug("Data already enabled!")
 
         # HTTP send data
-        if not fona.HTTP_connect(SERVER):
-            self.log.debug("Failed to connect to server!")
+        if not self._fona.HTTP_connect(SERVER):
+            self._log.debug("Failed to connect to server!")
             return False
 
         # Upload data
-        if not fona.HTTP_POST(ADDR, msg, len(msg)):
-            self.log.debug("Failed to upload!") # Send GPS location
+        if not self._fona.HTTP_POST(ADDR, self.prepareMessage()):
+            self._log.debug("Failed to upload!") # Send GPS location
             return False

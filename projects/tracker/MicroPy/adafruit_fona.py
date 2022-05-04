@@ -29,10 +29,8 @@ from micropython import const
 
 try:
     from typing import Optional, Tuple, Union, Literal
-    from circuitpython_typing import ReadableBuffer
-    from busio import UART
-    from digitalio import DigitalInOut
     from ulogging import RootLogger
+    from machine import Pin, UART
 except ImportError:
     pass
 
@@ -77,14 +75,27 @@ class FONA:
     TCP_MODE = const(0)  # TCP socket
     UDP_MODE = const(1)  # UDP socket
 
+    AUTO     = const( 2)  # 2  - Automatic
+    GSM_ONLY = const(13)  # 13 - GSM only
+    LTE_ONLY = const(38)  # 38 - LTE only
+    GSM_LTE  = const(51)  # 51 - GSM and LTE only
+
+    CAT_M       = const(1)  # 1 - CAT-M
+    NB_IoT      = const(2)  # 2 - NB-IoT
+    BOTH_MOODES = const(3)  # 3 - CAT-M and NB-IoT
+
+    RADIO_OFF = const(1)  # 0 --> Minimum functionality
+    RADIO_ON  = const(2)  # 1 --> Full functionality
+
     # pylint: disable=too-many-arguments
     def __init__(
         self,
         uart: UART,
-        rst: DigitalInOut,
-        ri: Optional[DigitalInOut] = None,
+        rst: Optional[Pin] = None,
+        pwrkey: Optional[Pin] = None,
+        ri: Optional[Pin] = None,
         debug: int = 0,
-        log: RootLogger = None
+        log: Optional[RootLogger] = None
     ) -> None:
         self._buf = b""  # shared buffer
         self._fona_type = 0
@@ -99,6 +110,7 @@ class FONA:
 
         self._uart = uart
         self._rst = rst
+        self._pwrkey = pwrkey
         self._ri = ri
         if self._ri is not None:
             self._ri.switch_to_input()
@@ -108,7 +120,12 @@ class FONA:
     # pylint: disable=too-many-branches, too-many-statements
     def _init_fona(self) -> bool:
         """Initializes FONA module."""
-        self.reset()
+        if self._rst is not None:
+            self.reset()
+
+        # Power ON for SIM7000
+        if self._pwrkey is not None:
+            self.powerOn()
 
         timeout = 7000
         while timeout > 0:
@@ -142,10 +159,13 @@ class FONA:
         self._buf = b""
         self._uart.read()
 
-        self._uart_write(b"ATI\r\n")
+        # self._uart_write(b"ATI\r\n")
+        self._uart_write(b"AT+GMR\r\n")# This definitely should have the module name, but ATI may not
         self._read_line(multiline=True)
 
-        if self._buf.find(b"SIM808 R14") != -1:
+        if self._buf.find(b"SIM7000") != -1:
+            self._fona_type = FONA_7000_A
+        elif self._buf.find(b"SIM808 R14") != -1:
             self._fona_type = FONA_808_V2
         elif self._buf.find(b"SIM808 R13") != -1:
             self._fona_type = FONA_808_V1
@@ -184,6 +204,136 @@ class FONA:
         time.sleep(0.1)
         self._rst.value(1)
 
+    def powerOn(self) -> None:
+        """Performs a hardware power on of the modem."""
+        self._log.info("* Power ON FONA")
+        self._pwrkey.value(1)
+        time.sleep(0.01)
+        self._pwrkey.value(0)
+        time.sleep(1.1)
+        self._pwrkey.value(1)
+
+
+    ##/********* NETWORK AND WIRELESS CONNECTION SETTINGS ***********************/
+
+    # Uses the AT+CFUN command to set functionality (refer to AT+CFUN in manual)
+    # 0 --> Minimum functionality
+    # 1 --> Full functionality
+    # 4 --> Disable RF
+    # 5 --> Factory test mode
+    # 6 --> Restarts module
+    # 7 --> Offline mode
+    def setFunctionality(self, option: int):
+        return self._send_check_reply("AT+CFUN={}".format(option).encode(), reply=REPLY_OK)
+
+    def setNetworkSettings(self, apn):
+        return self._send_check_reply('AT+CGDCONT=1,"IP","{}"'.format(apn).encode(), reply=REPLY_OK, timeout=10000)
+
+    # 2  - Automatic
+    # 13 - GSM only
+    # 38 - LTE only
+    # 51 - GSM and LTE only
+    def setPreferredMode(self, mode):
+        return self._send_check_reply("AT+CNMP={}".format(mode).encode(), reply=REPLY_OK)
+
+    # 1 - CAT-M
+    # 2 - NB-IoT
+    # 3 - CAT-M and NB-IoT
+    def setPreferredLTEMode(self, mode):
+        return self._send_check_reply('AT+CMNB={}'.format(mode).encode(), reply=REPLY_OK)
+
+    def wirelessConnStatus(self):
+        return self._send_parse_reply(b'AT+CNACT?', b'+CNACT: 1')
+
+    # Open or close wireless data connection
+    def openWirelessConnection(self, onoff: bool):
+        return self._send_check_reply('AT+CNACT={}'.format(int(onoff)).encode(), reply=REPLY_OK)
+
+    def HTTP_connect(self, server: str):
+        # Disconnect HTTP
+        self._send_check_reply(b'AT+SHDISC', reply=REPLY_OK, timeout=10000)
+
+
+        # Set up server URL
+        if not self._send_check_reply('AT+SHCONF="URL","{}"'.format(server).encode(), reply=REPLY_OK, timeout=10000):
+            return False
+
+        # Set max HTTP body length
+        self._send_check_reply(b'AT+SHCONF="BODYLEN",1024', reply=REPLY_OK, timeout=10000)
+
+        # Set max HTTP header length        
+        self._send_check_reply(b'AT+SHCONF="HEADERLEN",350', reply=REPLY_OK, timeout=10000)
+
+        # HTTP build
+        self._send_check_reply(b'AT+SHCONN', reply=REPLY_OK, timeout=10000)
+
+        # Get HTTP status
+        if not self._send_parse_reply(b'AT+SHSTATE?', b'+SHSTATE: 1'):
+            self._log.debug(self._buf)
+
+        self._read_line()  # eat the 'ok'
+
+        # Clear HTTP header (HTTP header is appended)
+        if not self._send_check_reply(b'AT+SHCHEAD', reply=REPLY_OK, timeout=10000):
+            return False
+
+        return True
+
+    def HTTP_POST(self, URI, body):
+        # Use fona.HTTP_addHeader() as needed before using this function
+        # Then use fona.HTTP_connect() to connect to the server first
+        # Make sure this is large enough for URI
+        if not self._send_check_reply('AT+SHBOD="{}",{}'.format(body, len(body)).encode(), reply=REPLY_OK, timeout=10000):
+            return False
+
+        if not self._send_check_reply('AT+SHREQ="{}",3'.format(URI).encode(), reply=REPLY_OK, timeout=10000):
+            return False
+
+        # Parse response status and size
+        # Example reply --> "+SHREQ: "POST",200,452"
+        reply = '+SHREQ: "POST"'
+        parsed_reply = self._buf.find(reply)
+        if parsed_reply == -1:
+            self._log.debug(self._buf)
+            return False
+        else:
+            parsed_reply = self._buf[parsed_reply:]
+
+            parsed_reply = self._buf[len(reply) :]
+            parsed_reply = parsed_reply.decode("utf-8")
+
+            parsed_reply = parsed_reply.split(',')
+            status  = parsed_reply[1]
+            datalen = parsed_reply[2]
+            self._log.debug("HTTP status: {}".format(status))
+            self._log.debug("Data length: {}".format(datalen))
+            try:
+                status = int(status)
+                datalen = int(datalen)
+            except ValueError:
+                self._log.error("Error parsing response status and size!")
+                return False
+
+            if status != 200:
+                return False
+
+            # Read server response
+            self._get_reply('AT+SHREAD=0,{}'.format(datalen).encode(), timeout=10000)
+            self._read_line() # +SHREAD: <datalen>
+            self._read_line(timeout=10000)  # Print out server reply
+            self._send_check_reply(b'AT+SHDISC', reply=REPLY_OK, timeout=10000) # Disconnect HTTP
+
+            return True
+        
+    @property
+    # returns value in mV 
+    def battVoltage(self):
+        # Response +CBC: <bcs>,<bcl>,<voltage>
+        # <voltage> Battery voltage(mV)
+        if self._send_parse_reply("AT+CBC", "+CBC: ", ',', 2):
+            return self._buf
+
+
     @property
     # pylint: disable=too-many-return-statements
     def version(self) -> int:
@@ -193,15 +343,15 @@ class FONA:
         return self._fona_type
 
     @property
-    def iemi(self) -> str:
-        """FONA Module's IEMI (International Mobile Equipment Identity) number."""
-        self._log.debug("FONA IEMI")
+    def imei(self) -> str:
+        """FONA Module's IMEI (International Mobile Equipment Identity) number."""
+        self._log.debug("FONA IMEI")
         self._uart.read()
 
         self._uart_write(b"AT+GSN\r\n")
         self._read_line(multiline=True)
-        iemi = self._buf[0:15]
-        return iemi.decode("utf-8")
+        imei = self._buf[0:15]
+        return imei.decode("utf-8")
 
     @property
     def local_ip(self) -> Optional[str]:
@@ -362,20 +512,34 @@ class FONA:
         return rssi
 
     @property
-    def gps(self) -> int:
-        """Module's GPS status."""
+    def gps(self) -> Tuple:
+        # Module's GPS status. 
+        # The run status is returned in the first element of the output Tuple
+        # Response
+        # +CGNSINF: <GNSS run status>,<Fix status>,<UTC date & Time>,<Latitude>,<Longitude>,
+        # <MSL Altitude>,<Speed Over Ground>,<Course Over Ground>,<Fix Mode>,<Reserved1>,
+        # <HDOP>,<PDOP>,<VDOP>,<Reserved2>,<GNSS Satellites in View>,<GNSS Satellites Used>,
+        # <GLONASS Satellites Used>,<Reserved3>,<C/N0 max>,<HPA>,<VPA>
         self._log.debug("GPS Fix")
-        if self._fona_type == FONA_808_V2:
+        if self._fona_type in (FONA_808_V2, FONA_7000_A):
             # 808 V2 uses GNS commands and doesn't have an explicit 2D/3D fix status.
             # Instead just look for a fix and if found assume it's a 3D fix.
             self._get_reply(b"AT+CGNSINF")
+            reply = '+CGNSINF: '
+            parsed_reply = self._buf.find(reply)
+            if parsed_reply == -1:
+                self._log.error(self._buf)
+                raise RuntimeError("'+CGNSINF: ' not found in the response!")
+            else:
+                parsed_reply = self._buf[parsed_reply:]
 
-            if not b"+CGNSINF: " in self._buf:
-                return False
+                parsed_reply = self._buf[len(reply) :]
+                parsed_reply = parsed_reply.decode("utf-8")
 
-            status = int(self._buf[10:11].decode("utf-8"))
-            if status == 1:
-                status = 3  # assume 3D fix
+                status = parsed_reply.split(',')
+            # status = int(self._buf[10:11].decode("utf-8"))
+            # if status == 1:
+            #     status = 3  # assume 3D fix
             self._read_line()
         else:
             raise NotImplementedError(
@@ -385,7 +549,7 @@ class FONA:
 
     @gps.setter
     def gps(self, gps_on: bool = False) -> bool:
-        if self._fona_type not in (FONA_3G_A, FONA_3G_E, FONA_808_V1, FONA_808_V2):
+        if self._fona_type not in (FONA_3G_A, FONA_3G_E, FONA_808_V1, FONA_808_V2, FONA_7000_A):
             raise TypeError("GPS unsupported for this FONA module.")
 
         # check if already enabled or disabled
@@ -400,14 +564,14 @@ class FONA:
 
         if gps_on and not state:
             self._read_line()
-            if self._fona_type == FONA_808_V2:  # try GNS
+            if self._fona_type in (FONA_808_V2, FONA_7000_A):  # try GNS
                 if not self._send_check_reply(b"AT+CGNSPWR=1", reply=REPLY_OK):
                     return False
             else:
                 if not self._send_parse_reply(b"AT+CGPSPWR=1", reply_data=REPLY_OK):
                     return False
         else:
-            if self._fona_type == FONA_808_V2:  # try GNS
+            if self._fona_type in (FONA_808_V2, FONA_7000_A):  # try GNS
                 if not self._send_check_reply(b"AT+CGNSPWR=0", reply=REPLY_OK):
                     return False
                 if not self._send_check_reply(b"AT+CGPSPWR=0", reply=REPLY_OK):
@@ -416,7 +580,7 @@ class FONA:
         return True
 
     def pretty_ip(  # pylint: disable=no-self-use, invalid-name
-        self, ip: ReadableBuffer
+        self, ip
     ) -> str:
         """Converts a bytearray IP address to a dotted-quad string for printing"""
         return "%d.%d.%d.%d" % (ip[0], ip[1], ip[2], ip[3])
