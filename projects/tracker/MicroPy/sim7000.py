@@ -84,7 +84,7 @@ class Sim7000:
                 else:
                     return False
             except Exception as err:
-                print(err)
+                self._log.debug(err)
                 return False
 
             # pending = True
