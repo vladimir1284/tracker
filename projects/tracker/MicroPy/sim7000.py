@@ -16,8 +16,8 @@ except ImportError:
 SERVER   = "http://trailerrental.pythonanywhere.com"
 ADDR	 = "/towit/tracker_data"
 APN_NAME = "hologram"
-FONA_TX  = 18
-FONA_RX  = 19
+FONA_TX  = 19
+FONA_RX  = 18
 PWRKEY   = 4
 SIMPWR   = 25
 
