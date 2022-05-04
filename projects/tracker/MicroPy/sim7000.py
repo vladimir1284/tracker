@@ -127,8 +127,8 @@ class Sim7000:
 
 
     #--------------------------------------------------------------------
-    def setGPS(self, gps_on: bool) -> bool:
-        return self._fona.gps = gps_on
+    def setGPS(self, gps_on: bool):
+        self._fona.gps = gps_on
 
     #--------------------------------------------------------------------
     def turnOFF(self):
