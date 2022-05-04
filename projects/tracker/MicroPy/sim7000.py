@@ -73,8 +73,9 @@ class Sim7000:
             # <MSL Altitude>,<Speed Over Ground>,<Course Over Ground>,<Fix Mode>,<Reserved1>,
             # <HDOP>,<PDOP>,<VDOP>,<Reserved2>,<GNSS Satellites in View>,<GNSS Satellites Used>,
             # <GLONASS Satellites Used>,<Reserved3>,<C/N0 max>,<HPA>,<VPA>
+            # ['1', '1', '20020918165724.000', '29.729532', '-95.649097', '33.600', '0.00', '78.4', '1', '', '3.2', '3.3', '1.0', '', '11', '4', '', '', '33', '', '']
             try:
-                HDOP = int(gps_list[10])
+                HDOP = float(gps_list[10])
                 if HDOP < 20:
                     latitude  = float(gps_list[3])
                     longitude = float(gps_list[4])
