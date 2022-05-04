@@ -4,10 +4,12 @@
  
 import time
 from adafruit_fona import FONA
+# pylint: disable=wrong-import-order
+# pylint: disable=import-error
+from machine import Pin, UART
 try:
     from typing import Optional
     from ulogging import RootLogger
-    from machine import Pin, UART
 except ImportError:
     pass
 
@@ -16,17 +18,18 @@ ADDR	 = "/towit/tracker_data"
 APN_NAME = "hologram"
 FONA_TX  = 18
 FONA_RX  = 19
+PWRKEY   = 4
+SIMPWR   = 25
 
 class Sim7000:
 
     def __init__(
         self, 
-        simpwr: Pin, 
         debug: int = 0,
         log: Optional[RootLogger] = None
         )-> None:
 
-        self._simpwr = simpwr
+        self._simpwr = Pin(SIMPWR, Pin.OUT)
 
         if log is None and debug >= 0:
             import ulogging
@@ -42,9 +45,11 @@ class Sim7000:
 
         self._log.debug("Starting configuration...")
         # Hardware serial:
-        uart = UART(1, baudrate=115200, tx=FONA_TX, rx=FONA_RX)
+        uart = UART(1, baudrate=9600, tx=FONA_TX, rx=FONA_RX) # TODO baudrate=115200
         
-        self._fona = FONA(uart, debug = debug, log = self._log)
+        pk = Pin(PWRKEY, Pin.OUT)
+
+        self._fona = FONA(uart, pwrkey = pk, debug = debug, log = self._log)
 
         self._log.debug("Module IMEI: {}".format(self._fona.imei))
 
@@ -119,6 +124,11 @@ class Sim7000:
             self._log.debug("There are no SMS available!")
 
         return ""
+
+
+    #--------------------------------------------------------------------
+    def setGPS(self, gps_on: bool) -> bool:
+        return self._fona.gps(gps_on)
 
     #--------------------------------------------------------------------
     def turnOFF(self):
