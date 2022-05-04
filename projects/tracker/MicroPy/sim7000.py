@@ -49,7 +49,7 @@ class Sim7000:
         
         pk = Pin(PWRKEY, Pin.OUT)
 
-        self._fona = FONA(uart, pwrkey = pk, debug = debug, log = self._log)
+        self._fona = FONA(uart, pwrkey = pk, debug = debug)#, log = self._log)
 
         self._log.debug("Module IMEI: {}".format(self._fona.imei))
 

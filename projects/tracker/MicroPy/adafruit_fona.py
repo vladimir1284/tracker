@@ -84,8 +84,8 @@ class FONA:
     NB_IoT      = const(2)  # 2 - NB-IoT
     BOTH_MOODES = const(3)  # 3 - CAT-M and NB-IoT
 
-    RADIO_OFF = const(1)  # 0 --> Minimum functionality
-    RADIO_ON  = const(2)  # 1 --> Full functionality
+    RADIO_OFF = const(0)  # 0 --> Minimum functionality
+    RADIO_ON  = const(1)  # 1 --> Full functionality
 
     # pylint: disable=too-many-arguments
     def __init__(
@@ -291,7 +291,7 @@ class FONA:
 
         # Parse response status and size
         # Example reply --> "+SHREQ: "POST",200,452"
-        reply = '+SHREQ: "POST"'
+        reply = b'+SHREQ: "POST"'
         parsed_reply = self._buf.find(reply)
         if parsed_reply == -1:
             self._log.debug(self._buf)
@@ -525,7 +525,7 @@ class FONA:
             # 808 V2 uses GNS commands and doesn't have an explicit 2D/3D fix status.
             # Instead just look for a fix and if found assume it's a 3D fix.
             self._get_reply(b"AT+CGNSINF")
-            reply = '+CGNSINF: '
+            reply = b'+CGNSINF: '
             parsed_reply = self._buf.find(reply)
             if parsed_reply == -1:
                 self._log.error(self._buf)

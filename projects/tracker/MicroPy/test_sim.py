@@ -1,5 +1,5 @@
 import time
-from sim7000 import Sim7000, Pin
+from sim7000 import Sim7000
 
 sim = Sim7000(debug=1)
 
