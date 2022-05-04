@@ -80,7 +80,7 @@ class Sim7000:
                     latitude  = float(gps_list[3])
                     longitude = float(gps_list[4])
                     speed_kph = float(gps_list[6])
-                    heading   = int(gps_list[7])
+                    heading   = float(gps_list[7])
                     sats      = int(gps_list[15])
                 else:
                     return False
