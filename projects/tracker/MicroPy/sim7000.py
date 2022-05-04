@@ -94,9 +94,9 @@ class Sim7000:
             # msg = "%s,%i,%i,%i,%.5f,%.5f,%i,%i,%i,%i" % (self._fona.imei, seq_num, mode, 0, latitude, longitude, int(speed_kph), heading, 0, self._fona.battVoltage)
             # seq_num += 1
 
-            self._log.debug(" Latitude: {:.5f}\n Longitude: {:.5f}\n Speed: {:.1f}km/h\n Heading: {} deg\n N sats: {}".
-                            format(latitude, longitude, speed_kph, heading, sats))
-            self.gps_data = [latitude, longitude, speed_kph, heading, sats]
+            self._log.debug("\n Latitude: {:.5f}\n Longitude: {:.5f}\n Speed: {:.1f}km/h\n Heading: {} deg\n N sats: {}\n HDOP: {}".
+                            format(latitude, longitude, speed_kph, heading, sats, HDOP))
+            self.gps_data = [latitude, longitude, speed_kph, heading, sats, HDOP]
             # self._log.debug(msg)
 
             return True
