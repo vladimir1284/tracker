@@ -102,7 +102,7 @@ class Sim7000:
         # Returns the body of the first sms if any and deletes it
         # Returns an empty string "" if there are problems
 
-        self._fona.setFunctionality(1) # AT+CFUN=1
+        self._fona.setFunctionality(self._fona.RADIO_ON) # AT+CFUN=1
         time.sleep(0.1)
 
         numSMS = self._fona.num_sms()
@@ -128,7 +128,7 @@ class Sim7000:
 
     #--------------------------------------------------------------------
     def setGPS(self, gps_on: bool) -> bool:
-        return self._fona.gps(gps_on)
+        return self._fona.gps = gps_on
 
     #--------------------------------------------------------------------
     def turnOFF(self):
