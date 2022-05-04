@@ -63,7 +63,8 @@ class Sim7000:
 
     #--------------------------------------------------------------------
     def prepareMessage(self) -> bool:
-        if int(self._fona.gps[0]) != 1:
+        gps_list = self._fona.gps
+        if int(gps_list[0]) != 1:
             return False
         else:
             # Parse GPS response
@@ -72,13 +73,13 @@ class Sim7000:
             # <HDOP>,<PDOP>,<VDOP>,<Reserved2>,<GNSS Satellites in View>,<GNSS Satellites Used>,
             # <GLONASS Satellites Used>,<Reserved3>,<C/N0 max>,<HPA>,<VPA>
             try:
-                HDOP = int(self._fona.gps[10])
+                HDOP = int(gps_list[10])
                 if HDOP < 20:
-                    latitude  = float(self._fona.gps[3])
-                    longitude = float(self._fona.gps[4])
-                    speed_kph = float(self._fona.gps[6])
-                    heading   = int(self._fona.gps[7])
-                    sats      = int(self._fona.gps[15])
+                    latitude  = float(gps_list[3])
+                    longitude = float(gps_list[4])
+                    speed_kph = float(gps_list[6])
+                    heading   = int(gps_list[7])
+                    sats      = int(gps_list[15])
                 else:
                     return False
             except Exception as err:

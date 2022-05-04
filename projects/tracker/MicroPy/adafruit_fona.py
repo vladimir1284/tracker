@@ -151,10 +151,10 @@ class FONA:
         self._read_line()
         if not self._send_check_reply(b"ATE0", reply=REPLY_OK):
             return False
-
-        # turn on hangupitude
-        self._send_check_reply(b"AT+CVHU=0", reply=REPLY_OK)
-        time.sleep(0.1)
+        
+        # # turn on hangupitude
+        # self._send_check_reply(b"AT+CVHU=0", reply=REPLY_OK)
+        # time.sleep(0.1)
 
         self._buf = b""
         self._uart.read()
