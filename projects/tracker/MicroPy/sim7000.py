@@ -64,6 +64,7 @@ class Sim7000:
     #--------------------------------------------------------------------
     def prepareMessage(self) -> bool:
         gps_list = self._fona.gps
+        self._log.debug(gps_list)
         if int(gps_list[0]) != 1:
             return False
         else:
@@ -84,6 +85,7 @@ class Sim7000:
                     return False
             except Exception as err:
                 print(err)
+                return False
 
             # pending = True
 

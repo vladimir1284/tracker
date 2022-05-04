@@ -8,5 +8,4 @@ if sim.setGPS(True):
     while 1:
         if sim.prepareMessage():
             print(sim.gps_data)
-        else:
-            time.sleep(3)
+        time.sleep(3)
