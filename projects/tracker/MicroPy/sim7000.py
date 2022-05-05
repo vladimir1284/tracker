@@ -131,6 +131,10 @@ class Sim7000:
 
 
     #--------------------------------------------------------------------
+    def setLTE(self, lte_on: bool):
+        radio_state = {True: self._fona.RADIO_ON, False: self._fona.RADIO_OFF}[lte_on]
+        self._fona.setFunctionality(radio_state)
+    #--------------------------------------------------------------------
     def setGPS(self, gps_on: bool):
         self._fona.gps = gps_on
 
@@ -143,7 +147,6 @@ class Sim7000:
         self._simpwr.value(1)
         time.sleep(3) # SIM7000 takes about 3s to turn on
 
-
     #--------------------------------------------------------------------
     def reset(self):
         self.turnOFF()
@@ -151,7 +154,7 @@ class Sim7000:
         self.turnON()
 
     #--------------------------------------------------------------------
-    def uploadData(self):
+    def uploadData(self, msg):
         # Open wireless connection if not already activated
         if not self._fona.wirelessConnStatus():
             if not self._fona.openWirelessConnection(True):
@@ -167,6 +170,6 @@ class Sim7000:
             return False
 
         # Upload data
-        if not self._fona.HTTP_POST(ADDR, self.prepareMessage()):
+        if not self._fona.HTTP_POST(ADDR, msg):
             self._log.debug("Failed to upload!") # Send GPS location
             return False
