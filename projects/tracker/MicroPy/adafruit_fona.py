@@ -751,7 +751,6 @@ class FONA:
             return False
 
         self._uart_write(b"AT+CMGR=" + str(sms_slot).encode() + b"\r\n")
-        self._read_line()
         self._read_line(1000)
         resp = self._buf
 

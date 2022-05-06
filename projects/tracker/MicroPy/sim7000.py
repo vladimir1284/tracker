@@ -21,6 +21,8 @@ FONA_RX  = 18
 PWRKEY   = 4
 SIMPWR   = 25
 
+MAX_SMS_IN_STORAGE = 10
+
 class Sim7000:
 
     def __init__(
@@ -115,8 +117,16 @@ class Sim7000:
         if numSMS > 0:
             # Retrieve SMS value.
             for i in range(numSMS):
-                sms = self._fona.read_sms(i)[1]
-                self._log.debug("Read SMS in slot {}:\n{}".format(i, sms))
+                while True:
+                    try:
+                        sms = self._fona.read_sms(i)[1]
+                        self._log.debug("Read SMS in slot {}:\n{}".format(i, sms))
+                        break
+                    except TypeError: # SMS not found in the expected slot
+                        i += 1
+                        if i >= MAX_SMS_IN_STORAGE:
+                            self._log.error("SMS not found after searching in {} slots".format(MAX_SMS_IN_STORAGE))
+                            return ""
 
                 # Delete the original message after it is processed.
                 if self._fona.delete_sms(i):
