@@ -1,4 +1,3 @@
-from re import M
 import time
 from sim7000 import Sim7000
 
