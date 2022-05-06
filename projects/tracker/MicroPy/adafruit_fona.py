@@ -247,7 +247,14 @@ class FONA:
 
     # Open or close wireless data connection
     def openWirelessConnection(self, onoff: bool):
-        return self._send_check_reply('AT+CNACT={}'.format(int(onoff)).encode(), reply=REPLY_OK)
+        if not self._send_check_reply('AT+CNACT={}'.format(int(onoff)).encode(), reply=REPLY_OK):
+            return False
+        self._read_line()
+        reply = {True: b'PDP: ACTIVE', False: b'PDP: DEACTIVE'}[onoff]
+        if self._buf.find(reply) == -1:
+            return False
+        return True
+
 
     def HTTP_connect(self, server: str):
         # Disconnect HTTP
