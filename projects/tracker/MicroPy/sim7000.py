@@ -171,5 +171,7 @@ class Sim7000:
 
         # Upload data
         if not self._fona.HTTP_POST(ADDR, msg):
-            self._log.debug("Failed to upload!") # Send GPS location
+            self._log.debug("Failed to upload!") 
             return False
+
+        return True
