@@ -298,6 +298,7 @@ class FONA:
 
         # Parse response status and size
         # Example reply --> "+SHREQ: "POST",200,452"
+        self._read_line()
         reply = b'+SHREQ: "POST"'
         parsed_reply = self._buf.find(reply)
         if parsed_reply == -1:

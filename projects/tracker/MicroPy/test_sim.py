@@ -13,7 +13,7 @@ sim = Sim7000(debug=1)
 # Turn LTE on
 sim.setLTE(True)
 
-msg = "865235030717330,2,0,0,40.73432,-111.49773,0,152,0,4168"
+msg = "865235030717330,3,0,0,40.73432,-111.49773,0,152,0,4168"
 while 1:
     if sim.uploadData(msg):
         break
