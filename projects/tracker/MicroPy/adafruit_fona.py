@@ -92,7 +92,6 @@ class FONA:
         self,
         uart: UART,
         rst: Optional[Pin] = None,
-        pwrkey: Optional[Pin] = None,
         ri: Optional[Pin] = None,
         debug: int = 0,
         log: Optional[RootLogger] = None
@@ -110,7 +109,6 @@ class FONA:
 
         self._uart = uart
         self._rst = rst
-        self._pwrkey = pwrkey
         self._ri = ri
         if self._ri is not None:
             self._ri.switch_to_input()
@@ -122,10 +120,6 @@ class FONA:
         """Initializes FONA module."""
         if self._rst is not None:
             self.reset()
-
-        # Power ON for SIM7000
-        if self._pwrkey is not None:
-            self.powerOn()
 
         timeout = 7000
         while timeout > 0:
@@ -203,15 +197,6 @@ class FONA:
         self._rst.value(0)
         time.sleep(0.1)
         self._rst.value(1)
-
-    def powerOn(self) -> None:
-        """Performs a hardware power on of the modem."""
-        self._log.info("* Power ON FONA")
-        self._pwrkey.value(1)
-        time.sleep(0.01)
-        self._pwrkey.value(0)
-        time.sleep(1.1)
-        self._pwrkey.value(1)
 
 
     ##/********* NETWORK AND WIRELESS CONNECTION SETTINGS ***********************/

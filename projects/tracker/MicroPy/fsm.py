@@ -4,19 +4,21 @@
 # pylint: disable=attribute-defined-outside-init
 
 import time
+from micropython import const
 from sim7000 import Sim7000
 try:
     from typing import Optional
     from settings import Settings
     from ulogging import RootLogger
     from machine import WDT
+    from controller import Controller
 except ImportError:
     pass
 
-MIN_TO_mS_FACTOR = 60000
-MIN_TO_S_FACTOR = 60
+MIN_TO_mS_FACTOR = const(60000)
+MIN_TO_S_FACTOR = const(60)
 
-RETRIES = 10 # Repetitions of unsuccessful tasks
+RETRIES = const(10) # Repetitions of unsuccessful tasks
 
 class FSM:
 
@@ -24,7 +26,7 @@ class FSM:
     def __init__(
         self,
         sim: Sim7000,
-        ctrl,
+        ctrl: Controller,
         settings: Settings,
         wdt: WDT,
         loaded_data: dict = None,
@@ -73,34 +75,32 @@ class FSM:
     def _init_loaded_data(self, loaded_data):
         try:
             self._state         = loaded_data['state']
-            self._mode          = loaded_data['mode']
-            self._moving        = loaded_data['moving']
             self._gpsErrors     = loaded_data['gpsErrors']
             self._pending       = loaded_data['pending']
             self._gsmErrors     = loaded_data['gsmErrors']
             self._lastInterval  = loaded_data['lastInterval']
+            self._lastMsgSent   = loaded_data['lastMsgSent']
         except Exception as err:
             self._log.error(err)
 
             # Use default values
             self._state         = 'IDLE'
-            self._mode          = 'PWR'
-            self._moving        = True
             self._pending       = False
             self._gsmErrors     = 0
             self._gpsErrors     = 0
             self._lastInterval  = 0
+            self._lastMsgSent   = 0
             
+
     #--------------------------------------------------------------------
-    def get_state_data(self) -> dict:
+    def get_state_data(self):
         return {
             'state': self._state,
-            'mode': self._mode,
-            'moving': self._moving,
             'gpsErrors': self._gpsErrors,
             'pending': self._pending,
             'gsmErrors': self._gsmErrors,
-            'lastInterval': self._gsmErrors,
+            'lastInterval': self._lastInterval,
+            'lastMsgSent': self._lastMsgSent,
         }
 
     # /********* GENERIC FUNCTIONS ***********************/
@@ -108,7 +108,15 @@ class FSM:
     #--------------------------------------------------------------------
     def run(self):
         self._wdt.feed() # reset timer (feed watchdog)
-        self._switch_state[self._mode][self._state]()
+        self._switch_state[self._ctrl.mode][self._state]()
+
+    #--------------------------------------------------------------------
+    def modeUpdated(self):
+        if (time.time() - self._lastMsgSent >
+            self._settings.settings['Tint'] * MIN_TO_S_FACTOR / 2):
+            # Force update on new mode detected if the time past from
+            # the last server upload, exceeds the half of Tint
+            self._state = 'READ_GPS'
 
     # ------------------------------------------------------------------
     def _check_sms(self):
@@ -127,7 +135,7 @@ class FSM:
 
             if not pwr: # Turn of in lack of power
                 self._sim_device.setGPS(False)
-            
+
             if self._pending: # Old data that haven't been sent
                 self._stateChange = time.time()
                 self._state = 'SEND_DATA'
@@ -180,6 +188,7 @@ class FSM:
                 # Data sent
                 self._state = 'IDLE'
                 self._pending = False
+                self._lastMsgSent = time.time()
                 self._check_sms()
                 self._log.debug("{}-> State: IDLE".format(time.time()))
                 break
@@ -206,7 +215,7 @@ class FSM:
 
     # ------------------------------------------
     def _bat_gps(self):
-        if self._moving:
+        if self._ctrl.moving:
             self._gps(False)
         else: # Not moving
             # GPS data ready

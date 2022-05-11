@@ -7,31 +7,31 @@ from adafruit_fona import FONA
 # pylint: disable=wrong-import-order
 # pylint: disable=import-error
 from machine import Pin, UART
+from micropython import const
 try:
     from typing import Optional
     from ulogging import RootLogger
 except ImportError:
     pass
 
-SERVER   = "http://trailerrental.pythonanywhere.com"
-ADDR	 = "/towit/tracker_data"
-APN_NAME = "hologram"
-FONA_TX  = 19
-FONA_RX  = 18
-PWRKEY   = 4
-SIMPWR   = 25
+SERVER   = const("http://trailerrental.pythonanywhere.com")
+ADDR	 = const("/towit/tracker_data")
+APN_NAME = const("hologram")
+FONA_TX  = const(19)
+FONA_RX  = const(18)
+PWRKEY   = const(4)
+SIMPWR   = const(25)
 
-MAX_SMS_IN_STORAGE = 10
+MAX_SMS_IN_STORAGE =const(10)
 
 class Sim7000:
 
     def __init__(
-        self, 
+        self,
+        gps_data: list = None,
         debug: int = 0,
         log: Optional[RootLogger] = None
         )-> None:
-
-        self._simpwr = Pin(SIMPWR, Pin.OUT)
 
         if log is None and debug >= 0:
             import ulogging
@@ -40,24 +40,23 @@ class Sim7000:
                 log.setLevel(ulogging.DEBUG)
         self._log = log
 
-        self.gps_data = []
-        
+        self.gps_data = gps_data
+
         # Reset the module for a clean startup
         self.reset()
 
         self._log.debug("Starting configuration...")
         # Hardware serial:
         uart = UART(1, baudrate=9600, tx=FONA_TX, rx=FONA_RX) # TODO baudrate=115200
-        
-        pk = Pin(PWRKEY, Pin.OUT)
 
-        self._fona = FONA(uart, pwrkey = pk, debug = debug)#, log = self._log)
+        self._fona = FONA(uart, debug = debug)#, log = self._log)
 
-        self._log.debug("Module IMEI: {}".format(self._fona.imei))
+        self.imei = self._fona.imei
+        self._log.debug("Module IMEI: {}".format(self.imei))
 
         # Turn off modem
         self._fona.setFunctionality(self._fona.RADIO_OFF)
-        
+
         # Configure
         self._fona.setNetworkSettings(APN_NAME)
         self._fona.setPreferredMode(self._fona.LTE_ONLY) # Use LTE only, not 2G
@@ -89,12 +88,6 @@ class Sim7000:
             except Exception as err:
                 self._log.debug(err)
                 return False
-
-            # pending = True
-
-            # # TODO handle events
-            # msg = "%s,%i,%i,%i,%.5f,%.5f,%i,%i,%i,%i" % (self._fona.imei, seq_num, mode, 0, latitude, longitude, int(speed_kph), heading, 0, self._fona.battVoltage)
-            # seq_num += 1
 
             self._log.debug("\n Latitude: {:.5f}\n Longitude: {:.5f}\n Speed: {:.1f}km/h\n Heading: {} deg\n N sats: {}\n HDOP: {}".
                             format(latitude, longitude, speed_kph, heading, sats, HDOP))
@@ -150,11 +143,11 @@ class Sim7000:
 
     #--------------------------------------------------------------------
     def turnOFF(self):
-        self._simpwr.value(0)
+        self._set_pin_value(SIMPWR, 0)
 
     #--------------------------------------------------------------------
     def turnON(self):
-        self._simpwr.value(1)
+        self._set_pin_value(SIMPWR, 1)
         time.sleep(3) # SIM7000 takes about 3s to turn on
 
     #--------------------------------------------------------------------
@@ -162,6 +155,26 @@ class Sim7000:
         self.turnOFF()
         time.sleep(0.1) # Short pause to let the capacitors discharge
         self.turnON()
+
+        # Performs a hardware power on of the modem.
+        self._log.info("* Power ON FONA with PwrKey")
+        self._set_pin_value(PWRKEY, 1)
+        time.sleep(0.01)
+        self._set_pin_value(PWRKEY, 0)
+        time.sleep(1.1)
+        self._set_pin_value(PWRKEY, 1)
+
+    #--------------------------------------------------------------------
+    def _set_pin_value(self, pin_addr, desired_value):
+        # Hold on IO pins value
+        pin = Pin(pin_addr, Pin.OUT, pull=Pin.PULL_HOLD)
+
+        current_value = pin.value()
+
+        if current_value != desired_value:
+            pin = Pin(pin_addr, Pin.OUT, pull=None)
+            pin.value(desired_value)
+            pin = Pin(pin_addr, Pin.OUT, pull=Pin.PULL_HOLD)
 
     #--------------------------------------------------------------------
     def uploadData(self, msg):
@@ -185,3 +198,7 @@ class Sim7000:
             return False
 
         return True
+
+    #--------------------------------------------------------------------
+    def battVoltage(self):
+        return self._fona.battVoltage

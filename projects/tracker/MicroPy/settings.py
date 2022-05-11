@@ -9,7 +9,7 @@ try:
 except ImportError:
     pass
 
-class Settings:    
+class Settings:
     def __init__(
         self,
         debug: int = 0,
@@ -31,14 +31,15 @@ class Settings:
             self._log.error(err)
             # Set to default values
             self.settings = {
-                'MAX_ERRORS': 3,
-                'Tint': 60, # min
-                'TintB': 720, # min
-                'TsendB': 10, # min
-                'SMART': True,
-                'GPS':  10, # min
-                'TGPSB': 10, # min
-                'Tsend': 3,  # min
+                'MAX_ERRORS': 3, # (0 - 255)
+                'Tint': 60,      # Time interval for position updates (0 - 65535) min
+                # 'TintB': 720,    # Time interval for position updates on battery (0 - 65535) min
+                'TintB': 5,    # Test
+                'Tsend': 3,      # Time allow for sending data (0 - 255) min
+                'TsendB': 10,    # Time allow for sending data on battery (0 - 255) min
+                'SMART': True,   # Smart behaviour on battery (0 - 1)
+                'TGPS':  10,     # Time allow for fixing location (0 - 255) min
+                'TGPSB': 10,     # Time allow for sending data on battery (0 - 255) min
             }
             self.saveSettings()
 
