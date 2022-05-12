@@ -283,7 +283,7 @@ class FONA:
 
         # Parse response status and size
         # Example reply --> "+SHREQ: "POST",200,452"
-        self._read_line()
+        self._read_line(timeout=10000) #TODO some times there is an empty line before the expected message
         reply = b'+SHREQ: "POST"'
         parsed_reply = self._buf.find(reply)
         if parsed_reply == -1:
@@ -1094,7 +1094,10 @@ class FONA:
             timeout -= 1
             time.sleep(0.001)
         try:
-            self._log.debug("\t<--- {}".format(self._buf.decode()))
+            if self._buf != b"":
+                self._log.debug("\t<--- {}".format(self._buf.decode()))
+            else:
+                self._log.debug("_read_line timeout!")
         except Exception as exc:
             self._log.debug(exc)
 
