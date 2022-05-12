@@ -26,7 +26,7 @@ MOVDELAY	 = const(10) # Time interval for detecting movement in seconds
 
 PIN12V	= const(34) # Input pin for checking 12V connection
 DEBOUNCE_COUNT = const(3) # Number of verifications por debouncing 12V pin
-DEBOUNCE_INTERVAL = const(0.005) # Seconds delay between verifications
+DEBOUNCE_INTERVAL = const(5) # Seconds delay between verifications
 
 PINVBR	= const(33) # Input pin for checking the vibration sensor
 
@@ -208,7 +208,7 @@ class Controller:
         for i in range(DEBOUNCE_COUNT):
             if self._pin12V.value() == current_value[self.mode]:
                 return False
-            time.sleep(DEBOUNCE_INTERVAL)
+            time.sleep_ms(DEBOUNCE_INTERVAL)
 
         if i == DEBOUNCE_COUNT - 1:
             self.mode = next_mode[self.mode]

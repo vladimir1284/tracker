@@ -14,15 +14,15 @@ try:
 except ImportError:
     pass
 
-SERVER   = const("http://trailerrental.pythonanywhere.com")
-ADDR	 = const("/towit/tracker_data")
-APN_NAME = const("hologram")
+SERVER   = "http://trailerrental.pythonanywhere.com"
+ADDR	 = "/towit/tracker_data"
+APN_NAME = "hologram"
 FONA_TX  = const(19)
 FONA_RX  = const(18)
 PWRKEY   = const(4)
 SIMPWR   = const(25)
 
-MAX_SMS_IN_STORAGE =const(10)
+MAX_SMS_IN_STORAGE = const(10)
 
 class Sim7000:
 
