@@ -555,14 +555,15 @@ class FONA:
 
         state = self._buf
 
-        if gps_on and not state:
-            self._read_line()
-            if self._fona_type in (FONA_808_V2, FONA_7000_A):  # try GNS
-                if not self._send_check_reply(b"AT+CGNSPWR=1", reply=REPLY_OK):
-                    return False
-            else:
-                if not self._send_parse_reply(b"AT+CGPSPWR=1", reply_data=REPLY_OK):
-                    return False
+        if gps_on:
+            if not state:
+                self._read_line()
+                if self._fona_type in (FONA_808_V2, FONA_7000_A):  # try GNS
+                    if not self._send_check_reply(b"AT+CGNSPWR=1", reply=REPLY_OK):
+                        return False
+                else:
+                    if not self._send_parse_reply(b"AT+CGPSPWR=1", reply_data=REPLY_OK):
+                        return False
         else:
             if self._fona_type in (FONA_808_V2, FONA_7000_A):  # try GNS
                 if not self._send_check_reply(b"AT+CGNSPWR=0", reply=REPLY_OK):
