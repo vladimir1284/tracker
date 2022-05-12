@@ -52,14 +52,14 @@ class FSM:
         self._wdt = wdt
 
 
-        self._pwr_states = {
+        self._bat_states = {
             'IDLE': self._bat_idle,
             'READ_GPS': self._bat_gps,
             'SEND_DATA': self._bat_lte,
             'ERROR': self._error,
         }
 
-        self._bat_states = {
+        self._pwr_states = {
             'IDLE': self._pwr_idle,
             'READ_GPS': self._pwr_gps,
             'SEND_DATA': self._pwr_lte,
