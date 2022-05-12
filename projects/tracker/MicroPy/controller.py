@@ -109,7 +109,7 @@ class Controller:
     # ---------------------------------------------
     def upload_data(self):
     # Upload data to the remote server
-        msg = "{}{}{}{}{:.5f}{:.5f}{}{}{}{}".format(
+        msg = "{},{},{},{},{:.5f},{:.5f},{},{},{},{}".format(
             self._sim.imei,
             self._seq_num,
             {'PWR': 0, 'BATTERY': 1}[self.mode],
