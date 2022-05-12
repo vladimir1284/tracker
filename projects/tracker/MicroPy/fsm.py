@@ -15,7 +15,6 @@ try:
 except ImportError:
     pass
 
-MIN_TO_mS_FACTOR = const(60000)
 MIN_TO_S_FACTOR = const(60)
 
 RETRIES = const(10) # Repetitions of unsuccessful tasks
@@ -211,7 +210,7 @@ class FSM:
         self._state = 'READ_GPS'
         self._log.debug("{}-> State: READ_GPS".format(time.time()))
         self._sim_device.turnOFF()
-        self._ctrl.rtc_deep_sleep(self._settings.settings['TintB'] * MIN_TO_mS_FACTOR)
+        self._ctrl.rtc_deep_sleep(self._settings.settings['TintB'] * MIN_TO_S_FACTOR)
 
     # ------------------------------------------
     def _bat_gps(self):
