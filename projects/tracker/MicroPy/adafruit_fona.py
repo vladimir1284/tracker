@@ -323,7 +323,7 @@ class FONA:
     def battVoltage(self):
         # Response +CBC: <bcs>,<bcl>,<voltage>
         # <voltage> Battery voltage(mV)
-        if self._send_parse_reply("AT+CBC", "+CBC: ", ',', 2):
+        if self._send_parse_reply(b'AT+CBC', b'+CBC: ', ',', 2):
             return self._buf
 
 
