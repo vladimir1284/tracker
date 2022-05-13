@@ -83,7 +83,7 @@ class FSM:
             self._log.error(err)
 
             # Use default values
-            self._state         = 'IDLE'
+            self._state         = 'READ_GPS'
             self._pending       = False
             self._gsmErrors     = 0
             self._gpsErrors     = 0
