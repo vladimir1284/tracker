@@ -70,6 +70,7 @@ class Sim7000:
         except RuntimeError:
             self._log.debug("'+CGNSINF: ' not found in the response!")
             self.reset()
+            self._fona.init_fona()
             return False
         else:
             self._log.debug(gps_list)
@@ -170,6 +171,7 @@ class Sim7000:
         self._set_pin_value(PWRKEY, 0)
         time.sleep(1.1)
         self._set_pin_value(PWRKEY, 1)
+
 
     #--------------------------------------------------------------------
     def _set_pin_value(self, pin_addr, desired_value):

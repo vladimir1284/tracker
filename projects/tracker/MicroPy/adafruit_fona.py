@@ -112,11 +112,11 @@ class FONA:
         self._ri = ri
         if self._ri is not None:
             self._ri.switch_to_input()
-        if not self._init_fona():
+        if not self.init_fona():
             raise RuntimeError("Unable to find FONA. Please check connections.")
 
     # pylint: disable=too-many-branches, too-many-statements
-    def _init_fona(self) -> bool:
+    def init_fona(self) -> bool:
         """Initializes FONA module."""
         if self._rst is not None:
             self.reset()
