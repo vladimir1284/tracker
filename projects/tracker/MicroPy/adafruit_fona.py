@@ -228,7 +228,7 @@ class FONA:
         return self._send_check_reply('AT+CMNB={}'.format(mode).encode(), reply=REPLY_OK)
 
     def wirelessConnStatus(self):
-        return self._send_parse_reply(b'AT+CNACT?', b'+CNACT: 1', timeout=10000)
+        return self._send_parse_reply(b'AT+CNACT?', b'+CNACT: 1')
 
     # Open or close wireless data connection
     def openWirelessConnection(self, onoff: bool):
