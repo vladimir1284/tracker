@@ -161,7 +161,7 @@ class Sim7000:
     #--------------------------------------------------------------------
     def reset(self):
         self.turnOFF()
-        time.sleep(0.1) # Short pause to let the capacitors discharge
+        time.sleep(1) # Short pause to let the capacitors discharge
         self.turnON()
 
         # Performs a hardware power on of the modem.
