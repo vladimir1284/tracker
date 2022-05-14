@@ -150,10 +150,7 @@ class FSM:
         if not self._sim_device.prepareMessage():
             self._log.debug("Failed to get GPS location, retrying...")
             self._wdt.feed() # reset timer (feed watchdog)
-            if pwr:
-                time.sleep(2)  # Retry every 2s
-            else:
-                self._ctrl.rtc_light_sleep(59)  # Retry every 1min
+            self._ctrl.rtc_light_sleep(2)  # Retry every 2s
 
         else: # Message ready
             # GPS data ready

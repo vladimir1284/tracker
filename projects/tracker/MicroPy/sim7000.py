@@ -65,37 +65,42 @@ class Sim7000:
 
     #--------------------------------------------------------------------
     def prepareMessage(self) -> bool:
-        gps_list = self._fona.gps
-        self._log.debug(gps_list)
-        if int(gps_list[0]) != 1:
+        try:
+            gps_list = self._fona.gps
+        except RuntimeError:
+            self._log.debug("'+CGNSINF: ' not found in the response!")
             return False
         else:
-            # Parse GPS response
-            # +CGNSINF: <GNSS run status>,<Fix status>,<UTC date & Time>,<Latitude>,<Longitude>,
-            # <MSL Altitude>,<Speed Over Ground>,<Course Over Ground>,<Fix Mode>,<Reserved1>,
-            # <HDOP>,<PDOP>,<VDOP>,<Reserved2>,<GNSS Satellites in View>,<GNSS Satellites Used>,
-            # <GLONASS Satellites Used>,<Reserved3>,<C/N0 max>,<HPA>,<VPA>
-            # ['1', '1', '20020918165724.000', '29.729532', '-95.649097', '33.600', '0.00', '78.4', '1', '', '3.2', '3.3', '1.0', '', '11', '4', '', '', '33', '', '']
-            try:
-                HDOP = float(gps_list[10])
-                if HDOP < 20:
-                    latitude  = float(gps_list[3])
-                    longitude = float(gps_list[4])
-                    speed_kph = float(gps_list[6])
-                    heading   = float(gps_list[7])
-                    sats      = int(gps_list[15])
-                else:
-                    return False
-            except Exception as err:
-                self._log.debug(err)
+            self._log.debug(gps_list)
+            if int(gps_list[0]) != 1:
                 return False
+            else:
+                # Parse GPS response
+                # +CGNSINF: <GNSS run status>,<Fix status>,<UTC date & Time>,<Latitude>,<Longitude>,
+                # <MSL Altitude>,<Speed Over Ground>,<Course Over Ground>,<Fix Mode>,<Reserved1>,
+                # <HDOP>,<PDOP>,<VDOP>,<Reserved2>,<GNSS Satellites in View>,<GNSS Satellites Used>,
+                # <GLONASS Satellites Used>,<Reserved3>,<C/N0 max>,<HPA>,<VPA>
+                # ['1', '1', '20020918165724.000', '29.729532', '-95.649097', '33.600', '0.00', '78.4', '1', '', '3.2', '3.3', '1.0', '', '11', '4', '', '', '33', '', '']
+                try:
+                    HDOP = float(gps_list[10])
+                    if HDOP < 20:
+                        latitude  = float(gps_list[3])
+                        longitude = float(gps_list[4])
+                        speed_kph = float(gps_list[6])
+                        heading   = float(gps_list[7])
+                        sats      = int(gps_list[15])
+                    else:
+                        return False
+                except Exception as err:
+                    self._log.debug(err)
+                    return False
 
-            self._log.debug("\n Latitude: {:.5f}\n Longitude: {:.5f}\n Speed: {:.1f}km/h\n Heading: {} deg\n N sats: {}\n HDOP: {}".
-                            format(latitude, longitude, speed_kph, heading, sats, HDOP))
-            self.gps_data = [latitude, longitude, speed_kph, heading, sats, HDOP]
-            # self._log.debug(msg)
+                self._log.debug("\n Latitude: {:.5f}\n Longitude: {:.5f}\n Speed: {:.1f}km/h\n Heading: {} deg\n N sats: {}\n HDOP: {}".
+                                format(latitude, longitude, speed_kph, heading, sats, HDOP))
+                self.gps_data = [latitude, longitude, speed_kph, heading, sats, HDOP]
+                # self._log.debug(msg)
 
-            return True
+                return True
 
     #--------------------------------------------------------------------
     def checkSMS(self)->str:
