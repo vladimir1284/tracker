@@ -1094,10 +1094,10 @@ class FONA:
             timeout -= 1
             time.sleep(0.001)
         try:
-            if self._buf != b"":
-                self._log.debug("\t<--- {}".format(self._buf.decode()))
-            else:
-                self._log.debug("_read_line timeout!")
+            # if self._buf != b"":
+            self._log.debug("\t<--- {}".format(self._buf.decode()))
+            # else:
+            #     self._log.debug("_read_line timeout!")
         except Exception as exc:
             self._log.debug(exc)
 
