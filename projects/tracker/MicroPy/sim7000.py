@@ -41,6 +41,7 @@ class Sim7000:
         self._log = log
 
         self.gps_data = gps_data
+        self.battVoltage = 0
 
         # Reset the module for a clean startup
         self.reset()
@@ -200,5 +201,5 @@ class Sim7000:
         return True
 
     #--------------------------------------------------------------------
-    def battVoltage(self):
-        return self._fona.battVoltage
+    def readBattVoltage(self):
+        self.battVoltage = self._fona.battVoltage

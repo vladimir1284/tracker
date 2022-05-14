@@ -158,6 +158,7 @@ class FSM:
         else: # Message ready
             # GPS data ready
             self._pending = True
+            self._sim_device.readBattVoltage()
             self._sim_device.setGPS(False)
             self._stateChange = time.time()
             self._state = 'SEND_DATA'

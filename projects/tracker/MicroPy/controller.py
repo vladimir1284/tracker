@@ -48,6 +48,8 @@ class Controller:
         log: Optional[RootLogger] = None
         )-> None:
 
+        self._wdt = WDT(timeout=60000)  # enable it with a timeout of 60s
+
         if log is None and debug >= 0:
             import ulogging
             log = ulogging.getLogger("controller")
@@ -79,9 +81,6 @@ class Controller:
         else:
             self._event = RESTART
 
-        
-
-        self._wdt = WDT(timeout=60000)  # enable it with a timeout of 60s
         self._settings = Settings(debug=1)
         self._sim = Sim7000(debug=1)
 
@@ -119,7 +118,7 @@ class Controller:
             int(self._sim.gps_data[2]), # speed_kph
             int(self._sim.gps_data[3]), # heading
             self._sim.gps_data[4],      # Number of sats
-            self._sim.battVoltage()
+            self._sim.battVoltage
         )
         # gps_data = [latitude, longitude, speed_kph, heading, sats, HDOP]
         if self._sim.uploadData(msg):
