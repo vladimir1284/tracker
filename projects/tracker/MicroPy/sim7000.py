@@ -69,6 +69,7 @@ class Sim7000:
             gps_list = self._fona.gps
         except RuntimeError:
             self._log.debug("'+CGNSINF: ' not found in the response!")
+            self.reset()
             return False
         else:
             self._log.debug(gps_list)
