@@ -37,7 +37,7 @@ except ImportError:
 __version__ = "0.0.0-auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_FONA.git"
 
-FONA_DEFAULT_TIMEOUT_MS = 500  # TODO: Check this against arduino...
+FONA_DEFAULT_TIMEOUT_MS = const(1000)  # TODO: Check this against arduino...
 
 # Commands
 CMD_AT = b"AT"
