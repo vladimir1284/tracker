@@ -48,7 +48,7 @@ class Controller:
         log: Optional[RootLogger] = None
         )-> None:
 
-        self._wdt = WDT(timeout=20000)  # enable it with a timeout of 20s
+        self._wdt = WDT(timeout=100000)  # enable it with a timeout of 20s
 
         if log is None and debug >= 0:
             import ulogging
