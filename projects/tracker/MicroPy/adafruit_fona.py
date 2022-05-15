@@ -155,7 +155,7 @@ class FONA:
 
         # self._uart_write(b"ATI\r\n")
         self._uart_write(b"AT+GMR\r\n")# This definitely should have the module name, but ATI may not
-        self._read_line(multiline=True)
+        self._read_line(multiline=True, timeout=10000)
 
         if self._buf.find(b"SIM7000") != -1:
             self._fona_type = FONA_7000_A
