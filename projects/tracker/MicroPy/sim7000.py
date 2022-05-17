@@ -48,7 +48,7 @@ class Sim7000:
 
         self._log.debug("Starting configuration...")
         # Hardware serial:
-        uart = UART(1, baudrate=9600, tx=FONA_TX, rx=FONA_RX) # TODO baudrate=115200
+        uart = UART(1, baudrate=115200, tx=FONA_TX, rx=FONA_RX) # TODO baudrate=115200
 
         self._fona = FONA(uart, debug = debug)#, log = self._log)
 
