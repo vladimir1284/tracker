@@ -37,7 +37,7 @@ except ImportError:
 __version__ = "0.0.0-auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_FONA.git"
 
-FONA_DEFAULT_TIMEOUT_MS = const(500)  # TODO: Check this against arduino...
+FONA_DEFAULT_TIMEOUT_MS = const(2000)  # TODO: Check this against arduino...
 
 # Commands
 CMD_AT = b"AT"
@@ -155,7 +155,7 @@ class FONA:
 
         # self._uart_write(b"ATI\r\n")
         self._uart_write(b"AT+GMR\r\n")# This definitely should have the module name, but ATI may not
-        self._read_line(multiline=True, timeout=10000)
+        self._read_line(multiline=True, timeout=3000)
 
         if self._buf.find(b"SIM7000") != -1:
             self._fona_type = FONA_7000_A

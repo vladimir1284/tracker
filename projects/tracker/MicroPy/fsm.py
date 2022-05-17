@@ -72,23 +72,25 @@ class FSM:
 
     #--------------------------------------------------------------------
     def _init_loaded_data(self, loaded_data):
-        try:
-            self._state         = loaded_data['state']
-            self._gpsErrors     = loaded_data['gpsErrors']
-            self._pending       = loaded_data['pending']
-            self._gsmErrors     = loaded_data['gsmErrors']
-            self._lastInterval  = loaded_data['lastInterval']
-            self._lastMsgSent   = loaded_data['lastMsgSent']
-        except Exception as err:
-            self._log.error(err)
+        if loaded_data is not None:
+            try:
+                self._state         = loaded_data['state']
+                self._gpsErrors     = loaded_data['gpsErrors']
+                self._pending       = loaded_data['pending']
+                self._gsmErrors     = loaded_data['gsmErrors']
+                self._lastInterval  = loaded_data['lastInterval']
+                self._lastMsgSent   = loaded_data['lastMsgSent']
+                return True
+            except Exception as err:
+                self._log.debug(err)
 
-            # Use default values
-            self._state         = 'READ_GPS'
-            self._pending       = False
-            self._gsmErrors     = 0
-            self._gpsErrors     = 0
-            self._lastInterval  = 0
-            self._lastMsgSent   = 0
+        # Use default values
+        self._state         = 'READ_GPS'
+        self._pending       = False
+        self._gsmErrors     = 0
+        self._gpsErrors     = 0
+        self._lastInterval  = 0
+        self._lastMsgSent   = 0
             
 
     #--------------------------------------------------------------------
