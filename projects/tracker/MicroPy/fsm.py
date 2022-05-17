@@ -130,6 +130,7 @@ class FSM:
         # Generic handling of GPS
         interval = self._settings.settings[{True:  'TGPS',
                                             False: 'TGPSB'}[pwr]]
+        self._log.debug("Elapsed: {}s, TintB: {}s".format(time.time() - self._stateChange,interval * MIN_TO_S_FACTOR))
         if time.time() - self._stateChange > (interval * MIN_TO_S_FACTOR): 
             # No GPS data in the time window allowed
             self._gpsErrors += 1
@@ -200,7 +201,7 @@ class FSM:
             self._log.debug("Reseting the SIM module...")
             self._sim_device.reset()
         self._state = 'IDLE'
-        self._log.debug("GSM errors: {}\nGPS errors: {}".format(self._gsmErrors, self._gpsErrors))
+        self._log.debug("\nGSM errors: {}\nGPS errors: {}".format(self._gsmErrors, self._gpsErrors))
         self._log.debug("{}-> State: IDLE".format(time.time()))
 
     # /********* FSM STATES WHILE DEPENDING ON BATTERY ONLY ***********************/
