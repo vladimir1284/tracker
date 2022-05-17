@@ -8,7 +8,7 @@ import json
 import esp32
 import machine
 from micropython import const, alloc_emergency_exception_buf
-from machine import WDT, deepsleep, lightsleep, RTC, Pin
+from machine import WDT, deepsleep, lightsleep, RTC, Pin, freq
 from sim7000 import Sim7000
 from settings import Settings
 from fsm import FSM
@@ -32,6 +32,8 @@ PINVBR	= const(33) # Input pin for checking the vibration sensor
 
 S_TO_mS_FACTOR = const(1000)
 
+LOWFREQ = const(20000000) # Low frequency for energy saving
+
 # Events
 RESTART   = const(0) # Normal microcontroller start
 POWERED   = const(1) # 12V connected while leeping
@@ -48,7 +50,7 @@ class Controller:
         log: Optional[RootLogger] = None
         )-> None:
 
-        self._wdt = WDT(timeout=100000)  # enable it with a timeout of 20s
+        self._wdt = WDT(timeout=100000)  # enable it with a timeout of 100s
 
         if log is None and debug >= 0:
             import ulogging
@@ -72,7 +74,7 @@ class Controller:
             self.moving     = True #TODO moving should be set False after a determined time without vibration
             self._seq_num   = 0
             fsm_loaded_data = None
-            self._log.error(err)
+            self._log.debug(err)
 
         if machine.wake_reason == machine.WDT_RESET:
             self._event = WATCHDOG
@@ -91,6 +93,13 @@ class Controller:
         self._pinVBR = Pin(PINVBR, mode = Pin.IN)
         self._vibrationNumber = 0 # This variable is modified by sensor interrupt (global)
         self._pinVBR.irq(trigger=Pin.IRQ_RISING, handler=self._countVibrations)
+
+        # Reduce frequency
+        try:
+            freq(LOWFREQ)
+        except Exception as err:
+            self._log.debug(err)
+
 
 
     # ---- Handle Vibration sensor interrupt ---------
