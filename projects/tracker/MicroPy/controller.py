@@ -77,9 +77,9 @@ class Controller:
             fsm_loaded_data = None
             self._log.debug(err)
 
-        if machine.wake_reason == machine.WDT_RESET:
+        if machine.wake_reason() == machine.WDT_RESET:
             self._event = WATCHDOG
-        elif machine.wake_reason == machine.DEEPSLEEP_RESET:
+        elif machine.wake_reason() == machine.DEEPSLEEP_RESET:
             self._handle_wakeup()
         else:
             self._event = RESTART
@@ -139,13 +139,15 @@ class Controller:
             # gps_data = [latitude, longitude, speed_kph, heading, sats, HDOP]
 
         if msg_type == "STARTUP":
-            msg = "{},{},{},{},{},{}".format(
+            msg = "{},{},{},{},{},{},{},{}".format(
                 "wake",
                 self._sim.imei,
                 self._seq_num,
                 {'PWR': 0, 'BATTERY': 1}[self.mode],
-                machine.wake_reason,
-                self._sim.battVoltage
+                self._sim.battVoltage,
+                self.lte_delay,
+                machine.wake_reason(),
+                machine.reset_cause()
             )
 
 
@@ -166,13 +168,13 @@ class Controller:
                 self._sim.imei,
                 self._seq_num,
                 {'PWR': 0, 'BATTERY': 1}[self.mode],
+                self._sim.battVoltage,
                 self._event,
                 self._sim.gps_data[0],      # latitude
                 self._sim.gps_data[1],      # longitude
                 int(self._sim.gps_data[2]), # speed_kph
                 int(self._sim.gps_data[3]), # heading
                 self._sim.gps_data[4],      # Number of sats
-                self._sim.battVoltage,
                 self.gps_delay,
                 self.lte_delay
             )
