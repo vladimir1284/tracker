@@ -52,6 +52,8 @@ class FSM:
 
 
         self._bat_states = {
+            'STARTUP': self._bat_startup,
+            'SEND_ERROR': self._bat_sendError,
             'IDLE': self._bat_idle,
             'READ_GPS': self._bat_gps,
             'SEND_DATA': self._bat_lte,
@@ -59,6 +61,8 @@ class FSM:
         }
 
         self._pwr_states = {
+            'STARTUP': self._pwr_startup,
+            'SEND_ERROR': self._pwr_sendError,
             'IDLE': self._pwr_idle,
             'READ_GPS': self._pwr_gps,
             'SEND_DATA': self._pwr_lte,
@@ -85,7 +89,7 @@ class FSM:
                 self._log.debug(err)
 
         # Use default values
-        self._state         = 'READ_GPS'
+        self._state         = 'STARTUP' #'READ_GPS'
         self._pending       = False
         self._gsmErrors     = 0
         self._gpsErrors     = 0
@@ -117,7 +121,7 @@ class FSM:
             self._settings.settings['Tint'] * MIN_TO_S_FACTOR / 2):
             # Force update on new mode detected if the time past from
             # the last server upload, exceeds the half of Tint
-            self._state = 'READ_GPS'
+            self._state = 'STARTUP' #'READ_GPS'
 
     # ------------------------------------------------------------------
     def _check_sms(self):
@@ -130,8 +134,8 @@ class FSM:
         # Generic handling of GPS
         interval = self._settings.settings[{True:  'TGPS',
                                             False: 'TGPSB'}[pwr]]
-        self._log.debug("Elapsed: {}s, TintB: {}s".format(time.time() - self._stateChange,interval * MIN_TO_S_FACTOR))
-        if time.time() - self._stateChange > (interval * MIN_TO_S_FACTOR): 
+        self._ctrl.gps_delay = time.time() - self._stateChange
+        if self._ctrl.gps_delay > (interval * MIN_TO_S_FACTOR): 
             # No GPS data in the time window allowed
             self._gpsErrors += 1
 
@@ -142,10 +146,10 @@ class FSM:
                 self._stateChange = time.time()
                 self._state = 'SEND_DATA'
                 self._log.debug("GPS allowed window overdue. Sending pending data!")
-                self._log.debug("{}-> State: SEND_DATA".format(time.time()))
+                self._log.debug("{}-> State: {}".format(time.time(), self._state))
             else: # No data to be sent
-                self._state = 'ERROR'
-                self._log.debug("{}-> State: ERROR".format(time.time()))
+                self._state = 'SEND_ERROR' #'ERROR'
+                self._log.debug("{}-> State: {}".format(time.time(), self._state))
 
         # Enable GPS
         self._sim_device.setGPS(True)
@@ -162,35 +166,43 @@ class FSM:
             self._sim_device.setGPS(False)
             self._stateChange = time.time()
             self._state = 'SEND_DATA'
-            self._log.debug("{}-> State: SEND_DATA".format(time.time()))
+            self._log.debug("{}-> State: {}".format(time.time(), self._state))
 
     # ------------------------------------------
-    def _lte(self, pwr: bool):
+    def _lte(self, pwr: bool, msg_type: str):
         # Generic handling of LTE
         interval = self._settings.settings[{True:  'Tsend',
                                             False: 'TsendB'}[pwr]]
         # Turn LTE on
         self._sim_device.setLTE(True)
 
-        if time.time() - self._stateChange > (interval * MIN_TO_S_FACTOR):
+        self._ctrl.lte_delay = time.time() - self._stateChange
+        if self._ctrl.lte_delay > (interval * MIN_TO_S_FACTOR):
             # Data upload not achieved
             self._check_sms()
             self._gsmErrors += 1
             self._state = 'ERROR'
-            self._log.debug("{}-> State: ERROR".format(time.time()))
+            self._log.debug("{}-> State: {}".format(time.time(), self._state))
 
         for i in range(RETRIES):
-            if not self._ctrl.upload_data():
+            if not self._ctrl.upload_data(msg_type):
                 self._log.debug("Attempt {}. Failed to connect to cell network, retrying...".format(i))
                 self._wdt.feed() # reset timer (feed watchdog)
                 self._ctrl.rtc_light_sleep(2) # Retry every 2s
             else:
                 # Data sent
-                self._state = 'IDLE'
+                if msg_type in ("GPS_DATA", "GPS_DEBUG"):
+                    self._state = 'IDLE'
+                if msg_type == "STARTUP":
+                    self._state = 'READ_GPS'
+                if msg_type == "ERROR":
+                    self._state = 'ERROR'
+                    
+                self._log.debug("{}-> State: {}".format(time.time(), self._state))
+
                 self._pending = False
                 self._lastMsgSent = time.time()
                 self._check_sms()
-                self._log.debug("{}-> State: IDLE".format(time.time()))
                 break
 
     # ------------------------------------------
@@ -202,14 +214,14 @@ class FSM:
             self._sim_device.reset()
         self._state = 'IDLE'
         self._log.debug("\nGSM errors: {}\nGPS errors: {}".format(self._gsmErrors, self._gpsErrors))
-        self._log.debug("{}-> State: IDLE".format(time.time()))
+        self._log.debug("{}-> State: {}".format(time.time(), self._state))
 
     # /********* FSM STATES WHILE DEPENDING ON BATTERY ONLY ***********************/
     
     # ------------------------------------------
     def _bat_idle(self):
         self._state = 'READ_GPS'
-        self._log.debug("{}-> State: READ_GPS".format(time.time()))
+        self._log.debug("{}-> State: {}".format(time.time(), self._state))
         self._sim_device.turnOFF()
         self._ctrl.rtc_deep_sleep(self._settings.settings['TintB'] * MIN_TO_S_FACTOR)
 
@@ -222,22 +234,31 @@ class FSM:
             self._stateChange = time.time()
             self._state = 'SEND_DATA'
             self._log.debug("Not moving! Avoiding GPS activation!")
-            self._log.debug("{}-> State: SEND_DATA".format(time.time()))
+            self._log.debug("{}-> State: {}".format(time.time(), self._state))
 
     # ------------------------------------------
     def _bat_lte(self):
-        self._lte(False)
+        self._lte(False, "GPS_DEBUG")
+
+    # ------------------------------------------
+    def _bat_startup(self):
+        self._lte(False, "STARTUP")
+
+    # ------------------------------------------
+    def _bat_sendError(self):
+        self._lte(False, "ERROR")
 
     # /********* FSM STATES WHILE POWERED WITH 12V ***********************/
     
     # ------------------------------------------
     def _pwr_idle(self):
+        self._check_sms()
         if time.time() - self._stateChange > (self._settings.settings['Tint'] * MIN_TO_S_FACTOR):
             # Beging location update
             self._lastInterval = time.time()
             self._stateChange = self._lastInterval
             self._state = 'READ_GPS'
-            self._log.debug("{}-> State: READ_GPS".format(time.time()))
+            self._log.debug("{}-> State: {}".format(time.time(), self._state))
     
     # ------------------------------------------
     def _pwr_gps(self):
@@ -245,4 +266,12 @@ class FSM:
 
     # ------------------------------------------
     def _pwr_lte(self):
-        self._lte(True)
+        self._lte(True, "GPS_DEBUG")
+
+    # ------------------------------------------
+    def _pwr_startup(self):
+        self._lte(True, "STARTUP")
+
+    # ------------------------------------------
+    def _pwr_sendError(self):
+        self._lte(True, "ERROR")

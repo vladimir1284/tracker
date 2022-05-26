@@ -2,6 +2,7 @@
 # pylint: disable=consider-using-f-string
 # pylint: disable=attribute-defined-outside-init
 # pylint: disable=global-statement
+# pylint: disable=too-many-instance-attributes
 
 import time
 import json
@@ -83,6 +84,9 @@ class Controller:
         else:
             self._event = RESTART
 
+        self.gps_delay = 0
+        self.lte_delay = 0
+
         self._settings = Settings(debug=1)
         self._sim = Sim7000(debug=1)
 
@@ -94,11 +98,11 @@ class Controller:
         self._vibrationNumber = 0 # This variable is modified by sensor interrupt (global)
         self._pinVBR.irq(trigger=Pin.IRQ_RISING, handler=self._countVibrations)
 
-        # # Reduce frequency
-        # try:
-        #     freq(LOWFREQ)
-        # except Exception as err:
-        #     self._log.debug(err)
+        # Reduce frequency
+        try:
+            freq(LOWFREQ)
+        except Exception as err:
+            self._log.debug(err)
 
 
 
@@ -115,26 +119,74 @@ class Controller:
         self._fsm.run()
 
     # ---------------------------------------------
-    def upload_data(self):
+    def upload_data(self, msg_type: str):
     # Upload data to the remote server
-        msg = "{},{},{},{},{:.5f},{:.5f},{},{},{},{}".format(
-            self._sim.imei,
-            self._seq_num,
-            {'PWR': 0, 'BATTERY': 1}[self.mode],
-            self._event,
-            self._sim.gps_data[0],      # latitude
-            self._sim.gps_data[1],      # longitude
-            int(self._sim.gps_data[2]), # speed_kph
-            int(self._sim.gps_data[3]), # heading
-            self._sim.gps_data[4],      # Number of sats
-            self._sim.battVoltage
-        )
-        # gps_data = [latitude, longitude, speed_kph, heading, sats, HDOP]
-        if self._sim.uploadData(msg):
-            self._seq_num += 1
-            return True
+        msg = None
+
+        if msg_type == "GPS_DATA":
+            msg = "{},{},{},{},{:.5f},{:.5f},{},{},{},{}".format(
+                self._sim.imei,
+                self._seq_num,
+                {'PWR': 0, 'BATTERY': 1}[self.mode],
+                self._event,
+                self._sim.gps_data[0],      # latitude
+                self._sim.gps_data[1],      # longitude
+                int(self._sim.gps_data[2]), # speed_kph
+                int(self._sim.gps_data[3]), # heading
+                self._sim.gps_data[4],      # Number of sats
+                self._sim.battVoltage
+            )
+            # gps_data = [latitude, longitude, speed_kph, heading, sats, HDOP]
+
+        if msg_type == "STARTUP":
+            msg = "{},{},{},{},{},{}".format(
+                "wake",
+                self._sim.imei,
+                self._seq_num,
+                {'PWR': 0, 'BATTERY': 1}[self.mode],
+                machine.wake_reason,
+                self._sim.battVoltage
+            )
+
+
+        if msg_type == "ERROR":
+            msg = "{},{},{},{},{},{},{}".format(
+                "error",
+                self._sim.imei,
+                self._seq_num,
+                {'PWR': 0, 'BATTERY': 1}[self.mode],
+                self.gps_delay,
+                self.lte_delay,
+                self._sim.battVoltage
+            )
+
+        if msg_type == "GPS_DEBUG":
+            msg = "{},{},{},{},{},{:.5f},{:.5f},{},{},{},{},{},{}".format(
+                'gps',
+                self._sim.imei,
+                self._seq_num,
+                {'PWR': 0, 'BATTERY': 1}[self.mode],
+                self._event,
+                self._sim.gps_data[0],      # latitude
+                self._sim.gps_data[1],      # longitude
+                int(self._sim.gps_data[2]), # speed_kph
+                int(self._sim.gps_data[3]), # heading
+                self._sim.gps_data[4],      # Number of sats
+                self._sim.battVoltage,
+                self.gps_delay,
+                self.lte_delay
+            )
+
+        if msg is not None:
+            if self._sim.uploadData(msg):
+                self._seq_num += 1
+                return True
+            else:
+                return False
         else:
+            self._log.error("Unrecognize message type: {}.".format(msg_type))
             return False
+
 
     # ---------------------------------------------
     def rtc_light_sleep(self, delay: int):

@@ -15,7 +15,7 @@ except ImportError:
     pass
 
 SERVER   = "http://trailerrental.pythonanywhere.com"
-ADDR	 = "/towit/tracker_data"
+ADDR	 = "/towit/tracker_debug" # "/towit/tracker_data"
 APN_NAME = "hologram"
 FONA_TX  = const(19)
 FONA_RX  = const(18)
