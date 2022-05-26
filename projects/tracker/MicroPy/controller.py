@@ -155,9 +155,9 @@ class Controller:
                 self._sim.imei,
                 self._seq_num,
                 {'PWR': 0, 'BATTERY': 1}[self.mode],
+                self._sim.battVoltage,
                 self.gps_delay,
-                self.lte_delay,
-                self._sim.battVoltage
+                self.lte_delay
             )
 
         if msg_type == "GPS_DEBUG":
