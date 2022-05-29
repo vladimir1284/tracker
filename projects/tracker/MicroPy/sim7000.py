@@ -54,6 +54,8 @@ class Sim7000:
 
         self.imei = self._fona.imei
         self._log.debug("Module IMEI: {}".format(self.imei))
+        
+        self.readBattVoltage()
 
         # Turn off modem
         self._fona.setFunctionality(self._fona.RADIO_OFF)

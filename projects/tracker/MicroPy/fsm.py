@@ -148,6 +148,7 @@ class FSM:
                 self._log.debug("GPS allowed window overdue. Sending pending data!")
                 self._log.debug("{}-> State: {}".format(time.time(), self._state))
             else: # No data to be sent
+                self._sim_device.readBattVoltage()
                 self._state = 'SEND_ERROR' #'ERROR'
                 self._log.debug("{}-> State: {}".format(time.time(), self._state))
 
