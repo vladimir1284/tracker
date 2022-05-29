@@ -100,10 +100,10 @@ class Controller:
         self._pinVBR.irq(trigger=Pin.IRQ_RISING, handler=self._countVibrations)
 
         # Reduce frequency
-        try:
-            freq(LOWFREQ)
-        except Exception as err:
-            self._log.debug(err)
+        # try:
+        #     freq(LOWFREQ)
+        # except Exception as err:
+        #     self._log.debug(err)
 
 
 
