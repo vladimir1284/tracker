@@ -164,7 +164,7 @@ class Controller:
             )
 
         if msg_type == "GPS_DEBUG":
-            msg = "{},{},{},{},{},{:.5f},{:.5f},{},{},{},{},{},{}".format(
+            msg = "{},{},{},{},{},{},{:.5f},{:.5f},{},{},{},{},{}".format(
                 'gps',
                 self._sim.imei,
                 self._seq_num,
