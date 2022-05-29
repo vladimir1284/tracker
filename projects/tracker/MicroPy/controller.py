@@ -61,6 +61,7 @@ class Controller:
         self._log = log
 
         self._pin12V = Pin(PIN12V, mode = Pin.IN)
+        self._nextWakeUp = 0
 
         # Retrieve soraged data from RTC ram
         self._rtc = RTC()
@@ -86,7 +87,6 @@ class Controller:
 
         self.gps_delay = 0
         self.lte_delay = 0
-        self._nextWakeUp = 0
 
         self._settings = Settings(debug=1)
         self._sim = Sim7000(debug=1)
