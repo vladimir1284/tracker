@@ -101,32 +101,42 @@ bool Sim7000::checkSMS()
 }
 
 //--------------------------------------------------------------------
-void Sim7000::turnOFF()
+void Sim7000::powerON()
 {
-    digitalWrite(SIM_PWR, LOW);
+    digitalWrite(PWRKEY, LOW);
+    delay(1000); //Datasheet Ton mintues = 1S
+    digitalWrite(PWRKEY, HIGH);
+}
+
+//--------------------------------------------------------------------
+void Sim7000::powerOFF()
+{
+    digitalWrite(PWRKEY, LOW);
+    delay(1500); //Datasheet Ton mintues = 1.2S
+    digitalWrite(PWRKEY, HIGH);
 }
 
 //--------------------------------------------------------------------
 void Sim7000::turnON()
 {
-    digitalWrite(SIM_PWR, HIGH);
+    powerON();
     for (int i = 0; i < 3; i++)
     {
         if (configure())
         {
             break;
         }
-        turnOFF();
-        delay(100); // Short pause to let the capacitors discharge
-        digitalWrite(SIM_PWR, HIGH);
+        powerOFF();
+        delay(2000); // Short pause to let the capacitors discharge
+        powerON();
     }
 }
 
 //--------------------------------------------------------------------
 void Sim7000::reset()
 {
-    turnOFF();
-    delay(100); // Short pause to let the capacitors discharge
+    powerOFF();
+    delay(2000); // Short pause to let the capacitors discharge
     turnON();
 }
 
@@ -142,7 +152,7 @@ bool Sim7000::configure()
         Serial.println(F("Start!"));
     }
     // Software serial:
-    fonaSS.begin(115200, SERIAL_8N1, FONA_TX, FONA_RX); // baud rate, protocol, ESP32 RX pin, ESP32 TX pin
+    fonaSS.begin(9600, SERIAL_8N1, FONA_TX, FONA_RX); // baud rate, protocol, ESP32 RX pin, ESP32 TX pin
 
     // if (DEBUG)
     // {

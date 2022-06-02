@@ -63,7 +63,7 @@ void setup()
   // -------------------------------------
 
   // ------- Detect mode --------------
-  pinMode(PIN12V, INPUT); // TODO this must be INPUT with an external pull down
+  pinMode(PIN12V, INPUT); 
   // -------------------------------------
 
   // ------- Detect movement --------------

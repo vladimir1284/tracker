@@ -21,9 +21,9 @@
 #define CREDIT_INIT 7
 #define CREDIT_LEN 6
 
-#define FONA_RX 19
-#define FONA_TX 18
-#define SIM_PWR 25
+#define FONA_RX 27
+#define FONA_TX 26
+#define SIM_PWR 5 // NRESET
 #define PWRKEY 4 // GPIO4 -> RTC_GPIO10
 
 // --------------------------------------
@@ -56,7 +56,7 @@
 #define S_TO_uS_FACTOR 1000000ULL    /* Conversion factor for seconds to micro seconds */
 #define MIN_TO_uS_FACTOR 60000000ULL //60000000ULL /* Conversion factor for minutes to micro seconds */
 #define MIN_TO_S_FACTOR 60            // 0 x0.1 for debug
-#define PIN12V 34                    // Input pin for checking 12V connection
+#define PIN12V 36                    // Input pin for checking 12V connection
 #define PWR_PIN_BITMASK 0x400000000 // 2^PIN12V 0b100,00000000,00000000,00000000,00000000
 
 enum modes

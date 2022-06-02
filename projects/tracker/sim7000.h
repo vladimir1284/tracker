@@ -25,7 +25,8 @@ public:
         netStatus(),
         configure();
     void setup(),
-        turnOFF(),
+        powerOFF(),
+        powerON(),
         turnON(),
         reset();
 
