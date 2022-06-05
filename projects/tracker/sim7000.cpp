@@ -192,7 +192,7 @@ bool Sim7000::configure()
     // Configure
     fona.setNetworkSettings(F(APN_NAME)); // For Hologram SIM card
     fona.setPreferredMode(38);            // Use LTE only, not 2G
-    //fona.setPreferredLTEMode(1);          // Use LTE CAT-M only, not NB-IoT
+    fona.setPreferredLTEMode(1);          // Use LTE CAT-M only, not NB-IoT
     return true;
 }
 
