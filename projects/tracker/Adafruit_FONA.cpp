@@ -1161,6 +1161,8 @@ boolean Adafruit_FONA::enableGPS(boolean onoff)
   {
     if (_type == SIM808_V2 || _type == SIM7000 || _type == SIM7070)
     {
+      if (!sendCheckReply(F("AT+SGPIO=0,4,1,1"), ok_reply))
+        return false;
       if (!sendCheckReply(F("AT+CGNSPWR=1"), ok_reply))
         return false;
     }
@@ -1179,6 +1181,8 @@ boolean Adafruit_FONA::enableGPS(boolean onoff)
   {
     if (_type == SIM808_V2 || _type == SIM7000 || _type == SIM7070)
     {
+      if (!sendCheckReply(F("AT+SGPIO=0,4,1,0"), ok_reply))
+        return false;
       if (!sendCheckReply(F("AT+CGNSPWR=0"), ok_reply))
         return false;
     }
