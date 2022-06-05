@@ -25,6 +25,7 @@
 #define FONA_TX 26
 #define SIM_PWR 5 // NRESET
 #define PWRKEY 4 // GPIO4 -> RTC_GPIO10
+#define STATUSLED 12 // blue led near ESP32
 
 // --------------------------------------
 

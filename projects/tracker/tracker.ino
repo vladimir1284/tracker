@@ -31,6 +31,10 @@ void setup()
   {
     // Initialize serial port
     Serial.begin(115200);
+
+    // Status LED
+    pinMode(STATUSLED, OUTPUT);
+    digitalWrite(STATUSLED, HIGH);
   }
   
   rtc_handle_wakeup();

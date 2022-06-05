@@ -39,6 +39,7 @@ void rtc_light_sleep(uint64_t delay)
     // Hold on IO pins value
     gpio_hold_en((gpio_num_t)SIM_PWR);
     gpio_hold_en((gpio_num_t)PWRKEY);
+    gpio_hold_en((gpio_num_t)STATUSLED);
     gpio_deep_sleep_hold_en();
 
     esp_sleep_enable_timer_wakeup(delay * S_TO_uS_FACTOR);
@@ -67,6 +68,7 @@ void rtc_sleep(uint64_t delay)
     // Hold on IO pins value
     gpio_hold_en((gpio_num_t)SIM_PWR);
     gpio_hold_en((gpio_num_t)PWRKEY);
+    gpio_hold_en((gpio_num_t)STATUSLED);
     gpio_deep_sleep_hold_en();
 
     // Wakeup on energy connection
