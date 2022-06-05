@@ -103,33 +103,42 @@ bool Sim7000::checkSMS()
 //--------------------------------------------------------------------
 void Sim7000::powerON()
 {
-    digitalWrite(PWRKEY, LOW);
-    delay(1000); //Datasheet Ton mintues = 1S
     digitalWrite(PWRKEY, HIGH);
+    delay(1000); //Datasheet Ton = 1S
+    digitalWrite(PWRKEY, LOW);
 }
 
 //--------------------------------------------------------------------
 void Sim7000::powerOFF()
 {
-    digitalWrite(PWRKEY, LOW);
-    delay(1500); //Datasheet Ton mintues = 1.2S
     digitalWrite(PWRKEY, HIGH);
+    delay(1500); //Datasheet Toff = 1.2S
+    digitalWrite(PWRKEY, LOW);
 }
 
 //--------------------------------------------------------------------
-void Sim7000::turnON()
+bool Sim7000::turnON()
 {
     powerON();
     for (int i = 0; i < 3; i++)
     {
         if (configure())
         {
-            break;
+            return true;
         }
         powerOFF();
         delay(2000); // Short pause to let the capacitors discharge
         powerON();
     }
+    return false;
+}
+
+//--------------------------------------------------------------------
+void Sim7000::hardReset()
+{
+    digitalWrite(PWRKEY, HIGH);
+    delay(300); //Datasheet Treset = 252ms
+    digitalWrite(PWRKEY, LOW);
 }
 
 //--------------------------------------------------------------------
@@ -191,9 +200,19 @@ bool Sim7000::configure()
 void Sim7000::setup()
 {
     pinMode(SIM_PWR, OUTPUT);
+    digitalWrite(SIM_PWR, LOW);
+    pinMode(PWRKEY, OUTPUT);
+    digitalWrite(PWRKEY, LOW);
 
     // Turn on the module
-    turnON();
+    while (!turnON())
+    {
+       if (DEBUG)
+        {
+            Serial.print("Hard reset SIMCOM module...");
+            hardReset();
+        } 
+    }
 
     // Print module IMEI number.
     imei_len = fona.getIMEI(imei);
