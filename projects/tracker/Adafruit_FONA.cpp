@@ -2448,7 +2448,7 @@ boolean Adafruit_FONA_LTE::HTTP_connect(const char *server)
     return false;
 
   // Set max HTTP body length
-  sendCheckReply(F("AT+SHCONF=\"BODYLEN\",1024"), ok_reply, 10000); // Max 1024 for SIM7070G
+  sendCheckReply(F("AT+SHCONF=\"BODYLEN\",63"), ok_reply, 10000); // Max 1024 for SIM7070G (firmwork 1529B01SIM7000G supports only upto 63)
 
   // Set max HTTP header length
   sendCheckReply(F("AT+SHCONF=\"HEADERLEN\",350"), ok_reply, 10000); // Max 350 for SIM7070G

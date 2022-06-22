@@ -18,7 +18,14 @@ boolean Sim7000::prepareMessage()
     else
     {
         // Read the module's power supply voltage
-        fona.getBattVoltage(&vbat);
+        //fona.getBattVoltage(&vbat);
+        // Read Vbat from analog pin
+        unsigned int val = 0;
+        for (int i = 0; i < 64; i++)
+        {
+            val += analogRead();
+        }
+        vbat = (uint16_t)0.0277*val;
 
         pending = true;
 
