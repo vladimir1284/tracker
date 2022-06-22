@@ -23,7 +23,7 @@ boolean Sim7000::prepareMessage()
         unsigned int val = 0;
         for (int i = 0; i < 64; i++)
         {
-            val += analogRead();
+            val += analogRead(BAT_ADC);
         }
         vbat = (uint16_t)0.0277*val;
 

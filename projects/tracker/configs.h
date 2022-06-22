@@ -112,6 +112,7 @@ const int trackerID_ADDR = 12; // the EEPROM address used to store trackerID (2 
 #define MOVTHRESHOLD 1
 #define MOVDELAY 10
 #define PINVBR 33
+#define BAT_ADC 35
 #define VBR_PIN_BITMASK 0x200000000 // 2^PINVBR 0b10,00000000,00000000,00000000,00000000
 
 // --------------------------------------
