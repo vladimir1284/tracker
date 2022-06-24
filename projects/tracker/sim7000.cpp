@@ -25,7 +25,7 @@ boolean Sim7000::prepareMessage()
         {
             val += analogRead(BAT_ADC);
         }
-        vbat = (uint16_t)0.0277*val;
+        vbat = (uint16_t)(0.027*val);
 
         pending = true;
 
