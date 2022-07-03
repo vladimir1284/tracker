@@ -58,7 +58,7 @@
 #define MIN_TO_uS_FACTOR 60000000ULL //60000000ULL /* Conversion factor for minutes to micro seconds */
 #define MIN_TO_S_FACTOR 60            // 0 x0.1 for debug
 #define PIN12V 36                    // Input pin for checking 12V connection
-#define PWR_PIN_BITMASK 0x400000000 // 2^PIN12V 0b100,00000000,00000000,00000000,00000000
+#define PWR_PIN_BITMASK 0x1000000000 // 2^PIN12V 0b10000,00000000,00000000,00000000,00000000
 
 enum modes
 {
