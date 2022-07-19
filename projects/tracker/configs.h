@@ -41,8 +41,8 @@
 
 // On Battery
 #define iTintB 720 // min
-#define iTsendB 10 // min
-#define iTGPSB 10  // min
+#define iTsendB 2 // min
+#define iTGPSB 5  // min
 #define iSMART true
 
 // On Power connected
