@@ -305,6 +305,7 @@ boolean Sim7000::uploadData()
         {
             Serial.println(F("Failed to upload!")); // Send GPS location
         }
-        return false;
+        //return false;
     }
+    return true;
 }

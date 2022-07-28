@@ -38,7 +38,7 @@ Adafruit_FONA::Adafruit_FONA(int8_t rst)
   mySerial = 0;
   httpsredirect = false;
   useragent = F("FONA");
-  ok_reply = "OK";
+  ok_reply = F("OK");
 }
 
 uint8_t Adafruit_FONA::type(void)
