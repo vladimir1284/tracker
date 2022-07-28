@@ -168,7 +168,7 @@ bool Sim7000::configure()
         Serial.println(F("Start!"));
     }
     // Software serial:
-    fonaSS.begin(9600, SERIAL_8N1, FONA_TX, FONA_RX); // baud rate, protocol, ESP32 RX pin, ESP32 TX pin
+    fonaSS.begin(921600, SERIAL_8N1, FONA_TX, FONA_RX); // baud rate, protocol, ESP32 RX pin, ESP32 TX pin
 
     // if (DEBUG)
     // {

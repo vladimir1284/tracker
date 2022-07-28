@@ -30,7 +30,7 @@ void setup()
   if (DEBUG)
   {
     // Initialize serial port
-    Serial.begin(115200);
+    Serial.begin(921600);
 
     // Status LED
     pinMode(STATUSLED, OUTPUT);
