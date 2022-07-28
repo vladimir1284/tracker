@@ -2567,14 +2567,14 @@ boolean Adafruit_FONA_LTE::HTTP_POST(const char *URI, const char *body, uint8_t 
   if (status != 200)
     return false;
 
-  // Read server response
-  getReply(F("AT+SHREAD=0,"), datalen, 10000);
-  readline();
-  DEBUG_PRINT("\t<--- ");
-  DEBUG_PRINTLN(replybuffer); // +SHREAD: <datalen>
-  readline(10000);
-  DEBUG_PRINT("\t<--- ");
-  DEBUG_PRINTLN(replybuffer); // Print out server reply
+//   // Read server response
+//   getReply(F("AT+SHREAD=0,"), datalen, 10000);
+//   readline();
+//   DEBUG_PRINT("\t<--- ");
+//   DEBUG_PRINTLN(replybuffer); // +SHREAD: <datalen>
+//   readline(10000);
+//   DEBUG_PRINT("\t<--- ");
+//   DEBUG_PRINTLN(replybuffer); // Print out server reply
 
   sendCheckReply(F("AT+SHDISC"), ok_reply, 10000); // Disconnect HTTP
 
