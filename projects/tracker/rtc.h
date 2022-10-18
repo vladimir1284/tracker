@@ -185,7 +185,7 @@ void detectMovement()
 
 // ---------------------------------------------
 // Check the battery voltage to prevent extreme discharging
-void checkBatteryVoltage()
+void checkBatteryVoltage(bool powerOff)
 {
     // Read Vbat from analog pin
     unsigned int val = 0;
@@ -206,7 +206,15 @@ void checkBatteryVoltage()
             Serial.print(MIN_VBAT);
             Serial.println("mV).");
         }
-        rtc_sleep(1440 * MIN_TO_uS_FACTOR); // sleep for a day
+        // Power off SIM device
+        if (powerOff)
+        {
+            digitalWrite(PWRKEY, HIGH);
+            delay(1500); // Datasheet Toff = 1.2S
+            digitalWrite(PWRKEY, LOW);
+        }
+        // sleep for a day
+        rtc_sleep(1440 * MIN_TO_uS_FACTOR);
     }
 }
 

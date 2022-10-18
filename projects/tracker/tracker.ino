@@ -28,6 +28,9 @@ void IRAM_ATTR resetModule()
 
 void setup()
 {
+  // Save battery asap if needed
+  checkBatteryVoltage(false);
+
   if (DEBUG)
   {
     // Initialize serial port
@@ -101,7 +104,7 @@ void loop()
 
   detectMode();
   detectMovement();
-  checkBatteryVoltage();
+  checkBatteryVoltage(true);
   // rtc_sleep(15*MIN_TO_uS_FACTOR);
   switch (mode)
   {
