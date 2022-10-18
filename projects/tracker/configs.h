@@ -8,7 +8,7 @@
 
 // --------------- watchdog ------------------
 
-#define wdtTimeout 60000000ULL //time in us to trigger the watchdog
+#define wdtTimeout 60000000ULL // time in us to trigger the watchdog
 
 // --------------------------------------
 
@@ -23,8 +23,8 @@
 
 #define FONA_RX 27
 #define FONA_TX 26
-#define SIM_PWR 5 // NRESET
-#define PWRKEY 4 // GPIO4 -> RTC_GPIO10
+#define SIM_PWR 5    // NRESET
+#define PWRKEY 4     // GPIO4 -> RTC_GPIO10
 #define STATUSLED 12 // blue led near ESP32
 
 // --------------------------------------
@@ -41,23 +41,24 @@
 
 // On Battery
 #define iTintB 720 // min
-#define iTsendB 2 // min
-#define iTGPSB 5  // min
+#define iTsendB 2  // min
+#define iTGPSB 5   // min
 #define iSMART true
 
 // On Power connected
-#define iTGPS 10  // min
-#define iTint 60  // min
-#define iTsend 3  // min
+#define iTGPS 10 // min
+#define iTint 60 // min
+#define iTsend 3 // min
 
 // --------------------------------------
 
 // --------------- FSM ------------------
 
 #define S_TO_uS_FACTOR 1000000ULL    /* Conversion factor for seconds to micro seconds */
-#define MIN_TO_uS_FACTOR 60000000ULL //60000000ULL /* Conversion factor for minutes to micro seconds */
-#define MIN_TO_S_FACTOR 60            // 0 x0.1 for debug
+#define MIN_TO_uS_FACTOR 60000000ULL // 60000000ULL /* Conversion factor for minutes to micro seconds */
+#define MIN_TO_S_FACTOR 60           // 0 x0.1 for debug
 #define PIN12V 36                    // Input pin for checking 12V connection
+#define MIN_VBAT 2900                // Minimum operational battery voltage (mV)
 #define PWR_PIN_BITMASK 0x1000000000 // 2^PIN12V 0b10000,00000000,00000000,00000000,00000000
 
 enum modes
@@ -84,7 +85,7 @@ enum states
 
 const byte EEPROM_KEY = 0x89; // used to identify if valid data in EEPROM
 
-const int KEY_ADDR = 0;        // the EEPROM address used to store the ID
+const int KEY_ADDR = 0; // the EEPROM address used to store the ID
 // const int Tcheck_ADDR = 1;     // the EEPROM address used to store Tcheck
 const int MAX_ERRORS_ADDR = 2; // the EEPROM address used to store MAX_ERRORS
 const int Tint_ADDR = 3;       // the EEPROM address used to store Tint (2 bytes)
