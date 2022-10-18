@@ -28,6 +28,10 @@ void IRAM_ATTR resetModule()
 
 void setup()
 {
+  // Status LED
+  pinMode(STATUSLED, OUTPUT);
+  digitalWrite(STATUSLED, HIGH);
+
   // Save battery asap if needed
   checkBatteryVoltage(false);
 
@@ -35,10 +39,6 @@ void setup()
   {
     // Initialize serial port
     Serial.begin(921600); // 115200 in the serial monitor scaled x8
-
-    // Status LED
-    pinMode(STATUSLED, OUTPUT);
-    digitalWrite(STATUSLED, HIGH);
   }
 
   rtc_handle_wakeup();
