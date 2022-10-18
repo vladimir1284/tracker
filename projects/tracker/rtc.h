@@ -193,9 +193,10 @@ void checkBatteryVoltage()
     {
         val += analogRead(BAT_ADC);
     }
+    // This Value will be 0 when connected to USB
     uint16_t vbat = (uint16_t)(0.027 * val);
 
-    if (vbat < MIN_VBAT)
+    if (vbat > 0 && vbat < MIN_VBAT)
     {
         if (DEBUG)
         {
