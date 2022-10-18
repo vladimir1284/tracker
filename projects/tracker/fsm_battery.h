@@ -26,6 +26,7 @@ public:
     FSMbattery();
 
     void run(),
+        setState(states newState),
         setup(Sim7000 *sim_device);
 
 private:

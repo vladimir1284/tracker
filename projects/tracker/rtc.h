@@ -84,7 +84,6 @@ void rtc_sleep(uint64_t delay)
         Serial.print((int)(BUTTON_PIN_BITMASK >> 32));
     }
 
-
     esp_sleep_enable_ext1_wakeup(BUTTON_PIN_BITMASK, ESP_EXT1_WAKEUP_ANY_HIGH);
 
     // Going to sleep
@@ -181,6 +180,32 @@ void detectMovement()
             }
             vibrationNumber = 0;
         }
+    }
+}
+
+// ---------------------------------------------
+// Check the battery voltage to prevent extreme discharging
+void checkBatteryVoltage()
+{
+    // Read Vbat from analog pin
+    unsigned int val = 0;
+    for (int i = 0; i < 64; i++)
+    {
+        val += analogRead(BAT_ADC);
+    }
+    uint16_t vbat = (uint16_t)(0.027 * val);
+
+    if (vbat < MIN_VBAT)
+    {
+        if (DEBUG)
+        {
+            Serial.print("Battery voltage: ");
+            Serial.print(vbat);
+            Serial.print("mV. Under minimum accepted (");
+            Serial.print(MIN_VBAT);
+            Serial.println("mV).");
+        }
+        rtc_sleep(1440 * MIN_TO_uS_FACTOR); // sleep for a day
     }
 }
 

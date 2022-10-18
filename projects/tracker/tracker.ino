@@ -15,8 +15,9 @@ FSMbattery fsm_battery;
 HardwareSerial fonaSS(1);
 Adafruit_FONA_LTE fona = Adafruit_FONA_LTE();
 
-void IRAM_ATTR isr() {
-    vibrationNumber++;
+void IRAM_ATTR isr()
+{
+  vibrationNumber++;
 }
 
 void IRAM_ATTR resetModule()
@@ -36,7 +37,7 @@ void setup()
     pinMode(STATUSLED, OUTPUT);
     digitalWrite(STATUSLED, HIGH);
   }
-  
+
   rtc_handle_wakeup();
 
   // ------- Reduce frequecy --------------
@@ -60,20 +61,19 @@ void setup()
   // -------------------------------------
 
   // ------- watchdog begin --------------
-  timer = timerBegin(0, 80, true);                 //timer 0, div 80
-  timerAttachInterrupt(timer, &resetModule, true); //attach callback
-  timerAlarmWrite(timer, wdtTimeout, false);       //set time in us
+  timer = timerBegin(0, 80, true);                 // timer 0, div 80
+  timerAttachInterrupt(timer, &resetModule, true); // attach callback
+  timerAlarmWrite(timer, wdtTimeout, false);       // set time in us
   timerAlarmEnable(timer);
   // -------------------------------------
 
   // ------- Detect mode --------------
-  pinMode(PIN12V, INPUT); 
+  pinMode(PIN12V, INPUT);
   // -------------------------------------
 
   // ------- Detect movement --------------
   // attachInterrupt(PINVBR, isr, RISING);
   // -------------------------------------
-
 
   // Setup sim module
   sim_device.setup();
@@ -86,7 +86,7 @@ void setup()
   set_handler.setup(&sim_device);
   set_handler.run();
   // Turn off modem
-  //fona.setFunctionality(0); // AT+CFUN=0
+  // fona.setFunctionality(0); // AT+CFUN=0
 }
 
 void loop()
@@ -101,7 +101,8 @@ void loop()
 
   detectMode();
   detectMovement();
-  //rtc_sleep(15*MIN_TO_uS_FACTOR);
+  checkBatteryVoltage();
+  // rtc_sleep(15*MIN_TO_uS_FACTOR);
   switch (mode)
   {
   case POWER_ON:
@@ -115,5 +116,4 @@ void loop()
   default:
     break;
   }
-
 }
