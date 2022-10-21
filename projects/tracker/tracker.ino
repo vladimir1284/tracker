@@ -33,7 +33,7 @@ void setup()
   digitalWrite(STATUSLED, HIGH);
 
   // Save battery asap if needed
-  checkBatteryVoltage(false);
+  checkBatteryVoltage();
 
   if (DEBUG)
   {
@@ -104,7 +104,7 @@ void loop()
 
   detectMode();
   detectMovement();
-  checkBatteryVoltage(true);
+  checkBatteryVoltage();
   // rtc_sleep(15*MIN_TO_uS_FACTOR);
   switch (mode)
   {
