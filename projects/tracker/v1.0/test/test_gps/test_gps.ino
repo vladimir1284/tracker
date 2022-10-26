@@ -64,9 +64,9 @@ void loop()
         {
             if (DEBUG)
             {
-                Serial.println("Retrying in 5s...");
+                Serial.println("Retrying in 2s...");
             }
-            delay(5000);
+            delay(2000);
         }
         else
         {

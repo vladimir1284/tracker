@@ -86,7 +86,7 @@ bool Sim7000::powerOnGPS()
     {
         Serial.println("Enabling GPS/GNSS/GLONASS");
     }
-    if (modem.enableGPS())
+    if (enableGPS())
     {
         return true;
     }
@@ -136,7 +136,7 @@ bool Sim7000::powerOffGPS()
     {
         Serial.println("Disabling GPS...");
     }
-    if (modem.disableGPS())
+    if (disableGPS())
     {
         return true;
     }
