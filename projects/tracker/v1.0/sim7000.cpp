@@ -38,8 +38,9 @@ String Sim7000::turnON()
 
         Serial.println("Initializing modem...");
     }
-    if (!modem.restart())
+    if (!modem.init())
     {
+        reset();
         if (DEBUG)
         {
             Serial.println("Failed to restart modem");
