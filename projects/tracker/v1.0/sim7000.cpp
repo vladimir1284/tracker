@@ -146,7 +146,7 @@ bool Sim7000::powerOffGPS()
 //--------------------------------------------------------------------
 String Sim7000::getGPS()
 {
-    String result = String("");
+    String result(NULL);
 
     Serial.println("Requesting current GPS/GNSS/GLONASS location...");
     if (modem.getGPS(&lat2, &lon2, &speed2, &alt2, &vsat2, &usat2, &accuracy2,
@@ -184,17 +184,17 @@ String Sim7000::getGPS()
     }
     else
     {
-        Serial.println("Couldn't get GPS/GNSS/GLONASS location.");
+        if (DEBUG)
+        {
+            Serial.println(modem.getGPSraw());
+            Serial.println("Couldn't get GPS/GNSS/GLONASS location.");
+        }
         return result;
     }
 
-    if (DEBUG)
-    {
-        Serial.println("Retrieving GPS/GNSS/GLONASS location again as a string");
-        String gps_raw = modem.getGPSraw();
-        Serial.print("GPS/GNSS Based Location String: ");
-        Serial.println(gps_raw);
-    }
+    // Serial.println("Retrieving GPS/GNSS/GLONASS location again as a string");
+    // String gps_raw = modem.getGPSraw();
+    // Serial.print("GPS/GNSS Based Location String: ");
 
     // Form return string
     result += String(lat2, 6) + "," + String(lon2, 6) + "," +
