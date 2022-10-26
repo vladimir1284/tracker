@@ -94,6 +94,42 @@ bool Sim7000::powerOnGPS()
 }
 
 //--------------------------------------------------------------------
+bool Sim7000::enableGPS()
+{
+    // Set SIM7000G GPIO4 HIGH ,turn on GPS power
+    // CMD:AT+SGPIO=0,4,1,1
+    // Only in version 20200415 is there a function to control GPS power
+    modem.sendAT("+SGPIO=0,4,1,1");
+    if (modem.waitResponse(10000L) != 1)
+    {
+        if (DEBUG)
+        {
+            Serial.println(" SGPIO=0,4,1,1 false ");
+        }
+        return false;
+    }
+    return (modem.enableGPS());
+}
+
+//--------------------------------------------------------------------
+bool Sim7000::disableGPS()
+{
+    // Set SIM7000G GPIO4 LOW ,turn off GPS power
+    // CMD:AT+SGPIO=0,4,1,0
+    // Only in version 20200415 is there a function to control GPS power
+    modem.sendAT("+SGPIO=0,4,1,0");
+    if (modem.waitResponse(10000L) != 1)
+    {
+        if (DEBUG)
+        {
+            Serial.println(" SGPIO=0,4,1,0 false ");
+        }
+        return false;
+    }
+    return (modem.disableGPS());
+}
+
+//--------------------------------------------------------------------
 bool Sim7000::powerOffGPS()
 {
     if (DEBUG)

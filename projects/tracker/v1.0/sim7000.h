@@ -31,6 +31,8 @@ public:
         checkSMS(),
         netStatus(),
         powerOffGPS(),
+        disableGPS(),
+        enableGPS(),
         powerOnGPS();
     void setup(),
         powerOFF(),
