@@ -4,7 +4,7 @@
 #include <EEPROM.h>
 #include <ArduinoJson.h>
 
-extern bool DEBUG;
+#define DEBUG true
 
 // --------------- Handle Dynamic Configs ------------------
 #define MAX_INPUT_LENGTH 200
