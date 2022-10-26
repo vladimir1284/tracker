@@ -10,6 +10,7 @@ Sim7000::Sim7000()
 
 void Sim7000::setup()
 {
+    pinMode(PWRKEY, OUTPUT);
     SerialAT.begin(9600, SERIAL_8N1, MODEM_RX, MODEM_TX); // baud rate, protocol, ESP32 RX pin, ESP32 TX pin
 }
 
@@ -30,7 +31,7 @@ void Sim7000::powerOFF()
 }
 
 //--------------------------------------------------------------------
-String Sim7000::turnON()
+String Sim7000::init()
 {
     String imei(NULL);
     if (DEBUG)
@@ -75,7 +76,7 @@ void Sim7000::reset()
 {
     powerOFF();
     delay(2000); // Short pause to let the capacitors discharge
-    turnON();
+    powerON();
 }
 
 //--------------------------------------------------------------------

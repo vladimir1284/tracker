@@ -26,7 +26,8 @@ void loop()
     switch (state)
     {
     case MODEM_PWR_ON:
-        imei = sim.turnON();
+        sim.powerON();
+        imei = sim.init();
         if (imei.equals(String(NULL)))
         {
             if (DEBUG)

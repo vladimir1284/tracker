@@ -37,7 +37,7 @@ public:
         powerON(),
         hardReset(),
         reset();
-    String turnON(),
+    String init(),
         getGPS();
 
 private:
