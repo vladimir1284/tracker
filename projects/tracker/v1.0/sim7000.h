@@ -1,9 +1,10 @@
 #if !defined(SIM_H)
 #define SIM_H
 
+#define DEBUG true
+
 #include <Arduino.h>
 #define TINY_GSM_MODEM_SIM7000
-
 #include <TinyGsmClient.h>
 
 #define SIM_PWR 5 // NRESET
@@ -19,8 +20,6 @@ const char gprsPass[] = "";
 // Server details
 const char server[] = "http://trailerrental.pythonanywhere.com";
 const char resource[] = "/towit/upload_data";
-
-extern bool DEBUG;
 
 class Sim7000
 {

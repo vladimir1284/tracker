@@ -1,8 +1,6 @@
 
 #include <sim7000.h>
 
-#define DEBUG true
-
 enum states
 {
     // Power connected
@@ -18,6 +16,7 @@ Sim7000 sim;
 
 void setup()
 {
+    Serial.begin(115200);
     sim.setup();
     state = MODEM_PWR_ON;
 }
@@ -78,7 +77,7 @@ void loop()
         }
         break;
 
-    case GPS_PWR_ON:
+    case GPS_PWR_OFF:
         if (sim.powerOffGPS())
         {
             if (DEBUG)
