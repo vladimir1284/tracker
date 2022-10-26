@@ -5,6 +5,7 @@
 
 #include <Arduino.h>
 #define TINY_GSM_MODEM_SIM7000
+#define TINY_GSM_RX_BUFFER 1024 // Set RX buffer to 1Kb
 #include <TinyGsmClient.h>
 
 #define SIM_PWR 5 // NRESET
