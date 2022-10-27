@@ -2,6 +2,8 @@
 
 HardwareSerial SerialAT(1);
 TinyGsm modem(SerialAT);
+TinyGsmClient client(modem);
+HttpClient http(client, server, port);
 
 // Constructor
 Sim7000::Sim7000()
@@ -60,7 +62,194 @@ String Sim7000::init()
         Serial.println(modemInfo);
     }
     imei = modem.getIMEI();
+    modem.setNetworkMode(38); /*LTE only*/
     return (imei);
+}
+
+//--------------------------------------------------------------------
+bool Sim7000::connect2LTE()
+{
+    int16_t signal = modem.getSignalQuality();
+    bool isConnected = modem.isNetworkConnected();
+    if (DEBUG)
+    {
+        Serial.print("Signal: ");
+        Serial.print(signal);
+        Serial.print(" ");
+        Serial.print("isNetworkConnected: ");
+        Serial.println(isConnected ? "CONNECT" : "NO CONNECT");
+    }
+    return isConnected;
+}
+
+//--------------------------------------------------------------------
+bool Sim7000::connect2Internet()
+{
+    // GPRS connection parameters are usually set after network registration
+    if (DEBUG)
+    {
+        Serial.print(F("Connecting to "));
+        Serial.print(apn);
+    }
+    if (!modem.gprsConnect(apn, gprsUser, gprsPass))
+    {
+        if (DEBUG)
+        {
+            Serial.println(" fail");
+        }
+        return false;
+    }
+    if (DEBUG)
+    {
+        Serial.println(" success");
+    }
+    if (modem.isGprsConnected())
+    {
+        if (DEBUG)
+        {
+            Serial.println("Internet connected");
+        }
+        return true;
+    }
+    else
+    {
+        if (DEBUG)
+        {
+            Serial.println("Reporting as disconnected!");
+        }
+        return false;
+    }
+}
+
+//--------------------------------------------------------------------
+String Sim7000::getCellID()
+{
+    String res(NULL);
+    int colons = 0;
+    int i;
+    bool result = false;
+
+    if (DEBUG)
+    {
+        Serial.println("=====Inquiring UE system information=====");
+    }
+    modem.sendAT("+CPSI?");
+    if (modem.waitResponse(1000L, res) == 1)
+    {
+        res.replace(GSM_NL "OK" GSM_NL, "");
+        if (DEBUG)
+        {
+            Serial.println(res);
+        }
+    }
+    int index = res.indexOf("Online");
+    if (index != -1)
+    {
+        res = res.substring(index + 7);
+        for (i = 0; i < res.length(); i++)
+        {
+            if (res[i] == ',')
+            {
+                colons++;
+            }
+            if (colons == 4)
+            {
+                break;
+            }
+        }
+        if (colons != 4) // Wrong format
+        {
+            if (DEBUG)
+            {
+                Serial.println("Wrong formatted response!");
+            }
+            return String(NULL);
+        }
+        res = res.substring(0, i);
+        return res;
+    }
+    else
+    {
+        if (DEBUG)
+        {
+            Serial.println("Device isn't online!");
+        }
+        return String(NULL); // Not online
+    }
+}
+
+//--------------------------------------------------------------------
+String Sim7000::uploadData(String msg)
+{
+    String body(NULL);
+
+    if (DEBUG)
+    {
+        Serial.print(F("Performing HTTP GET request... "));
+    }
+
+    String contentType = "application/x-www-form-urlencoded";
+
+    int err = http.post(resource, contentType, msg);
+    if (err != 0)
+    {
+        if (DEBUG)
+        {
+            Serial.println(F("failed to connect"));
+        }
+        return body;
+    }
+
+    int status = http.responseStatusCode();
+    if (DEBUG)
+    {
+        Serial.print(F("Response status code: "));
+        Serial.println(status);
+    }
+    if (status != 200)
+    {
+        return body;
+    }
+    if (DEBUG)
+    {
+        Serial.println(F("Response Headers:"));
+        while (http.headerAvailable())
+        {
+            String headerName = http.readHeaderName();
+            String headerValue = http.readHeaderValue();
+            Serial.println("    " + headerName + " : " + headerValue);
+        }
+    }
+
+    int length = http.contentLength();
+    if (length >= 0)
+    {
+        body = http.responseBody();
+        if (DEBUG)
+        {
+            Serial.print(F("Content length is: "));
+            Serial.println(length);
+
+            if (http.isResponseChunked())
+            {
+                Serial.println(F("The response is chunked"));
+            }
+
+            Serial.println(F("Response:"));
+            Serial.println(body);
+
+            Serial.print(F("Body length is: "));
+            Serial.println(body.length());
+        }
+    }
+
+    // Shutdown
+    http.stop();
+    if (DEBUG)
+    {
+        Serial.println(F("Server disconnected"));
+    }
+    return body;
 }
 
 //--------------------------------------------------------------------

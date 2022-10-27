@@ -19,6 +19,7 @@ void setup()
     Serial.begin(115200);
     sim.setup();
     state = MODEM_PWR_ON;
+    sim.powerON();
 }
 
 void loop()
@@ -26,7 +27,6 @@ void loop()
     switch (state)
     {
     case MODEM_PWR_ON:
-        sim.powerON();
         imei = sim.init();
         if (imei.equals(String(NULL)))
         {

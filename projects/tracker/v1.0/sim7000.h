@@ -4,6 +4,8 @@
 #define DEBUG true
 
 #include <Arduino.h>
+#include <ArduinoHttpClient.h>
+
 #define TINY_GSM_MODEM_SIM7000
 #define TINY_GSM_RX_BUFFER 1024 // Set RX buffer to 1Kb
 #include <TinyGsmClient.h>
@@ -21,16 +23,15 @@ const char gprsPass[] = "";
 // Server details
 const char server[] = "http://trailerrental.pythonanywhere.com";
 const char resource[] = "/towit/upload_data";
+const int port = 80;
 
 class Sim7000
 {
 
 public:
     Sim7000();
-    bool prepareMessage(),
-        uploadData(),
-        checkSMS(),
-        netStatus(),
+    bool connect2LTE(),
+        connect2Internet(),
         powerOffGPS(),
         disableGPS(),
         enableGPS(),
@@ -41,6 +42,8 @@ public:
         hardReset(),
         reset();
     String init(),
+        getCellID(),
+        uploadData(String msg),
         getGPS();
 
 private:
