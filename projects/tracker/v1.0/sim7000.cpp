@@ -152,12 +152,12 @@ String Sim7000::getCellID()
             {
                 colons++;
             }
-            if (colons == 4)
+            if (colons == 3)
             {
                 break;
             }
         }
-        if (colons != 4) // Wrong format
+        if (colons != 3) // Wrong format
         {
             if (DEBUG)
             {
