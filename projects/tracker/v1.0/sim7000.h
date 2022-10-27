@@ -21,7 +21,7 @@ const char gprsUser[] = "";
 const char gprsPass[] = "";
 
 // Server details
-const char server[] = "http://trailerrental.pythonanywhere.com";
+const char server[] = "trailerrental.pythonanywhere.com";
 const char resource[] = "/towit/upload_data";
 const int port = 80;
 
