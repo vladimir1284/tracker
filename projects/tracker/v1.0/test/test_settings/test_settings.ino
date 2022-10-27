@@ -5,6 +5,7 @@ Settings stgs = Settings();
 void setup()
 {
     Serial.begin(115200);
+    stgs.setup();
     stgs.processConfigs("{mode: 0}");
 }
 

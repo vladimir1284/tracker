@@ -24,6 +24,7 @@ Sim7000 sim;
 void setup()
 {
     Serial.begin(115200);
+    stgs.setup();
     sim.setup();
     state = MODEM_PWR_ON;
     sim.powerON();
