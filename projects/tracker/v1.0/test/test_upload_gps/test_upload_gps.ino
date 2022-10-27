@@ -1,5 +1,8 @@
 
 #include <sim7000.h>
+#include <EEPROMsettings.h>
+
+Settings stgs = Settings();
 
 enum states
 {
@@ -28,7 +31,7 @@ void setup()
 
 void loop()
 {
-    String msg;
+    String msg, config;
 
     switch (state)
     {
@@ -146,7 +149,16 @@ void loop()
             Serial.print("Uploading datagram: ");
             Serial.println(msg);
         }
-        sim.uploadData(msg);
+        config = sim.uploadData(msg);
+        if (config != String(NULL))
+        {
+            if (DEBUG)
+            {
+                Serial.println("Processing configs");
+            }
+            stgs.processConfigs(config);
+        }
+
         // Terminate test
         if (DEBUG)
         {

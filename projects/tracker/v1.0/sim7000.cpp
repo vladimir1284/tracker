@@ -185,7 +185,7 @@ String Sim7000::uploadData(String msg)
 
     if (DEBUG)
     {
-        Serial.print(F("Performing HTTP GET request... "));
+        Serial.print(F("Performing HTTP POST request... "));
     }
 
     String contentType = "application/x-www-form-urlencoded";
