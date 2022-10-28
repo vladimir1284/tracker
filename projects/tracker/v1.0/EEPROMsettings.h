@@ -3,8 +3,7 @@
 
 #include <EEPROM.h>
 #include <ArduinoJson.h>
-
-#define DEBUG true
+#include "config.h"
 
 // --------------- Handle Dynamic Configs ------------------
 #define MAX_INPUT_LENGTH 200

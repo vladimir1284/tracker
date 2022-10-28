@@ -1,17 +1,14 @@
 #if !defined(SIM_H)
 #define SIM_H
 
-#define DEBUG true
+#include "config.h"
 
 #include <Arduino.h>
 #include <ArduinoHttpClient.h>
-
 #define TINY_GSM_MODEM_SIM7000
 #define TINY_GSM_RX_BUFFER 1024 // Set RX buffer to 1Kb
 #include <TinyGsmClient.h>
 
-#define SIM_PWR 5 // NRESET
-#define PWRKEY 4  // GPIO4 -> RTC_GPIO10
 #define MODEM_TX 27
 #define MODEM_RX 26
 
