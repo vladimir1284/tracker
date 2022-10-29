@@ -28,11 +28,13 @@ int val;
 #define wdtTimeout1 3000000L // time in us to trigger the watchdog
 hw_timer_t *timer = NULL;
 
+// ------- watchdog reset --------------
 void IRAM_ATTR resetModule()
 {
     ets_printf("reboot\n");
     esp_restart();
 }
+//  -------------------------------------
 
 void setup()
 {

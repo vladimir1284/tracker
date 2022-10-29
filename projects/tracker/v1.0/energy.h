@@ -14,10 +14,6 @@
 
 // --------------- Constants ------------------
 
-#define S_TO_uS_FACTOR 1000000ULL    /* Conversion factor for seconds to micro seconds */
-#define MIN_TO_uS_FACTOR 60000000ULL // 60000000ULL /* Conversion factor for minutes to micro seconds */
-#define MIN_TO_S_FACTOR 60           // 0 x0.1 for debug
-#define ONE_DAY_uS 86400000000ULL    // Minutes in a day
 #define MIN_VBAT 2900                // Minimum operational battery voltage (mV)
 #define VBAT_SAMPLES 64              // Number of oversampling repetitions for reading battery voltage
 #define VBAT_COEF 0.027              // Coefficient converting the sum of VBAT_SAMPLES into battery voltage (mV)
