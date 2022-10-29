@@ -15,6 +15,8 @@
 
 #define DEBUG true
 
+#define S_TO_uS_FACTOR 1000000ULL /* Conversion factor for seconds to micro seconds */
+
 #define SIM_PWR 5 // NRESET
 #define PWRKEY 2  // test led
 
@@ -25,16 +27,7 @@
 unsigned long last_blink;
 int val;
 
-#define wdtTimeout1 3000000L // time in us to trigger the watchdog
-hw_timer_t *timer = NULL;
-
-// ------- watchdog reset --------------
-void IRAM_ATTR resetModule()
-{
-    ets_printf("reboot\n");
-    esp_restart();
-}
-//  -------------------------------------
+#define wdtTimeout 3000000L // time in us to trigger the watchdog
 
 void setup()
 {
@@ -52,12 +45,7 @@ void setup()
 
     reduceFreq();
 
-    // ------- watchdog begin --------------
-    timer = timerBegin(0, 10, true);                 // timer 0, div 10
-    timerAttachInterrupt(timer, &resetModule, true); // attach callback
-    timerAlarmWrite(timer, wdtTimeout1, false);      // set time in us
-    timerAlarmEnable(timer);
-    //  -------------------------------------
+    watchdogConfig(wdtTimeout);
 
     // Blink led
     pinMode(PWRKEY, OUTPUT);

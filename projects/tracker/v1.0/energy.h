@@ -14,6 +14,7 @@
 
 // --------------- Constants ------------------
 
+#define ONE_DAY_uS 86400000000ULL    // Minutes in a day
 #define MIN_VBAT 2900                // Minimum operational battery voltage (mV)
 #define VBAT_SAMPLES 64              // Number of oversampling repetitions for reading battery voltage
 #define VBAT_COEF 0.027              // Coefficient converting the sum of VBAT_SAMPLES into battery voltage (mV)
@@ -23,7 +24,17 @@
 
 // --------------- watchdog ------------------
 
-#define wdtTimeout 60000000ULL // time in us to trigger the watchdog
+#define WDT_TIMEOUT 60000000ULL // time in us to trigger the watchdog
+
+hw_timer_t *timer = NULL;
+
+// ------- watchdog reset --------------
+void IRAM_ATTR resetModule()
+{
+    ets_printf("reboot\n");
+    esp_restart();
+}
+//  -------------------------------------
 
 // --------------------------------------
 
@@ -42,6 +53,17 @@ RTC_NOINIT_ATTR int wdg_rst_count;
 RTC_NOINIT_ATTR byte seq_num;
 
 // -----------------------------------------
+
+// ------- watchdog begin --------------
+void watchdogConfig(uint64_t wdtTimeout)
+{
+    timer = timerBegin(0, 10, true);                 // timer 0, div 10
+    timerAttachInterrupt(timer, &resetModule, true); // attach callback
+    timerAlarmWrite(timer, wdtTimeout, false);       // set time in us
+    timerAlarmEnable(timer);
+}
+//  -------------------------------------
+
 // ------- Slowdown for energy saving ------
 void reduceFreq()
 {
