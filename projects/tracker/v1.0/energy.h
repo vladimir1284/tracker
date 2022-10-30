@@ -48,7 +48,7 @@ esp_reset_reason_t reset_reason;
 
 // ---------------------------------------------
 // RTC memory to hold state values on deep sleep
-RTC_NOINIT_ATTR time_t lastInterval;
+RTC_NOINIT_ATTR time_t lastInterval, lastWakeup;
 RTC_NOINIT_ATTR int wdg_rst_count;
 RTC_NOINIT_ATTR byte seq_num;
 
@@ -187,6 +187,31 @@ void rtc_handle_wakeup()
             int pin = (unsigned int)((log(GPIO_reason)) / log(2));
             Serial.print("GPIO that triggered the wake up: GPIO");
             Serial.println(pin);
+
+            // Check for too short interval
+            time_t now, slept_time, tracking_interval_s;
+            time(&now);
+            slept_time = now - lastWakeup;
+            tracking_interval_s = TRACKING_INTERVAL * MIN_TO_S_FACTOR;
+            if (DEBUG)
+            {
+                Serial.print("Sleep time: ");
+                Serial.print(slept_time);
+                Serial.println("s");
+                Serial.print("Interval: ");
+                Serial.print(tracking_interval_s);
+                Serial.println("s");
+            }
+            if (slept_time < tracking_interval_s)
+            {
+                if (DEBUG)
+                {
+                    Serial.print("Too short interval: ");
+                    Serial.print(slept_time / 60);
+                    Serial.println("min!");
+                }
+                rtc_deep_sleep(tracking_interval_s - slept_time);
+            }
         }
     }
 
@@ -219,6 +244,7 @@ void rtc_handle_wakeup()
             wdg_rst_count = 0;
             seq_num = 0;
         }
+        time(&lastWakeup); // Mark the wakeup time
     }
 }
 

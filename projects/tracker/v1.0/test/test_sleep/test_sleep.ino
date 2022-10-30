@@ -15,7 +15,9 @@
 
 #define DEBUG true
 
+#define MIN_TO_S_FACTOR 60        // 0 x0.1 for debug
 #define S_TO_uS_FACTOR 1000000ULL /* Conversion factor for seconds to micro seconds */
+#define TRACKING_INTERVAL 0.2     // 12seg
 
 #define SIM_PWR 5 // NRESET
 #define PWRKEY 2  // test led
@@ -32,53 +34,53 @@ int val;
 void setup()
 {
 
-    if (DEBUG)
-    {
-        // Initialize serial port
-        Serial.begin(115200); //  921600 in the serial monitor scaled x8
-        Serial.println();
-        Serial.println();
-        Serial.println();
-    }
+  if (DEBUG)
+  {
+    // Initialize serial port
+    Serial.begin(115200); //  921600 in the serial monitor scaled x8
+    Serial.println();
+    Serial.println();
+    Serial.println();
+  }
 
-    rtc_handle_wakeup();
+  rtc_handle_wakeup();
 
-    reduceFreq();
+  reduceFreq();
 
-    watchdogConfig(wdtTimeout);
+  watchdogConfig(wdtTimeout);
 
-    // Blink led
-    pinMode(PWRKEY, OUTPUT);
-    val = LOW;
-    digitalWrite(PWRKEY, val);
+  // Blink led
+  pinMode(PWRKEY, OUTPUT);
+  val = LOW;
+  digitalWrite(PWRKEY, val);
 }
 
 void loop()
 {
-    Serial.print("Seq: ");
-    Serial.println(seq_num++);
-    if (wdg_rst_count > 2)
+  Serial.print("Seq: ");
+  Serial.println(seq_num++);
+  if (wdg_rst_count > 2)
+  {
+    for (int i = 0; i < 6; i++)
     {
-        for (int i = 0; i < 6; i++)
-        {
-            val = !val;
-            digitalWrite(PWRKEY, val);
-            delay(1000);
-            timerWrite(timer, 0); // reset timer (feed watchdog)
-        }
-
-        Serial.println("Power off led before sleeping");
-        digitalWrite(PWRKEY, LOW);
-
-        rtc_deep_sleep(5);
+      val = !val;
+      digitalWrite(PWRKEY, val);
+      delay(1000);
+      timerWrite(timer, 0); // reset timer (feed watchdog)
     }
-    while (1)
+
+    Serial.println("Power off led before sleeping");
+    digitalWrite(PWRKEY, LOW);
+
+    rtc_deep_sleep(5);
+  }
+  while (1)
+  {
+    if (millis() - last_blink > 300)
     {
-        if (millis() - last_blink > 300)
-        {
-            last_blink = millis();
-            val = !val;
-            digitalWrite(PWRKEY, val);
-        }
+      last_blink = millis();
+      val = !val;
+      digitalWrite(PWRKEY, val);
     }
+  }
 }
