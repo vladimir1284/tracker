@@ -11,6 +11,8 @@ Remote configurations are retrieved from the server on every data upload. They a
 * **TGPS** (Maximum time for trying to get GPS location)
 * **Tsend** (Maximum time for sending data to the server)
 
+>{'Mode': 0, 'Tint': 720, 'TGPS': 5, 'Tsend': 3}
+
 ## Energy management
 
 The energy saving features includes:
@@ -54,7 +56,8 @@ In **Keepalived** mode the GPS isn't powered and the location information is ob
 * **lac** - [Location area code](https://en.wikipedia.org/wiki/Location_area_identity)
 * **cellid** - [GSM Cell ID](https://en.wikipedia.org/wiki/GSM_Cell_ID)
 
-> imei,seq,charging,vbat,wur,wdgc,LTE,mcc-mnc,lac,cellid
+> // imei,seq,charging,vbat,wur,wdgc,LTE,mcc-mnc,lac,cellid
+> msg\_lte = "865235032258663,0,1,4106,0,0,LTE,310-410,0x712A,137002000"
 
 ### Tracking (or charging)
 
@@ -66,4 +69,5 @@ In **Tracking** mode the GPS location is obtained within a boundary of **TGPS** 
 * **speed** \- km/h
 * **precision** - [Horizontal dilution of precision](https://en.wikipedia.org/wiki/Dilution_of_precision_%28navigation%29)
 
-> imei,seq,charging,vbat,wur,wdgc,GPS,latitude,longitude,speed,precision
+> // imei,seq,charging,vbat,wur,wdgc,GPS,latitude,longitude,speed,precision
+> msg\_gps = "865235032258663,1,1,4106,0,0,GPS,41.64403,-108.54682,80,2"
