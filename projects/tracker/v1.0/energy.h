@@ -241,10 +241,10 @@ void rtc_handle_wakeup()
         {
             Serial.println("Clear RTC variables");
             lastInterval = 0;
-            wdg_rst_count = 0;
             seq_num = 0;
         }
         time(&lastWakeup); // Mark the wakeup time
+        wdg_rst_count = 0; // Reset the watchdog reset count on every wake up
     }
 }
 
