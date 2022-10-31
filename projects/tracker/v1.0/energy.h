@@ -14,7 +14,7 @@
 
 // --------------- Constants ------------------
 
-#define ONE_DAY_uS 86400000000ULL    // Minutes in a day
+#define ONE_DAY_uS 1440000000ULL     // 24 Minutes for testing
 #define MIN_VBAT 2900                // Minimum operational battery voltage (mV)
 #define VBAT_SAMPLES 64              // Number of oversampling repetitions for reading battery voltage
 #define VBAT_COEF 0.027              // Coefficient converting the sum of VBAT_SAMPLES into battery voltage (mV)
