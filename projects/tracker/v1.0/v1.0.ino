@@ -50,7 +50,7 @@ void setup()
   if (DEBUG)
   {
     // Initialize serial port
-    Serial.begin(115200); //  921600 in the serial monitor scaled x8
+    Serial.begin(921600); // 115200 in the serial monitor scaled x8
     Serial.println();
     Serial.println();
     Serial.println();
