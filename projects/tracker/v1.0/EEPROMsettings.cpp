@@ -201,7 +201,7 @@ void Settings::setMode(int val)
 {
     if (Mode != val)
     {
-        Mode = val;
+        Mode = (byte)val;
         EEPROM.write(Mode_ADDR, val); // save the value in eeprom
         if (DEBUG)
         {
