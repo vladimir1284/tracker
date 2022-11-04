@@ -124,7 +124,6 @@ void rtc_light_sleep(int delay)
 // Deep sleep (in seconds)
 void rtc_deep_sleep(int delay)
 {
-    sim.powerOFF();
     esp_sleep_enable_timer_wakeup(delay * S_TO_uS_FACTOR);
 
     if (DEBUG)
@@ -189,8 +188,6 @@ void rtc_handle_wakeup()
             break;
         }
     }
-
-    sim.setup();
 
     if (wakeup_reason == ESP_SLEEP_WAKEUP_EXT1)
     {
@@ -277,7 +274,7 @@ uint16_t readBatteryVoltage()
 
 // ---------------------------------------------
 // Check the battery voltage to prevent extreme discharging
-void checkBatteryVoltage()
+void checkBatteryVoltage(bool turnSIMoff)
 {
     vbat = readBatteryVoltage();
 
@@ -295,6 +292,11 @@ void checkBatteryVoltage()
         digitalWrite(PWRKEY, HIGH);
         delay(1500); // Datasheet Toff = 1.2S
         digitalWrite(PWRKEY, LOW);
+
+        if (turnSIMoff)
+        {
+            sim.powerOFF();
+        }
         // sleep for a day
         rtc_deep_sleep(ONE_DAY_uS);
     }

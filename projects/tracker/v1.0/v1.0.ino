@@ -37,6 +37,7 @@ void checkAwakeTime()
       Serial.print((now - lastWakeup) / 60);
       Serial.println("min for saving battery!");
     }
+    sim.powerOFF();
     rtc_deep_sleep(computeSleepTime());
   }
 }
@@ -48,7 +49,7 @@ void setup()
   digitalWrite(STATUSLED, HIGH);
 
   // Save battery asap if needed
-  checkBatteryVoltage();
+  checkBatteryVoltage(false);
 
   if (DEBUG)
   {
@@ -66,6 +67,7 @@ void setup()
 
   rtc_handle_wakeup();
 
+  sim.setup();
   stgs.setup();
   ctrl.setup(&sim, &stgs);
 }
@@ -74,11 +76,12 @@ void loop()
 {
   timerWrite(timer, 0); // reset timer (feed watchdog)
   detectCharging();
-  checkBatteryVoltage();
+  checkBatteryVoltage(true);
   checkAwakeTime();
   if (ctrl.run(charging, vbat, seq_num, wakeup_reason, wdg_rst_count))
   {
     time(&lastInterval);
+    sim.powerOFF();
     rtc_deep_sleep(computeSleepTime());
   }
 }
