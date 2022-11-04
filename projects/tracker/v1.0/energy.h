@@ -223,6 +223,7 @@ void rtc_handle_wakeup()
                 Serial.print(slept_time / 60);
                 Serial.println("min!");
             }
+            charging = true;
             rtc_deep_sleep(tracking_interval_s - slept_time);
         }
     }

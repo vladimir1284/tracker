@@ -54,12 +54,13 @@ void setup()
   {
     // Initialize serial port
     Serial.begin(921600); // 115200 in the serial monitor scaled x8
-    Serial.println();
-    Serial.println();
-    Serial.println();
   }
 
   reduceFreq();
+
+  Serial.println();
+  Serial.println();
+  Serial.println();
 
   rtc_handle_wakeup();
 
