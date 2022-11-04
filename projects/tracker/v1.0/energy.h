@@ -152,6 +152,9 @@ void rtc_deep_sleep(int delay)
 
     esp_sleep_enable_ext1_wakeup(BUTTON_PIN_BITMASK, ESP_EXT1_WAKEUP_ANY_HIGH);
 
+    // Disable watchdog
+    timerDetachInterrupt(timer);
+
     // Going to sleep
     esp_deep_sleep_start();
 }

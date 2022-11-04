@@ -43,6 +43,8 @@ void checkAwakeTime()
 
 void setup()
 {
+  timerWrite(timer, 0); // reset timer (feed watchdog)
+
   // Status LED
   pinMode(STATUSLED, OUTPUT);
   digitalWrite(STATUSLED, HIGH);
