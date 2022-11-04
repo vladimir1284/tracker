@@ -190,39 +190,40 @@ void rtc_handle_wakeup()
         }
     }
 
-    if (DEBUG)
+    sim.setup();
+
+    if (wakeup_reason == ESP_SLEEP_WAKEUP_EXT1)
     {
-        if (wakeup_reason == ESP_SLEEP_WAKEUP_EXT1)
+        if (DEBUG)
         {
             uint64_t GPIO_reason = esp_sleep_get_ext1_wakeup_status();
             int pin = (unsigned int)((log(GPIO_reason)) / log(2));
             Serial.print("GPIO that triggered the wake up: GPIO");
             Serial.println(pin);
-
-            // Check for too short interval
-            time_t now, slept_time, tracking_interval_s;
-            time(&now);
-            slept_time = now - lastWakeup;
-            tracking_interval_s = TRACKING_INTERVAL * MIN_TO_S_FACTOR;
+        }
+        // Check for too short interval
+        time_t now, slept_time, tracking_interval_s;
+        time(&now);
+        slept_time = now - lastInterval;
+        tracking_interval_s = TRACKING_INTERVAL * MIN_TO_S_FACTOR;
+        if (DEBUG)
+        {
+            Serial.print("Sleep time: ");
+            Serial.print(slept_time);
+            Serial.println("s");
+            Serial.print("Interval: ");
+            Serial.print(tracking_interval_s);
+            Serial.println("s");
+        }
+        if (slept_time < tracking_interval_s)
+        {
             if (DEBUG)
             {
-                Serial.print("Sleep time: ");
-                Serial.print(slept_time);
-                Serial.println("s");
-                Serial.print("Interval: ");
-                Serial.print(tracking_interval_s);
-                Serial.println("s");
+                Serial.print("Too short interval: ");
+                Serial.print(slept_time / 60);
+                Serial.println("min!");
             }
-            if (slept_time < tracking_interval_s)
-            {
-                if (DEBUG)
-                {
-                    Serial.print("Too short interval: ");
-                    Serial.print(slept_time / 60);
-                    Serial.println("min!");
-                }
-                rtc_deep_sleep(tracking_interval_s - slept_time);
-            }
+            rtc_deep_sleep(tracking_interval_s - slept_time);
         }
     }
 

@@ -59,14 +59,13 @@ void setup()
     Serial.println();
   }
 
-  rtc_handle_wakeup();
-
   reduceFreq();
+
+  rtc_handle_wakeup();
 
   watchdogConfig(WDT_TIMEOUT);
 
   stgs.setup();
-  sim.setup();
   ctrl.setup(&sim, &stgs);
 }
 
@@ -78,6 +77,7 @@ void loop()
   checkAwakeTime();
   if (ctrl.run(charging, vbat, seq_num, wakeup_reason, wdg_rst_count))
   {
+    time(&lastInterval);
     rtc_deep_sleep(computeSleepTime());
   }
 }
