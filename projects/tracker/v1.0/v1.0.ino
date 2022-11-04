@@ -62,9 +62,9 @@ void setup()
   Serial.println();
   Serial.println();
 
-  rtc_handle_wakeup();
-
   watchdogConfig(WDT_TIMEOUT);
+
+  rtc_handle_wakeup();
 
   stgs.setup();
   ctrl.setup(&sim, &stgs);
