@@ -105,16 +105,13 @@ void Settings::processConfigs(String json_str)
     // Init EEPROM
     EEPROM.begin(EEPROM_SIZE);
 
-    int configs_Mode = doc["Mode"]; // 3
-    if (configs_Mode)
+    int configs_Mode = doc["Mode"]; // 0
+    if (DEBUG)
     {
-        if (DEBUG)
-        {
-            Serial.print("Mode: ");
-            Serial.println(configs_Mode);
-        }
-        setMode(configs_Mode);
+        Serial.print("Mode: ");
+        Serial.println(configs_Mode);
     }
+    setMode(configs_Mode);
 
     int configs_TintB = doc["TintB"]; // 360
     if (configs_TintB)
