@@ -3,6 +3,9 @@
 
 #include <Arduino.h>
 #include "config.h"
+#include "sim7000.h"
+
+Sim7000 sim;
 
 // --------------- Pinout ------------------
 
@@ -121,6 +124,7 @@ void rtc_light_sleep(int delay)
 // Deep sleep (in seconds)
 void rtc_deep_sleep(int delay)
 {
+    sim.powerOFF();
     esp_sleep_enable_timer_wakeup(delay * S_TO_uS_FACTOR);
 
     if (DEBUG)

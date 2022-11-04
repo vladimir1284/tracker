@@ -5,7 +5,6 @@
 #include "esp_system.h"
 
 Settings stgs;
-Sim7000 sim;
 Controller ctrl;
 
 // ---------------------------------------------
@@ -44,6 +43,10 @@ void checkAwakeTime()
 
 void setup()
 {
+  // Status LED
+  pinMode(STATUSLED, OUTPUT);
+  digitalWrite(STATUSLED, HIGH);
+
   // Save battery asap if needed
   checkBatteryVoltage();
 
