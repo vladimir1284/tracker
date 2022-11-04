@@ -136,14 +136,18 @@ void rtc_deep_sleep(int delay)
 
     lockIOpins();
 
-    // Wakeup on energy connection
-    uint64_t BUTTON_PIN_BITMASK = PWR_PIN_BITMASK;
-
-    if (DEBUG)
+    uint64_t BUTTON_PIN_BITMASK = 0;
+    if (!charging)
     {
-        Serial.print("BUTTON_PIN_BITMASK = 0x");
-        Serial.print(String((unsigned int)(BUTTON_PIN_BITMASK >> 32), 16));
-        Serial.println("00000000");
+        // Wakeup on energy connection
+        BUTTON_PIN_BITMASK = PWR_PIN_BITMASK;
+
+        if (DEBUG)
+        {
+            Serial.print("BUTTON_PIN_BITMASK = 0x");
+            Serial.print(String((unsigned int)(BUTTON_PIN_BITMASK >> 32), 16));
+            Serial.println("00000000");
+        }
     }
 
     esp_sleep_enable_ext1_wakeup(BUTTON_PIN_BITMASK, ESP_EXT1_WAKEUP_ANY_HIGH);
