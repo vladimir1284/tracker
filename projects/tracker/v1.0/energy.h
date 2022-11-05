@@ -17,7 +17,7 @@ Sim7000 sim;
 
 // --------------- Constants ------------------
 
-#define ONE_DAY_S 1440               // 24 Minutes for testing
+#define ONE_DAY_S 86400              // 24h in seconds
 #define MIN_VBAT 2900                // Minimum operational battery voltage (mV)
 #define VBAT_SAMPLES 64              // Number of oversampling repetitions for reading battery voltage
 #define VBAT_COEF 0.027              // Coefficient converting the sum of VBAT_SAMPLES into battery voltage (mV)
