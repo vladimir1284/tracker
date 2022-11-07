@@ -80,6 +80,7 @@ void loop()
   checkAwakeTime();
   if (ctrl.run(charging, vbat, seq_num, wakeup_reason, wdg_rst_count))
   {
+    seq_num++;
     time(&lastInterval);
     sim.powerOFF();
     rtc_deep_sleep(computeSleepTime());
